@@ -1,0 +1,30 @@
+== Compilare per linux
+Apri una nuova powershell e poi:
+$env:GOOS = "linux"
+go build -o live-omxctrl.bin
+Con WLC si pu? controllare che il live-omxctrl.bin funzioni correttamente.
+
+== Aggiornare il service
+- Crea una nuova versione (cambio in idl.go)
+- Crea il file live-omxctrl.bin per linux 
+- Usa .\deploy -target pi4
+- In WLC lancia ./copy_app_to_pi4.sh
+- Su pi4: ./update-service.sh
+
+== Deployment di pi4
+
+Ora va installata la app. Uso la dir:
+~/app/go$mkdir live-omxctrl\zips
+copio lo zip deployed locale in live-omxctrl\zips con ./copy_app_to_pi4.sh
+copio ./update-service.sh in ~/app/go/live-omxctrl e lo lancio per scompattare lo zip nella dir ./current
+Poi si va ./current e si prova il service con: ./live-omxctrl.bin
+
+Poi si mette il programma live-omxctrl.bin come service di sistema.
+sudo nano /lib/systemd/system/live-omxctrl.service
+
+Abilitare il service:
+sudo systemctl enable live-omxctrl.service
+Ora si fa partire il service (resistente al reboot):
+sudo systemctl start live-omxctrl
+Per vedere i logs si usa:
+sudo journalctl -f -u live-omxctrl
