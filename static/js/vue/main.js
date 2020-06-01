@@ -14,6 +14,9 @@ export const app = new Vue({
   data() {
     return {
       Buildnr: "",
+      links: routes,
+      AppTitle: "Omx Control",
+      drawer: false,
     }
   },
   computed: {
@@ -40,8 +43,7 @@ export const app = new Vue({
         <span>Buildnr: {{Buildnr}}</span>
       </v-col>
     </v-footer>
-  </v-app>
-`
+  </v-app>`
 })
 
 console.log('Main is here!')
