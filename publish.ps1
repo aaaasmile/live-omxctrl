@@ -21,9 +21,8 @@ Write-Host "Done. Now the process continue with the WLC using the batch copy_app
 
 cd ../../Deployed
 Write-Host "current dir is now $pwd"
-Write-Host "Bash script copy:"
+Write-Host "Bash script copy and update the service"
 bash -c /mnt/d/scratch/go-lang/live-omxctrl/Deployed/copy_app_to_pi4.sh 
 
-Write-Host "Bash update the remote service"
-bash -c "ssh -t igors@pi4 'cd /home/igors/app/live-omxctrl/ && ./update-service.sh'"
+Write-Host "Done!"
 
