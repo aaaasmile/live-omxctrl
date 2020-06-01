@@ -1,6 +1,11 @@
-== Compilare per linux
+== Compilare per linux Raspberry 4
+Nota che il Raspberry ? un sistema Linux ARM, quindi bisogna settare tutti i parametri
+necessari per il cross compile.
 Apri una nuova powershell e poi:
 $env:GOOS = "linux"
+$env:GOARCH="arm"
+$env:GOARM="5"
+
 go build -o live-omxctrl.bin
 Con WLC si pu? controllare che il live-omxctrl.bin funzioni correttamente.
 
@@ -12,6 +17,8 @@ Con WLC si pu? controllare che il live-omxctrl.bin funzioni correttamente.
 - Su pi4: ./update-service.sh
 
 == Deployment di pi4
+Sul firewall ho aperto la porta 5548 in intranet con:
+ufw allow from 192.168.2.0/24 to any port 5548
 
 Ora va installata la app. Uso la dir:
 ~/app/go$mkdir live-omxctrl\zips

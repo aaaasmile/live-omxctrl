@@ -1,5 +1,5 @@
 # configuration for pi4
-ServiceURL = "127.0.0.1:5548"
+ServiceURL = "192.168.2.84:5548"
 RootURLPattern = "/omx/"
 UseRelativeRoot = true
 DebugVerbose = false
