@@ -11,11 +11,11 @@
 
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
-        <v-btn icon  v-on="on">
-          <v-icon>mdi-play</v-icon>
+        <v-btn icon  v-on="on" @click="playing = !playing">
+          <v-icon>{{ playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
         </v-btn>
       </template>
-      <span>Play current</span>
+      <span>{{ playing ? 'Pause' : 'Play current'}}</span>
     </v-tooltip>
 
     <v-tooltip bottom>
