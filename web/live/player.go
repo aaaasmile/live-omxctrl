@@ -22,11 +22,16 @@ func handlePlay(w http.ResponseWriter, req *http.Request) error {
 
 	log.Println("Play request ", reqPlay)
 
+	err = testSomeDbus()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func handlePause(w http.ResponseWriter, req *http.Request) error {
 	log.Println("Pause request ")
 
-	return nil
+	return testSomeDbus()
 }

@@ -76,7 +76,6 @@ func handleGet(w http.ResponseWriter, req *http.Request) error {
 }
 
 func handlePost(w http.ResponseWriter, req *http.Request) error {
-	start := time.Now()
 	var err error
 	lastPath := getURLForRoute(req.RequestURI)
 	log.Println("Check the last path ", lastPath)
@@ -89,14 +88,7 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 		return fmt.Errorf("%s method is not supported", lastPath)
 	}
 
-	if err != nil {
-		return err
-	}
-
-	t := time.Now()
-	elapsed := t.Sub(start)
-	log.Printf("Service total call duration: %v\n", elapsed)
-	return nil
+	return err
 }
 
 func writeResponse(w http.ResponseWriter, resp interface{}) error {
