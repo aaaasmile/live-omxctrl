@@ -9,8 +9,7 @@ const handleError = (error, that) => {
 }
 
 export default {
-	ChangeVolume(that, req, scope) {
-		req.Scope = scope
+	ChangeVolume(that, req) {
 		console.log('Request is ', req)
 		that.$http.post("ChangeVolume", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
@@ -19,10 +18,20 @@ export default {
 			handleError(error, that)
 		});
 	},
-	Play(that, req, scope) {
-		req.Scope = scope
+	PlayURI(that, req) {
 		console.log('Request is ', req)
-		that.$http.post("Play", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+		that.$http.post("PlayURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call terminated ', result.data)
+			//that.$store.commit('msgText', result.data.Status)
+			that.loadingMeta = false
+		}, error => {
+			that.loadingMeta = false
+			handleError(error, that)
+		});
+	},
+	PauseURI(that, req) {
+		console.log('Request is ', req)
+		that.$http.post("PauseURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			that.$store.commit('msgText', result.data.Status)
 			that.loadingMeta = false
@@ -31,8 +40,7 @@ export default {
 			handleError(error, that)
 		});
 	},
-	Stop(that, req, scope) {
-		req.Scope = scope
+	Stop(that, req) {
 		console.log('Request is ', req)
 		that.$http.post("Stop", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)

@@ -35,6 +35,8 @@ func getURLForRoute(uri string) string {
 }
 
 func APiHandler(w http.ResponseWriter, req *http.Request) {
+	start := time.Now()
+	log.Println("Request: ", req.RequestURI)
 	var err error
 	switch req.Method {
 	case "GET":
@@ -44,9 +46,33 @@ func APiHandler(w http.ResponseWriter, req *http.Request) {
 		err = handlePost(w, req)
 	}
 	if err != nil {
-		log.Println("Error on process request: ", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		log.Println("Error exec: ", err)
+		http.Error(w, fmt.Sprintf("Internal error on execute: %v", err), http.StatusInternalServerError)
 	}
+
+	t := time.Now()
+	elapsed := t.Sub(start)
+	log.Printf("Service %s total call duration: %v\n", idl.Appname, elapsed)
+}
+
+func handleGet(w http.ResponseWriter, req *http.Request) error {
+	u, _ := url.Parse(req.RequestURI)
+	log.Println("GET requested ", u)
+
+	pagectx := PageCtx{
+		RootUrl: conf.Current.RootURLPattern,
+		Buildnr: idl.Buildnr,
+	}
+	templName := "templates/vue/index.html"
+
+	tmplIndex := template.Must(template.New("AppIndex").ParseFiles(templName))
+
+	err := tmplIndex.ExecuteTemplate(w, "base", pagectx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func handlePost(w http.ResponseWriter, req *http.Request) error {
@@ -55,7 +81,7 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 	lastPath := getURLForRoute(req.RequestURI)
 	log.Println("Check the last path ", lastPath)
 	switch lastPath {
-	case "Play":
+	case "PlayURI":
 		err = handlePlay(w, req)
 	default:
 		return fmt.Errorf("%s method is not supported", lastPath)
@@ -86,25 +112,5 @@ func writeErrorResponse(w http.ResponseWriter, errorcode int, resp interface{}) 
 		return err
 	}
 	http.Error(w, string(blobresp), errorcode)
-	return nil
-}
-
-func handleGet(w http.ResponseWriter, req *http.Request) error {
-	u, _ := url.Parse(req.RequestURI)
-	log.Println("GET requested ", u)
-
-	pagectx := PageCtx{
-		RootUrl: conf.Current.RootURLPattern,
-		Buildnr: idl.Buildnr,
-	}
-	templName := "templates/vue/index.html"
-
-	tmplIndex := template.Must(template.New("AppIndex").ParseFiles(templName))
-
-	err := tmplIndex.ExecuteTemplate(w, "base", pagectx)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

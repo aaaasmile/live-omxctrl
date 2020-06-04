@@ -1,19 +1,33 @@
+import API from '../apicaller.js'
+
 export default {
-    components: {  },
-    data() {
-      return {
-        playing: false,
-      }
-    },
-    computed: {
-      ...Vuex.mapState({
-        
-      }),
-     
-    },
-    methods: {
-    },
-    template: `
+	components: {},
+	data() {
+		return {
+			playing: false,
+			loadingMeta: false
+		}
+	},
+	computed: {
+		...Vuex.mapState({
+
+		}),
+
+	},
+	methods: {
+		togglePlayURI() {
+			if (this.playing) {
+				this.playing = !this.playing
+				console.log('Pause URI')
+				API.PauseURI(this, req)
+			} else {
+				console.log('Play URI')
+				let req = {URI: 'http://stream.srg-ssr.ch/m/rsc_de/aacp_96'}
+				API.PlayURI(this, req)
+			}
+		}
+	},
+	template: `
   <v-toolbar flat>
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
@@ -26,7 +40,7 @@ export default {
 
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
-        <v-btn icon  v-on="on" @click="playing = !playing">
+        <v-btn icon  v-on="on" @click="togglePlayURI">
           <v-icon>{{ playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
         </v-btn>
       </template>
@@ -59,7 +73,5 @@ export default {
       </template>
       <span>Repeat</span>
     </v-tooltip>
-  </v-toolbar>
-`
+  </v-toolbar>`
 }
-  
