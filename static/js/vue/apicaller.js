@@ -33,7 +33,7 @@ export default {
 		console.log('Request is ', req)
 		that.$http.post("PauseURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
-			that.$store.commit('msgText', result.data.Status)
+			//that.$store.commit('msgText', result.data.Status)
 			that.loadingMeta = false
 		}, error => {
 			that.loadingMeta = false

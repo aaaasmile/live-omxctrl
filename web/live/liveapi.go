@@ -83,6 +83,8 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 	switch lastPath {
 	case "PlayURI":
 		err = handlePlay(w, req)
+	case "PauseURI":
+		err = handlePause(w, req)
 	default:
 		return fmt.Errorf("%s method is not supported", lastPath)
 	}

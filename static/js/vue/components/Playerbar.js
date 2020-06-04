@@ -16,15 +16,16 @@ export default {
 	},
 	methods: {
 		togglePlayURI() {
+			let req = {}
 			if (this.playing) {
-				this.playing = !this.playing
 				console.log('Pause URI')
 				API.PauseURI(this, req)
 			} else {
 				console.log('Play URI')
-				let req = {URI: 'http://stream.srg-ssr.ch/m/rsc_de/aacp_96'}
+				req.URI = 'http://stream.srg-ssr.ch/m/rsc_de/aacp_96'
 				API.PlayURI(this, req)
 			}
+			this.playing = !this.playing
 		}
 	},
 	template: `

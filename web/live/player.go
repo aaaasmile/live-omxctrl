@@ -24,3 +24,9 @@ func handlePlay(w http.ResponseWriter, req *http.Request) error {
 
 	return nil
 }
+
+func handlePause(w http.ResponseWriter, req *http.Request) error {
+	log.Println("Pause request ")
+
+	return nil
+}
