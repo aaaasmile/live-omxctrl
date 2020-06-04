@@ -46,3 +46,13 @@ Ora si fa partire il service (resistente al reboot):
 sudo systemctl start live-omxctrl
 Per vedere i logs si usa:
 sudo journalctl -f -u live-omxctrl
+
+== Sviluppo su Pi4 
+È possibile sviluppare il software direttamente su pi4 usando l'extension remote ssh
+Basta installare su pi4 golang arm6. Il vantaggio, oltre al deployment ancora più semplice,
+dovrebbe essere la possibilità di programmare direttamente dbus senza usare la shell.
+Dbus su windows è molto diverso.
+Per l'extension vuetojs non funziona su remoto in quanto ho impacchettato un tool in formato
+windows. L'ho compilato separatamente e messo in /usr/local/bin/vuetojs.bin 
+Per usarlo si scrive nella bash:
+/usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
