@@ -56,3 +56,14 @@ Per l'extension vuetojs non funziona su remoto in quanto ho impacchettato un too
 windows. L'ho compilato separatamente e messo in /usr/local/bin/vuetojs.bin 
 Per usarlo si scrive nella bash:
 /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
+
+== Dbus
+Per comunicare con il processo omxplayer si usa il dbus con il suo protocollo.
+Esiste già lo script bash che esegue i comandi, file bash/dbuscontrol.sh.
+Esso setta 2 variabili di ambiente:
+DBUS_SESSION_BUS_ADDRESS
+DBUS_SESSION_BUS_PID
+Poi lancia il comando specifico, per esempio per la duration:
+dbus-send --print-reply=literal --session --reply-timeout=500 --dest=org.mpris.MediaPlayer2.omxplayer /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:"org.mpris.MediaPlayer2.Player" string:"Duration"
+Questa serie di comandi dovrebbe essere possibile in golang.
+
