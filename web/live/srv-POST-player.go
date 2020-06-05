@@ -22,7 +22,13 @@ func handlePlay(w http.ResponseWriter, req *http.Request) error {
 
 	log.Println("Play request ", reqPlay)
 
-	err = testSomeDbus()
+	pl := OmxPlayer{}
+	if reqPlay.URI != "" {
+		err = pl.OpenUri(reqPlay.URI)
+	} else {
+		err = pl.Resume()
+	}
+
 	if err != nil {
 		return err
 	}
@@ -32,6 +38,6 @@ func handlePlay(w http.ResponseWriter, req *http.Request) error {
 
 func handlePause(w http.ResponseWriter, req *http.Request) error {
 	log.Println("Pause request ")
-
-	return testSomeDbus()
+	pl := OmxPlayer{}
+	return pl.Pause()
 }

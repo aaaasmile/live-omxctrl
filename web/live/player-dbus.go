@@ -12,9 +12,10 @@ import (
 
 var coDBus dbus.BusObject
 
-func testSomeDbus() error {
-	log.Println("Let's try some dbus")
-	//busAddr := "unix:abstract=/tmp/dbus-1OTLRLIFgE,guid=39be549b2196c379ccdf29585ed9674d"
+type OmxPlayer struct {
+}
+
+func (op *OmxPlayer) CheckStatus() error {
 	var err error
 	if coDBus == nil {
 		coDBus, err = connectObjectDbBus()
@@ -45,11 +46,55 @@ func testSomeDbus() error {
 	return nil
 }
 
+func (op *OmxPlayer) OpenUri(uri string) error {
+	var err error
+	if coDBus == nil {
+		coDBus, err = connectObjectDbBus()
+		if err != nil {
+			return err
+		}
+	}
+
+	coDBus.Call("OpenUri", 0, uri)
+	log.Println("open uri: ", uri)
+
+	return nil
+}
+
+func (op *OmxPlayer) Resume() error {
+	var err error
+	if coDBus == nil {
+		coDBus, err = connectObjectDbBus()
+		if err != nil {
+			return err
+		}
+	}
+	// coDBus.Call("Action", 0, 16) + https://github.com/popcornmix/omxplayer/blob/master/KeyConfig.h
+	coDBus.Call("Play", 0)
+	log.Println("Play")
+	return nil
+}
+
+func (op *OmxPlayer) Pause() error {
+	var err error
+	if coDBus == nil {
+		coDBus, err = connectObjectDbBus()
+		if err != nil {
+			return err
+		}
+	}
+	// coDBus.Call("Action", 0, 16) +
+	coDBus.Call("Pause", 0)
+	log.Println("Pause")
+	return nil
+}
+
 func connectObjectDbBus() (dbus.BusObject, error) {
 	u, err := user.Current()
 	log.Println("User ", u.Username)
 	fname := fmt.Sprintf("/tmp/omxplayerdbus.%s", u.Username)
 	if _, err := os.Stat(fname); err == nil {
+		//busAddr := "unix:abstract=/tmp/dbus-1OTLRLIFgE,guid=39be549b2196c379ccdf29585ed9674d"
 		raw, err := ioutil.ReadFile(fname)
 		if err != nil {
 			return nil, err
