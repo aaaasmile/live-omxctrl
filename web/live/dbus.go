@@ -2,8 +2,10 @@ package live
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"os/user"
 
 	"github.com/godbus/dbus"
 )
@@ -12,6 +14,18 @@ func testSomeDbus() error {
 	log.Println("Let's try some dbus")
 	//busAddr := "unix:abstract=/tmp/dbus-1OTLRLIFgE,guid=39be549b2196c379ccdf29585ed9674d"
 	//opath := dbus.ObjectPath(busAddr)
+	u, err := user.Current()
+	log.Println("User ", u.Username)
+	fname := fmt.Sprintf("/tmp/omxplayerdbus.%s", u.Username)
+	if _, err := os.Stat(fname); err == nil {
+		raw, err := ioutil.ReadFile(fname)
+		if err != nil {
+			return err
+		}
+		os.Setenv("DBUS_SESSION_BUS_ADDRESS", string(raw))
+		log.Println("Env DBUS_SESSION_BUS_ADDRESS set to ", string(raw))
+	}
+
 	conn, err := dbus.SessionBus()
 	if err != nil {
 		return err
