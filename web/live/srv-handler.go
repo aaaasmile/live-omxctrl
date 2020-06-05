@@ -86,6 +86,8 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 		err = handlePause(w, req)
 	case "ChangeVolume":
 		err = handleChangeVolume(w, req)
+	case "TogglePowerState":
+		err = handleTogglePowerState(w, req)
 	default:
 		return fmt.Errorf("%s method is not supported", lastPath)
 	}

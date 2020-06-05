@@ -6,7 +6,36 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os/exec"
 )
+
+func handleTogglePowerState(w http.ResponseWriter, req *http.Request) error {
+	rawbody, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return err
+	}
+	reqPower := struct {
+		PowerState string `json:"power"`
+	}{}
+
+	if err := json.Unmarshal(rawbody, &reqPower); err != nil {
+		return err
+	}
+
+	log.Println("Toggle power state request ", reqPower)
+
+	pl := OmxPlayer{}
+	switch reqPower.PowerState {
+	case "off":
+		err = pl.PowerOff()
+	case "on":
+		err = startOmxPlayer("http://stream.srg-ssr.ch/m/rsc_de/aacp_96")
+
+	default:
+		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)
+	}
+	return err
+}
 
 func handleChangeVolume(w http.ResponseWriter, req *http.Request) error {
 	rawbody, err := ioutil.ReadAll(req.Body)
@@ -68,4 +97,17 @@ func handlePause(w http.ResponseWriter, req *http.Request) error {
 	log.Println("Pause request ")
 	pl := OmxPlayer{}
 	return pl.Pause()
+}
+
+func startOmxPlayer(URI string) error {
+	log.Println("Start player wit URI ", URI)
+	cmd := "omxplayer"
+	args := []string{"-o", "local", URI}
+	out, err := exec.Command(cmd, args...).Output()
+	if err != nil {
+		log.Printf("Error on executing finsql: %v", err)
+		return err
+	}
+	log.Println("execute returns ", out)
+	return nil
 }

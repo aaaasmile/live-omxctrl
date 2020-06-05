@@ -142,6 +142,19 @@ func (op *OmxPlayer) VolumeUnmute() error {
 	return nil
 }
 
+func (op *OmxPlayer) PowerOff() error {
+	var err error
+	if coDBus == nil {
+		coDBus, err = connectObjectDbBus()
+		if err != nil {
+			return err
+		}
+	}
+	coDBus.Call("Action", 0, 15) // ACTION_EXIT = 15,
+	log.Println("Power off, exit app")
+	return nil
+}
+
 func connectObjectDbBus() (dbus.BusObject, error) {
 	u, err := user.Current()
 	log.Println("User ", u.Username)

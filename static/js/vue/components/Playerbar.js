@@ -6,7 +6,9 @@ export default {
     return {
       playing: false,
       muted: false,
+      poweron: false,
       loadingMeta: false,
+      colorpower: "error",
       curruri: ''
     }
   },
@@ -17,6 +19,19 @@ export default {
 
   },
   methods: {
+    togglePower(){
+      if (this.poweron){
+        console.log("Power off")
+        this.poweron = false
+        this.colorpower = "error"
+        let req = {power: "off"}
+        API.TogglePowerState(this, req)
+      }else{
+        console.log("Power on (TODO...)")
+        this.poweron = true
+        this.colorpower = "green"
+      }
+    },
     toggleMute() {
       let req = {}
       if (this.muted) {
@@ -115,6 +130,9 @@ export default {
           </v-btn>
           <v-btn icon @click="VolumeUp">
             <v-icon>volume_up</v-icon>
+          </v-btn>
+           <v-btn icon @click="togglePower" :color="colorpower">
+            <v-icon>power_settings_new</v-icon>
           </v-btn>
         </v-toolbar>
       </v-row>

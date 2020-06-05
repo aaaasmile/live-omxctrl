@@ -9,6 +9,19 @@ const handleError = (error, that) => {
 }
 
 export default {
+	TogglePowerState(that, req) {
+		console.log('Request is ', req)
+		that.$http.post("TogglePowerState", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call terminated ', result.data)
+			if (req.power == 'off'){
+				that.poweron = false
+			}else if(req.power == 'on'){
+				that.poweron = true
+			}
+		}, error => {
+			handleError(error, that)
+		});
+	},
 	ChangeVolume(that, req) {
 		console.log('Request is ', req)
 		that.$http.post("ChangeVolume", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {

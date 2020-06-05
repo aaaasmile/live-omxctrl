@@ -60,6 +60,9 @@
           <v-btn icon @click="VolumeUp">
             <v-icon>volume_up</v-icon>
           </v-btn>
+           <v-btn icon @click="togglePower" :color="colorpower">
+            <v-icon>power_settings_new</v-icon>
+          </v-btn>
         </v-toolbar>
       </v-row>
     </v-col>
