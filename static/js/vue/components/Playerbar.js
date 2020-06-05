@@ -27,7 +27,9 @@ export default {
         let req = {power: "off"}
         API.TogglePowerState(this, req)
       }else{
-        console.log("Power on (TODO...)")
+        console.log("Power on")
+        let req = {power: "on"}
+        API.TogglePowerState(this, req)
         this.poweron = true
         this.colorpower = "green"
       }
