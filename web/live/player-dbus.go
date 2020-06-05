@@ -89,6 +89,32 @@ func (op *OmxPlayer) Pause() error {
 	return nil
 }
 
+func (op *OmxPlayer) VolumeUp() error {
+	var err error
+	if coDBus == nil {
+		coDBus, err = connectObjectDbBus()
+		if err != nil {
+			return err
+		}
+	}
+	coDBus.Call("Pause", 18)
+	log.Println("VolumeUp") // ACTION_INCREASE_VOLUME = 18,
+	return nil
+}
+
+func (op *OmxPlayer) VolumeDown() error {
+	var err error
+	if coDBus == nil {
+		coDBus, err = connectObjectDbBus()
+		if err != nil {
+			return err
+		}
+	}
+	coDBus.Call("Action", 0, 17) // ACTION_DECREASE_VOLUME = 17,
+	log.Println("VolumeDown")
+	return nil
+}
+
 func connectObjectDbBus() (dbus.BusObject, error) {
 	u, err := user.Current()
 	log.Println("User ", u.Username)

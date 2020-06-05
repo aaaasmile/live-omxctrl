@@ -13,7 +13,6 @@ export default {
 		console.log('Request is ', req)
 		that.$http.post("ChangeVolume", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
-			that.$store.commit('msgText', result.data.Status)
 		}, error => {
 			handleError(error, that)
 		});
@@ -22,18 +21,27 @@ export default {
 		console.log('Request is ', req)
 		that.$http.post("PlayURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
-			//that.$store.commit('msgText', result.data.Status)
+			that.curruri = req.URI
 			that.loadingMeta = false
 		}, error => {
 			that.loadingMeta = false
 			handleError(error, that)
 		});
 	},
-	PauseURI(that, req) {
+	Resume(that, req) {
 		console.log('Request is ', req)
-		that.$http.post("PauseURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+		that.$http.post("PlayURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
-			//that.$store.commit('msgText', result.data.Status)
+			that.loadingMeta = false
+		}, error => {
+			that.loadingMeta = false
+			handleError(error, that)
+		});
+	},
+	Pause(that, req) {
+		console.log('Request is ', req)
+		that.$http.post("Pause", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call terminated ', result.data)
 			that.loadingMeta = false
 		}, error => {
 			that.loadingMeta = false
