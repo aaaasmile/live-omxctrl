@@ -66,4 +66,17 @@ DBUS_SESSION_BUS_PID
 Poi lancia il comando specifico, per esempio per la duration:
 dbus-send --print-reply=literal --session --reply-timeout=500 --dest=org.mpris.MediaPlayer2.omxplayer /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:"org.mpris.MediaPlayer2.Player" string:"Duration"
 Questa serie di comandi dovrebbe essere possibile in golang.
+Ci sono due files legati all'utente:
+
+/tmp/omxplayerdbus.igors => esempio unix:abstract=/tmp/dbus-1OTLRLIFgE,guid=39be549b2196c379ccdf29585ed9674d
+Qui dovrebbe descritto quale socket ascolta il server, un socket del tipo abstract che sembra
+un path del file di sistema ma non lo è
+
+/tmp/omxplayerdbus.igors.pid  => esempio 1379
+Questo dovrebbe essere il pid del service daemon dbus-daemon:
+1 S  1001  1379     1  0  80   0 -  1604 do_epo ?        00:00:00 dbus-daemon
+
+I due files /tmp/omxplayerdbus.igors vengono creati quando si fa partire il player.
+
+
 
