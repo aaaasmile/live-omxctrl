@@ -103,11 +103,13 @@ func startOmxPlayer(URI string) error {
 	log.Println("Start player wit URI ", URI)
 	cmd := "omxplayer"
 	args := []string{"-o", "local", URI}
-	out, err := exec.Command(cmd, args...).Output()
-	if err != nil {
-		log.Printf("Error on executing finsql: %v", err)
-		return err
-	}
-	log.Println("execute returns ", out)
+	go func() {
+		out, err := exec.Command(cmd, args...).Output()
+		if err != nil {
+			log.Printf("Error on executing omxplayer: %v", err)
+		}
+		log.Println("execute returns ", string(out))
+	}()
+
 	return nil
 }

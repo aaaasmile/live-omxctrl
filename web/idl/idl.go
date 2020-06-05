@@ -2,5 +2,5 @@ package idl
 
 var (
 	Appname = "live-omxctrl"
-	Buildnr = "00.01.02.20200601-06"
+	Buildnr = "00.01.04.20200606-00"
 )
