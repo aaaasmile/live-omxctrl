@@ -78,5 +78,49 @@ Questo dovrebbe essere il pid del service daemon dbus-daemon:
 
 I due files /tmp/omxplayerdbus.igors vengono creati quando si fa partire il player.
 
+== Deployment su arm direttamente
+Questi sono gli step da eseguire:
+go build -o live-omxctrl.bin
+cd deploy
+./deploy.bin -target pi4 -outdir ~/app/live-omxctrl/zips/
+cd ~/app/live-omxctrl/
+./update-service.sh
+
+== Service Config
+Questo il conetnuto del file che compare con:
+sudo nano /lib/systemd/system/live-omxctrl.service
+Poi si fa l'enable:
+sudo systemctl enable live-omxctrl.service
+E infine lo start:
+sudo systemctl start live-omxctrl
+Logs sono disponibili con:
+sudo journalctl -f -u live-omxctrl
+
+Qui segue il contenuto del file live-omxctrl.service
+[Unit]
+Description=live-omxctrl service
+ConditionPathExists=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
+After=network.target
+
+[Service]
+Type=simple
+User=igors
+Group=igors
+LimitNOFILE=1024
+
+Restart=on-failure
+RestartSec=10
+startLimitIntervalSec=60
+
+WorkingDirectory=/home/igors/app/live-omxctrl/current/
+ExecStart=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
+
+# make sure log directory exists and owned by syslog
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /var/log/live-omxctrl
+ExecStartPre=/bin/chown igors:igors /var/log/live-omxctrl
+ExecStartPre=/bin/chmod 755 /var/log/live-omxctrl
+StandardOutput=syslog
+StandardError=syslog
 
 
