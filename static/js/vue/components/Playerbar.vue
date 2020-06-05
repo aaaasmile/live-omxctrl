@@ -51,6 +51,9 @@
       </v-row>
       <v-row>
         <v-toolbar flat>
+          <v-btn icon @click="toggleMute">
+            <v-icon>{{ muted ? 'volume_mute' : 'volume_off' }}</v-icon>
+          </v-btn>
           <v-btn icon @click="VolumeDown">
             <v-icon>volume_down</v-icon>
           </v-btn>

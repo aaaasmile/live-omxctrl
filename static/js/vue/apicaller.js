@@ -13,6 +13,11 @@ export default {
 		console.log('Request is ', req)
 		that.$http.post("ChangeVolume", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
+			if (req.volume == 'mute'){
+				that.muted = true
+			}else if(req.volume == 'unmute'){
+				that.muted = false
+			}
 		}, error => {
 			handleError(error, that)
 		});

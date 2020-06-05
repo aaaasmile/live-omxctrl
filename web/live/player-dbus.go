@@ -97,7 +97,8 @@ func (op *OmxPlayer) VolumeUp() error {
 			return err
 		}
 	}
-	coDBus.Call("Pause", 18)
+	// dbus-send --print-reply=literal --session --dest=org.mpris.MediaPlayer2.omxplayer /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Action int32:18 >/dev/null
+	coDBus.Call("Action", 0, 18)
 	log.Println("VolumeUp") // ACTION_INCREASE_VOLUME = 18,
 	return nil
 }
@@ -112,6 +113,32 @@ func (op *OmxPlayer) VolumeDown() error {
 	}
 	coDBus.Call("Action", 0, 17) // ACTION_DECREASE_VOLUME = 17,
 	log.Println("VolumeDown")
+	return nil
+}
+
+func (op *OmxPlayer) VolumeMute() error {
+	var err error
+	if coDBus == nil {
+		coDBus, err = connectObjectDbBus()
+		if err != nil {
+			return err
+		}
+	}
+	coDBus.Call("Mute", 0)
+	log.Println("Volume Mute")
+	return nil
+}
+
+func (op *OmxPlayer) VolumeUnmute() error {
+	var err error
+	if coDBus == nil {
+		coDBus, err = connectObjectDbBus()
+		if err != nil {
+			return err
+		}
+	}
+	coDBus.Call("Unmute", 0)
+	log.Println("Volume Unmute")
 	return nil
 }
 

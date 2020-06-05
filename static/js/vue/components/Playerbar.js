@@ -1,47 +1,60 @@
 import API from '../apicaller.js'
 
 export default {
-	components: {},
-	data() {
-		return {
-			playing: false,
+  components: {},
+  data() {
+    return {
+      playing: false,
+      muted: false,
       loadingMeta: false,
       curruri: ''
-		}
-	},
-	computed: {
-		...Vuex.mapState({
+    }
+  },
+  computed: {
+    ...Vuex.mapState({
 
-		}),
+    }),
 
-	},
-	methods: {
+  },
+  methods: {
+    toggleMute() {
+      let req = {}
+      if (this.muted) {
+        console.log('Unmute')
+        req.volume = 'unmute' 
+        API.ChangeVolume(this, req)
+      }else{
+        console.log('Mute')
+        req.volume = 'mute' 
+        API.ChangeVolume(this, req)
+      }
+    },
 		togglePlayURI() {
-			let req = {}
-			if (this.playing) {
-				console.log('Pause URI')
-				API.Pause(this, req)
-			} else if (this.curruri == '') {
-				console.log('Play URI')
-				req.URI = 'http://stream.srg-ssr.ch/m/rsc_de/aacp_96'
+      let req = {}
+      if (this.playing) {
+        console.log('Pause URI')
+        API.Pause(this, req)
+      } else if (this.curruri == '') {
+        console.log('Play URI')
+        req.URI = 'http://stream.srg-ssr.ch/m/rsc_de/aacp_96'
         API.PlayURI(this, req)
-			}else{
+      } else {
         API.Resume(this, req)
       }
-			this.playing = !this.playing
+      this.playing = !this.playing
     },
-    VolumeUp(){
+    VolumeUp() {
       console.log('Volume Up')
-      let req = {volume: 'up'}
+      let req = { volume: 'up' }
       API.ChangeVolume(this, req)
     },
-    VolumeDown(){
+    VolumeDown() {
       console.log('Volume Down')
-      let req = {volume: 'down'}
+      let req = { volume: 'down' }
       API.ChangeVolume(this, req)
     }
-	},
-	template: `
+  },
+  template: `
   <v-container>
     <v-col>
       <v-row>
@@ -94,6 +107,9 @@ export default {
       </v-row>
       <v-row>
         <v-toolbar flat>
+          <v-btn icon @click="toggleMute">
+            <v-icon>{{ muted ? 'volume_mute' : 'volume_off' }}</v-icon>
+          </v-btn>
           <v-btn icon @click="VolumeDown">
             <v-icon>volume_down</v-icon>
           </v-btn>

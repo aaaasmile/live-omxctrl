@@ -29,8 +29,12 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request) error {
 		err = pl.VolumeUp()
 	case "down":
 		err = pl.VolumeDown()
+	case "mute":
+		err = pl.VolumeMute()
+	case "unmute":
+		err = pl.VolumeUnmute()
 	default:
-		return fmt.Errorf("Change volume request not recognized ", reqVol)
+		return fmt.Errorf("Change volume request not recognized %s", reqVol.VolumeType)
 	}
 	return err
 }
