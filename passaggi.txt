@@ -123,4 +123,7 @@ ExecStartPre=/bin/chmod 755 /var/log/live-omxctrl
 StandardOutput=syslog
 StandardError=syslog
 
+Per stoppare il sevice si usa:
+sudo systemctl stop live-omxctrl
+
 
