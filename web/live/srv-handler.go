@@ -12,7 +12,10 @@ import (
 
 	"github.com/aaaasmile/live-omxctrl/conf"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 )
+
+var player *omx.OmxPlayer
 
 type PageCtx struct {
 	RootUrl string
@@ -81,13 +84,13 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 	log.Println("Check the last path ", lastPath)
 	switch lastPath {
 	case "PlayURI":
-		err = handlePlay(w, req)
+		err = handlePlay(w, req, player)
 	case "Pause":
-		err = handlePause(w, req)
+		err = handlePause(w, req, player)
 	case "ChangeVolume":
-		err = handleChangeVolume(w, req)
+		err = handleChangeVolume(w, req, player)
 	case "TogglePowerState":
-		err = handleTogglePowerState(w, req)
+		err = handleTogglePowerState(w, req, player)
 	default:
 		return fmt.Errorf("%s method is not supported", lastPath)
 	}
@@ -111,4 +114,8 @@ func writeErrorResponse(w http.ResponseWriter, errorcode int, resp interface{}) 
 	}
 	http.Error(w, string(blobresp), errorcode)
 	return nil
+}
+
+func init() {
+	player = omx.NewOmxPlayer()
 }

@@ -6,10 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os/exec"
+
+	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 )
 
-func handleTogglePowerState(w http.ResponseWriter, req *http.Request) error {
+func handleTogglePowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	rawbody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		return err
@@ -24,12 +25,11 @@ func handleTogglePowerState(w http.ResponseWriter, req *http.Request) error {
 
 	log.Println("Toggle power state request ", reqPower)
 
-	pl := OmxPlayer{}
 	switch reqPower.PowerState {
 	case "off":
 		err = pl.PowerOff()
 	case "on":
-		err = startOmxPlayer("http://stream.srg-ssr.ch/m/rsc_de/aacp_96")
+		err = pl.StartOmxPlayer("http://stream.srg-ssr.ch/m/rsc_de/aacp_96")
 
 	default:
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)
@@ -37,7 +37,7 @@ func handleTogglePowerState(w http.ResponseWriter, req *http.Request) error {
 	return err
 }
 
-func handleChangeVolume(w http.ResponseWriter, req *http.Request) error {
+func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	rawbody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		return err
@@ -52,7 +52,6 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request) error {
 
 	log.Println("Change volume request ", reqVol)
 
-	pl := OmxPlayer{}
 	switch reqVol.VolumeType {
 	case "up":
 		err = pl.VolumeUp()
@@ -68,7 +67,7 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request) error {
 	return err
 }
 
-func handlePlay(w http.ResponseWriter, req *http.Request) error {
+func handlePlay(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	rawbody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		return err
@@ -83,9 +82,8 @@ func handlePlay(w http.ResponseWriter, req *http.Request) error {
 
 	log.Println("Play request ", reqPlay)
 
-	pl := OmxPlayer{}
 	if reqPlay.URI != "" {
-		err = pl.OpenUri(reqPlay.URI)
+		err = pl.StartOmxPlayer(reqPlay.URI)
 	} else {
 		err = pl.Resume()
 	}
@@ -93,23 +91,7 @@ func handlePlay(w http.ResponseWriter, req *http.Request) error {
 	return err
 }
 
-func handlePause(w http.ResponseWriter, req *http.Request) error {
+func handlePause(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	log.Println("Pause request ")
-	pl := OmxPlayer{}
 	return pl.Pause()
-}
-
-func startOmxPlayer(URI string) error {
-	log.Println("Start player wit URI ", URI)
-	cmd := "omxplayer"
-	args := []string{"-o", "local", URI}
-	go func() {
-		out, err := exec.Command(cmd, args...).Output()
-		if err != nil {
-			log.Printf("Error on executing omxplayer: %v", err)
-		}
-		log.Println("execute returns ", string(out))
-	}()
-
-	return nil
 }
