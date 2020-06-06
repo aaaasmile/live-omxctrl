@@ -1,6 +1,6 @@
 # live-omxctrl
 live-omxctrl is a web interface for the omx-player on Raspberry P4.
-It uses a golang backend with an embedded Vue.js frontened. 
+It uses a golang backend with an embedded Vue.js frontend. 
 The control of the omx-player is done using the dbus inteface in golang. 
 The project is in a very early stage, but still I can turn on the radio swiss classic on Pi4
 using an intranet browser on my iphone.
