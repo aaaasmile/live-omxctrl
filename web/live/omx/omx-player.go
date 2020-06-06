@@ -154,6 +154,9 @@ func (op *OmxPlayer) VolumeUnmute() error {
 }
 
 func (op *OmxPlayer) PowerOff() error {
+	if op.cmdOmx == nil {
+		log.Println("Player is not active. Nothing to do")
+	}
 	log.Println("Power off, exit app")
 	op.callIntAction("Action", 15)
 	if op.cmdOmx != nil {

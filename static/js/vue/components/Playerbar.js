@@ -45,11 +45,11 @@ export default {
         //this.poweron = false
         //this.colorpower = "error"
         let req = { power: "off" }
-        API.TogglePowerState(this, req)
+        API.SetPowerState(this, req)
       } else {
         console.log("Power on")
         let req = { power: "on" }
-        API.TogglePowerState(this, req)
+        API.SetPowerState(this, req)
         //this.poweron = true
         //this.colorpower = "green"
       }

@@ -9,9 +9,9 @@ const handleError = (error, that) => {
 }
 
 export default {
-	TogglePowerState(that, req) {
+	SetPowerState(that, req) {
 		console.log('Request is ', req)
-		that.$http.post("TogglePowerState", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+		that.$http.post("SetPowerState", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			if (req.power == 'off'){
 				that.poweron = false

@@ -10,7 +10,7 @@ import (
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 )
 
-func handleTogglePowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
+func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	rawbody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		return err
@@ -23,7 +23,7 @@ func handleTogglePowerState(w http.ResponseWriter, req *http.Request, pl *omx.Om
 		return err
 	}
 
-	log.Println("Toggle power state request ", reqPower)
+	log.Println("Set power state request ", reqPower)
 
 	switch reqPower.PowerState {
 	case "off":

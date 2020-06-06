@@ -17,8 +17,8 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 		err = handlePause(w, req, player)
 	case "ChangeVolume":
 		err = handleChangeVolume(w, req, player)
-	case "TogglePowerState":
-		err = handleTogglePowerState(w, req, player)
+	case "SetPowerState":
+		err = handleSetPowerState(w, req, player)
 	case "GetPlayerState":
 		err = handlePlayerState(w, req, player)
 	default:
