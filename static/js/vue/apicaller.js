@@ -66,11 +66,11 @@ export default {
 			handleError(error, that)
 		});
 	},
-	Stop(that, req) {
+	GetPlayerState(that, req) {
 		console.log('Request is ', req)
-		that.$http.post("Stop", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+		that.$http.post("GetPlayerState", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
-			that.$store.commit('msgText', result.data.Status)
+			that.$store.commit('playerstate', result.data)
 		}, error => {
 			handleError(error, that)
 		});

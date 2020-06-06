@@ -4,49 +4,69 @@ export default {
   components: {},
   data() {
     return {
-      playing: false,
-      muted: false,
-      poweron: false,
+      //playing: false,
+      //muted: false,
+      //poweron: false,
       loadingMeta: false,
-      colorpower: "error",
-      curruri: ''
+      //colorpower: "error",
+      //curruri: ''
     }
+  },
+  created() {
+    console.log('Request player status')
+    let req = {}
+    API.GetPlayerState(this, req)
   },
   computed: {
     ...Vuex.mapState({
-
+      Muted: state => {
+        return state.ps.mute === "muted"
+      },
+      PowerOn: state => {
+        return state.ps.player !== ""
+      },
+      Playing: state => {
+        return state.ps.trackStatus !== "Playing"
+      },
+      ColorPower: state => {
+        if (state.ps.player !== ""){
+          return "green"
+        }else{
+          return "error"
+        }
+      }
     }),
 
   },
   methods: {
-    togglePower(){
-      if (this.poweron){
+    togglePower() {
+      if (this.$store.state.ps.player !== "" ) {
         console.log("Power off")
-        this.poweron = false
-        this.colorpower = "error"
-        let req = {power: "off"}
+        //this.poweron = false
+        //this.colorpower = "error"
+        let req = { power: "off" }
         API.TogglePowerState(this, req)
-      }else{
+      } else {
         console.log("Power on")
-        let req = {power: "on"}
+        let req = { power: "on" }
         API.TogglePowerState(this, req)
-        this.poweron = true
-        this.colorpower = "green"
+        //this.poweron = true
+        //this.colorpower = "green"
       }
     },
     toggleMute() {
       let req = {}
       if (this.muted) {
         console.log('Unmute')
-        req.volume = 'unmute' 
+        req.volume = 'unmute'
         API.ChangeVolume(this, req)
-      }else{
+      } else {
         console.log('Mute')
-        req.volume = 'mute' 
+        req.volume = 'mute'
         API.ChangeVolume(this, req)
       }
     },
-		togglePlayURI() {
+    togglePlayURI() {
       let req = {}
       if (this.playing) {
         console.log('Pause URI')
@@ -88,10 +108,10 @@ export default {
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on" @click="togglePlayURI">
-                <v-icon>{{ playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
+                <v-icon>{{ Playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
               </v-btn>
             </template>
-            <span>{{ playing ? 'Pause' : 'Play current'}}</span>
+            <span>{{ Playing ? 'Pause' : 'Play current'}}</span>
           </v-tooltip>
 
           <v-tooltip bottom>
@@ -125,7 +145,7 @@ export default {
       <v-row>
         <v-toolbar flat>
           <v-btn icon @click="toggleMute">
-            <v-icon>{{ muted ? 'volume_mute' : 'volume_off' }}</v-icon>
+            <v-icon>{{ Muted ? 'volume_mute' : 'volume_off' }}</v-icon>
           </v-btn>
           <v-btn icon @click="VolumeDown">
             <v-icon>volume_down</v-icon>
@@ -133,7 +153,7 @@ export default {
           <v-btn icon @click="VolumeUp">
             <v-icon>volume_up</v-icon>
           </v-btn>
-           <v-btn icon @click="togglePower" :color="colorpower">
+           <v-btn icon @click="togglePower" :color="ColorPower">
             <v-icon>power_settings_new</v-icon>
           </v-btn>
         </v-toolbar>

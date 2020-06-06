@@ -12,18 +12,24 @@ import (
 )
 
 type OmxPlayer struct {
-	coDBus  dbus.BusObject
-	cmdOmx  *exec.Cmd
-	currURI string
+	coDBus        dbus.BusObject
+	cmdOmx        *exec.Cmd
+	CurrURI       string
+	StatePlaying  string
+	StateMute     string
+	TrackDuration string
+	TrackPosition string
+	TrackStatus   string
 }
 
 func NewOmxPlayer() *OmxPlayer {
 	res := OmxPlayer{}
 	return &res
+	// TODO access to coDBus and cmdOmx and states needs a mutex
 }
 
 func (op *OmxPlayer) StartOmxPlayer(URI string) error {
-	if op.currURI == URI && op.cmdOmx != nil {
+	if op.CurrURI == URI && op.cmdOmx != nil {
 		log.Println("Same URI and player is active. Simple play")
 		return op.callSimpleAction("Play")
 	}
@@ -39,7 +45,8 @@ func (op *OmxPlayer) StartOmxPlayer(URI string) error {
 	if err := op.cmdOmx.Start(); err != nil {
 		return fmt.Errorf("Error on executing omxplayer: %v", err)
 	}
-	op.currURI = URI
+	op.CurrURI = URI
+	op.StatePlaying = "playing"
 	return nil
 }
 
@@ -71,7 +78,17 @@ func (op *OmxPlayer) callIntAction(action string, id int) error {
 	return nil
 }
 
+func (op *OmxPlayer) clearStatus() {
+	op.TrackDuration = ""
+	op.TrackPosition = ""
+	op.TrackStatus = ""
+}
+
 func (op *OmxPlayer) CheckStatus() error {
+	op.clearStatus()
+	if op.cmdOmx == nil {
+		return nil
+	}
 	dur, err := op.getProperty("org.mpris.MediaPlayer2.Player.Duration")
 	if err != nil {
 		return err
@@ -86,6 +103,10 @@ func (op *OmxPlayer) CheckStatus() error {
 		return err
 	}
 
+	op.TrackDuration = fmt.Sprint(dur)
+	op.TrackPosition = fmt.Sprint(pos)
+	op.TrackStatus = fmt.Sprint(status)
+
 	log.Println("Duration, position,  status ", dur, pos, status)
 	return nil
 }
@@ -93,12 +114,14 @@ func (op *OmxPlayer) CheckStatus() error {
 func (op *OmxPlayer) Resume() error {
 	log.Println("Resume")
 	op.callSimpleAction("Play")
+	op.StatePlaying = "playing"
 	return nil
 }
 
 func (op *OmxPlayer) Pause() error {
 	log.Println("Pause")
 	op.callSimpleAction("Pause")
+	op.StatePlaying = "pause"
 	return nil
 }
 
@@ -119,12 +142,14 @@ func (op *OmxPlayer) VolumeDown() error {
 func (op *OmxPlayer) VolumeMute() error {
 	log.Println("Volume Mute")
 	op.callSimpleAction("Mute")
+	op.StateMute = "muted"
 	return nil
 }
 
 func (op *OmxPlayer) VolumeUnmute() error {
 	log.Println("Volume Unmute")
 	op.callSimpleAction("Unmute")
+	op.StateMute = ""
 	return nil
 }
 
@@ -134,8 +159,12 @@ func (op *OmxPlayer) PowerOff() error {
 	if op.cmdOmx != nil {
 		op.cmdOmx.Process.Kill()
 		op.cmdOmx = nil
-		op.currURI = ""
+
 	}
+	op.CurrURI = ""
+	op.StatePlaying = ""
+	op.StateMute = ""
+	op.coDBus = nil
 	return nil
 }
 

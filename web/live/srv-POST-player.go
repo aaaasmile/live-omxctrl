@@ -95,3 +95,27 @@ func handlePause(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) er
 	log.Println("Pause request ")
 	return pl.Pause()
 }
+
+func handlePlayerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
+	if err := pl.CheckStatus(); err != nil {
+		return err
+	}
+
+	res := struct {
+		Player        string `json:"player"`
+		Mute          string `json:"mute"`
+		URI           string `json:"uri"`
+		TrackDuration string `json:"trackDuration"`
+		TrackPosition string `json:"trackPosition"`
+		TrackStatus   string `json:"trackStatus"`
+	}{
+		Player:        pl.StatePlaying,
+		Mute:          pl.StateMute,
+		URI:           pl.CurrURI,
+		TrackDuration: pl.TrackDuration,
+		TrackPosition: pl.TrackPosition,
+		TrackStatus:   pl.TrackStatus,
+	}
+
+	return writeResponse(w, res)
+}

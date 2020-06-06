@@ -15,10 +15,10 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on" @click="togglePlayURI">
-                <v-icon>{{ playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
+                <v-icon>{{ Playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
               </v-btn>
             </template>
-            <span>{{ playing ? 'Pause' : 'Play current'}}</span>
+            <span>{{ Playing ? 'Pause' : 'Play current'}}</span>
           </v-tooltip>
 
           <v-tooltip bottom>
@@ -52,7 +52,7 @@
       <v-row>
         <v-toolbar flat>
           <v-btn icon @click="toggleMute">
-            <v-icon>{{ muted ? 'volume_mute' : 'volume_off' }}</v-icon>
+            <v-icon>{{ Muted ? 'volume_mute' : 'volume_off' }}</v-icon>
           </v-btn>
           <v-btn icon @click="VolumeDown">
             <v-icon>volume_down</v-icon>
@@ -60,7 +60,7 @@
           <v-btn icon @click="VolumeUp">
             <v-icon>volume_up</v-icon>
           </v-btn>
-           <v-btn icon @click="togglePower" :color="colorpower">
+           <v-btn icon @click="togglePower" :color="ColorPower">
             <v-icon>power_settings_new</v-icon>
           </v-btn>
         </v-toolbar>
