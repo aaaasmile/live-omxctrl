@@ -41,11 +41,14 @@ func RunService(configfile string) {
 		IdleTimeout:  time.Second * 60,
 		Handler:      nil,
 	}
-	go func() {
+
+	chShutdown := make(chan struct{}, 1)
+	go func(chs chan struct{}) {
 		if err := srv.ListenAndServe(); err != nil {
 			log.Println("Server is not listening anymore: ", err)
+			chs <- struct{}{}
 		}
-	}()
+	}(chShutdown)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt) //We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
@@ -55,6 +58,10 @@ loop:
 		select {
 		case <-sig:
 			log.Println("stop because interrupt")
+			break loop
+		case <-chShutdown:
+			log.Println("stop because service shutdown on listening")
+			log.Fatal("Force with an error to restart")
 			break loop
 		}
 	}
