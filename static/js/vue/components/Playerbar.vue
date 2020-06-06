@@ -14,7 +14,7 @@
 
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="togglePlayURI">
+              <v-btn icon v-on="on" @click="togglePlayResume">
                 <v-icon>{{ Playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
               </v-btn>
             </template>

@@ -26,7 +26,7 @@ export default {
         return state.ps.player !== ""
       },
       Playing: state => {
-        return state.ps.trackStatus !== "Playing"
+        return state.ps.player === "playing"
       },
       ColorPower: state => {
         if (state.ps.player !== ""){
@@ -56,7 +56,7 @@ export default {
     },
     toggleMute() {
       let req = {}
-      if (this.muted) {
+      if (this.$store.state.ps.mute === "muted") {
         console.log('Unmute')
         req.volume = 'unmute'
         API.ChangeVolume(this, req)
@@ -66,19 +66,14 @@ export default {
         API.ChangeVolume(this, req)
       }
     },
-    togglePlayURI() {
+    togglePlayResume() {
       let req = {}
-      if (this.playing) {
+      if (this.$store.state.ps.player === "playing") {
         console.log('Pause URI')
         API.Pause(this, req)
-      } else if (this.curruri == '') {
-        console.log('Play URI')
-        req.URI = 'http://stream.srg-ssr.ch/m/rsc_de/aacp_96'
-        API.PlayURI(this, req)
       } else {
         API.Resume(this, req)
       }
-      this.playing = !this.playing
     },
     VolumeUp() {
       console.log('Volume Up')
@@ -107,7 +102,7 @@ export default {
 
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="togglePlayURI">
+              <v-btn icon v-on="on" @click="togglePlayResume">
                 <v-icon>{{ Playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
               </v-btn>
             </template>

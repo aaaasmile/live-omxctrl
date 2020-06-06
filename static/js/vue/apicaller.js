@@ -47,7 +47,7 @@ export default {
 		});
 	},
 	Resume(that, req) {
-		console.log('Request is ', req)
+		console.log('Resume Request is ', req)
 		that.$http.post("PlayURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			that.loadingMeta = false
@@ -57,7 +57,7 @@ export default {
 		});
 	},
 	Pause(that, req) {
-		console.log('Request is ', req)
+		console.log('Pause Request is ', req)
 		that.$http.post("Pause", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			that.loadingMeta = false
