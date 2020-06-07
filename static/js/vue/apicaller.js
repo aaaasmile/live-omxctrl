@@ -1,6 +1,7 @@
 
 const handleError = (error, that) => {
 	console.error(error);
+	that.loadingMeta = false
 	if (error.bodyText !== '') {
 		that.$store.commit('msgText', `${error.statusText}: ${error.bodyText}`)
 	} else {
@@ -14,6 +15,7 @@ export default {
 		that.$http.post("SetPowerState", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			that.$store.commit('playerstate', result.data)
+			that.loadingMeta = false
 		}, error => {
 			handleError(error, that)
 		});
@@ -32,9 +34,7 @@ export default {
 		that.$http.post("PlayURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			that.$store.commit('playerstate', result.data)
-			that.loadingMeta = false
 		}, error => {
-			that.loadingMeta = false
 			handleError(error, that)
 		});
 	},
@@ -43,9 +43,7 @@ export default {
 		that.$http.post("PlayURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			that.$store.commit('playerstate', result.data)
-			that.loadingMeta = false
 		}, error => {
-			that.loadingMeta = false
 			handleError(error, that)
 		});
 	},
@@ -54,9 +52,7 @@ export default {
 		that.$http.post("Pause", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			that.$store.commit('playerstate', result.data)
-			that.loadingMeta = false
 		}, error => {
-			that.loadingMeta = false
 			handleError(error, that)
 		});
 	},

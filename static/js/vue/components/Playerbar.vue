@@ -1,70 +1,79 @@
 <template>
   <v-container>
     <v-col>
-      <v-row>
-        <v-toolbar flat>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on">
-                <v-icon>mdi-skip-previous</v-icon>
-              </v-btn>
-            </template>
-            <span>Previous</span>
-          </v-tooltip>
+      <v-skeleton-loader
+        :loading="loadingMeta"
+        :transition="transition"
+        height="94"
+        type="list-item-two-line"
+      >
+        <v-card>
+          <v-row>
+            <v-toolbar flat>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on">
+                    <v-icon>mdi-skip-previous</v-icon>
+                  </v-btn>
+                </template>
+                <span>Previous</span>
+              </v-tooltip>
 
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" @click="togglePlayResume">
-                <v-icon>{{ Playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
-              </v-btn>
-            </template>
-            <span>{{ Playing ? 'Pause' : 'Play current'}}</span>
-          </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="togglePlayResume">
+                    <v-icon>{{ Playing ? 'mdi-pause' : 'mdi-play' }}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ Playing ? 'Pause' : 'Play current'}}</span>
+              </v-tooltip>
 
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on">
-                <v-icon>mdi-skip-next</v-icon>
-              </v-btn>
-            </template>
-            <span>Next</span>
-          </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on">
+                    <v-icon>mdi-skip-next</v-icon>
+                  </v-btn>
+                </template>
+                <span>Next</span>
+              </v-tooltip>
 
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on">
-                <v-icon>mdi-shuffle</v-icon>
-              </v-btn>
-            </template>
-            <span>Shuffle</span>
-          </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on">
+                    <v-icon>mdi-shuffle</v-icon>
+                  </v-btn>
+                </template>
+                <span>Shuffle</span>
+              </v-tooltip>
 
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on">
-                <v-icon>mdi-repeat</v-icon>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on">
+                    <v-icon>mdi-repeat</v-icon>
+                  </v-btn>
+                </template>
+                <span>Repeat</span>
+              </v-tooltip>
+            </v-toolbar>
+          </v-row>
+          <v-row>
+            <v-toolbar flat>
+              <v-btn icon @click="toggleMute">
+                <v-icon>{{ Muted ? 'volume_mute' : 'volume_off' }}</v-icon>
               </v-btn>
-            </template>
-            <span>Repeat</span>
-          </v-tooltip>
-        </v-toolbar>
-      </v-row>
-      <v-row>
-        <v-toolbar flat>
-          <v-btn icon @click="toggleMute">
-            <v-icon>{{ Muted ? 'volume_mute' : 'volume_off' }}</v-icon>
-          </v-btn>
-          <v-btn icon @click="VolumeDown">
-            <v-icon>volume_down</v-icon>
-          </v-btn>
-          <v-btn icon @click="VolumeUp">
-            <v-icon>volume_up</v-icon>
-          </v-btn>
-           <v-btn icon @click="togglePower" :color="ColorPower">
-            <v-icon>power_settings_new</v-icon>
-          </v-btn>
-        </v-toolbar>
-      </v-row>
+              <v-btn icon @click="VolumeDown">
+                <v-icon>volume_down</v-icon>
+              </v-btn>
+              <v-btn icon @click="VolumeUp">
+                <v-icon>volume_up</v-icon>
+              </v-btn>
+              <v-btn icon @click="togglePower" :color="ColorPower">
+                <v-icon>power_settings_new</v-icon>
+              </v-btn>
+            </v-toolbar>
+          </v-row>
+        </v-card>
+      </v-skeleton-loader>
     </v-col>
   </v-container>
 </template>
