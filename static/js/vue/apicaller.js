@@ -13,11 +13,7 @@ export default {
 		console.log('Request is ', req)
 		that.$http.post("SetPowerState", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
-			if (req.power == 'off'){
-				that.poweron = false
-			}else if(req.power == 'on'){
-				that.poweron = true
-			}
+			that.$store.commit('playerstate', result.data)
 		}, error => {
 			handleError(error, that)
 		});
@@ -26,11 +22,7 @@ export default {
 		console.log('Request is ', req)
 		that.$http.post("ChangeVolume", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
-			if (req.volume == 'mute'){
-				that.muted = true
-			}else if(req.volume == 'unmute'){
-				that.muted = false
-			}
+			that.$store.commit('playerstate', result.data)
 		}, error => {
 			handleError(error, that)
 		});
@@ -39,7 +31,7 @@ export default {
 		console.log('Request is ', req)
 		that.$http.post("PlayURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
-			that.curruri = req.URI
+			that.$store.commit('playerstate', result.data)
 			that.loadingMeta = false
 		}, error => {
 			that.loadingMeta = false
@@ -50,6 +42,7 @@ export default {
 		console.log('Resume Request is ', req)
 		that.$http.post("PlayURI", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
+			that.$store.commit('playerstate', result.data)
 			that.loadingMeta = false
 		}, error => {
 			that.loadingMeta = false
@@ -60,6 +53,7 @@ export default {
 		console.log('Pause Request is ', req)
 		that.$http.post("Pause", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
+			that.$store.commit('playerstate', result.data)
 			that.loadingMeta = false
 		}, error => {
 			that.loadingMeta = false

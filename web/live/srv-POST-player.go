@@ -34,7 +34,8 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 	default:
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)
 	}
-	return err
+
+	return returnStatus(w, req, pl)
 }
 
 func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
@@ -64,7 +65,8 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPla
 	default:
 		return fmt.Errorf("Change volume request not recognized %s", reqVol.VolumeType)
 	}
-	return err
+
+	return returnStatus(w, req, pl)
 }
 
 func handlePlay(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
@@ -88,15 +90,21 @@ func handlePlay(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) err
 		err = pl.Resume()
 	}
 
-	return err
+	return returnStatus(w, req, pl)
 }
 
 func handlePause(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	log.Println("Pause request ")
-	return pl.Pause()
+	pl.Pause()
+
+	return returnStatus(w, req, pl)
 }
 
 func handlePlayerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
+	return returnStatus(w, req, pl)
+}
+
+func returnStatus(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	if err := pl.CheckStatus(); err != nil {
 		return err
 	}
