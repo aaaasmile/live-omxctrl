@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 )
@@ -30,6 +31,7 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		err = pl.PowerOff()
 	case "on":
 		err = pl.StartOmxPlayer("http://stream.srg-ssr.ch/m/rsc_de/aacp_96")
+		time.Sleep(500 * time.Millisecond)
 
 	default:
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)

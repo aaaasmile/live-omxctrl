@@ -114,14 +114,20 @@ func (op *OmxPlayer) CheckStatus() error {
 func (op *OmxPlayer) Resume() error {
 	log.Println("Resume")
 	op.callSimpleAction("Play")
-	op.StatePlaying = "playing"
+	if op.CurrURI != "" {
+		op.StatePlaying = "playing"
+	}
+
 	return nil
 }
 
 func (op *OmxPlayer) Pause() error {
 	log.Println("Pause")
 	op.callSimpleAction("Pause")
-	op.StatePlaying = "pause"
+	if op.CurrURI != "" {
+		op.StatePlaying = "pause"
+	}
+
 	return nil
 }
 
@@ -142,14 +148,19 @@ func (op *OmxPlayer) VolumeDown() error {
 func (op *OmxPlayer) VolumeMute() error {
 	log.Println("Volume Mute")
 	op.callSimpleAction("Mute")
-	op.StateMute = "muted"
+	if op.CurrURI != "" {
+		op.StateMute = "muted"
+	}
 	return nil
 }
 
 func (op *OmxPlayer) VolumeUnmute() error {
 	log.Println("Volume Unmute")
 	op.callSimpleAction("Unmute")
-	op.StateMute = ""
+	if op.CurrURI != "" {
+		op.StateMute = ""
+	}
+
 	return nil
 }
 
