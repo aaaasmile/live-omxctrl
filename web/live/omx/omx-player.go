@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"sync"
 
 	"github.com/godbus/dbus"
 )
@@ -14,6 +15,7 @@ import (
 type OmxPlayer struct {
 	coDBus        dbus.BusObject
 	cmdOmx        *exec.Cmd
+	mutex         *sync.Mutex
 	CurrURI       string
 	StatePlaying  string
 	StateMute     string
@@ -23,9 +25,10 @@ type OmxPlayer struct {
 }
 
 func NewOmxPlayer() *OmxPlayer {
-	res := OmxPlayer{}
+	res := OmxPlayer{
+		mutex: &sync.Mutex{},
+	}
 	return &res
-	// TODO access to coDBus and cmdOmx and states needs a mutex
 }
 
 func (op *OmxPlayer) StartOmxPlayer(URI string) error {
@@ -37,6 +40,9 @@ func (op *OmxPlayer) StartOmxPlayer(URI string) error {
 		op.cmdOmx.Process.Kill()
 	}
 	log.Println("Start player wit URI ", URI)
+
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
 
 	cmd := "omxplayer"
 	args := []string{"-o", "local", URI}
@@ -51,6 +57,9 @@ func (op *OmxPlayer) StartOmxPlayer(URI string) error {
 }
 
 func (op *OmxPlayer) getProperty(prop string) (*dbus.Variant, error) {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+
 	if err := op.connectObjectDbBus(); err != nil {
 		return nil, err
 	}
@@ -63,6 +72,9 @@ func (op *OmxPlayer) getProperty(prop string) (*dbus.Variant, error) {
 }
 
 func (op *OmxPlayer) callSimpleAction(action string) error {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+
 	if err := op.connectObjectDbBus(); err != nil {
 		return err
 	}
@@ -71,6 +83,9 @@ func (op *OmxPlayer) callSimpleAction(action string) error {
 }
 
 func (op *OmxPlayer) callIntAction(action string, id int) error {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+
 	if err := op.connectObjectDbBus(); err != nil {
 		return err
 	}
