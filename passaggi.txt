@@ -86,6 +86,8 @@ cd deploy
 cd ~/app/live-omxctrl/
 ./update-service.sh
 
+In un colpo: ./publish-pi4.sh
+
 == Service Config
 Questo il conetnuto del file che compare con:
 sudo nano /lib/systemd/system/live-omxctrl.service
@@ -97,13 +99,18 @@ Logs sono disponibili con:
 sudo journalctl -f -u live-omxctrl
 
 Qui segue il contenuto del file live-omxctrl.service
+Nota il Type=idle che è meglio di simple in quanto così 
+viene fatto partire quando anche la wlan ha ottenuto l'IP intranet
+per consentire l'accesso.
+
+-------------------------------- file content
 [Unit]
 Description=live-omxctrl service
 ConditionPathExists=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
 After=network.target
 
 [Service]
-Type=simple
+Type=idle
 User=igors
 Group=igors
 LimitNOFILE=1024
@@ -122,6 +129,8 @@ ExecStartPre=/bin/chown igors:igors /var/log/live-omxctrl
 ExecStartPre=/bin/chmod 755 /var/log/live-omxctrl
 StandardOutput=syslog
 StandardError=syslog
+
+------------------------------------------- end file content
 
 Per stoppare il sevice si usa:
 sudo systemctl stop live-omxctrl
