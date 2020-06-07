@@ -61,6 +61,7 @@ export default {
 		that.$http.post("GetPlayerState", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call terminated ', result.data)
 			that.$store.commit('playerstate', result.data)
+			that.loadingMeta = false
 		}, error => {
 			handleError(error, that)
 		});

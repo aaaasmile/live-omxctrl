@@ -67,6 +67,9 @@
               <v-btn icon @click="VolumeUp">
                 <v-icon>volume_up</v-icon>
               </v-btn>
+              <v-btn icon @click="syncStatus">
+                <v-icon>mdi-sync</v-icon>
+              </v-btn>
               <v-btn icon @click="togglePower" :color="ColorPower">
                 <v-icon>power_settings_new</v-icon>
               </v-btn>
