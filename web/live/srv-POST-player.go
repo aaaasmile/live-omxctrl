@@ -12,7 +12,9 @@ import (
 )
 
 func handleNextTitle(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
-	pl.NextTitle()
+	if err := pl.NextTitle(); err != nil {
+		return err
+	}
 	return returnStatus(w, req, pl)
 }
 

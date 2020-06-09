@@ -141,16 +141,28 @@ func (op *OmxPlayer) StartOmxPlayer(URI string) error {
 	return nil
 }
 
-func (op *OmxPlayer) NextTitle() {
+func (op *OmxPlayer) NextTitle() error {
 	u := "/home/igors/music/youtube/milanoda_bere_spot.mp3"
 	if op.CurrURI == u {
 		// switch to test how to make a play list
-		u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
+		//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
+		u = "/home/igors/music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
 	}
 	log.Println("Play the next title", u)
 	op.callStrAction("OpenUri", u)
+	// status, err := op.getProperty("org.mpris.MediaPlayer2.Player.PlaybackStatus")
+	// if err != nil {
+	// 	return err
+	// }
+	// st := status.Value()
+	// log.Println("Current track is in status ", st)
+	// if st == "Paused" {
+	// 	log.Println("Try to reactivate track in paused state")
+	// 	op.callSimpleAction("PlayPause")
+	// }
 	op.CurrURI = u
 	op.StatePlaying = "playing"
+	return nil
 }
 
 func (op *OmxPlayer) CheckStatus() error {
