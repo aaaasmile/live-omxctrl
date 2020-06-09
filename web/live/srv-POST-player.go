@@ -48,7 +48,18 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)
 	}
 
-	return returnStatus(w, req, pl)
+	i := 0
+	for i < 3 {
+		err = pl.CheckStatus()
+		if err != nil {
+			log.Println("Error and retry ", i, err)
+			i++
+		} else {
+			break
+		}
+		time.Sleep(400 * time.Millisecond)
+	}
+	return returnStatusAfterCheck(w, req, pl)
 }
 
 func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
@@ -121,7 +132,10 @@ func returnStatus(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) e
 	if err := pl.CheckStatus(); err != nil {
 		return err
 	}
+	return returnStatusAfterCheck(w, req, pl)
+}
 
+func returnStatusAfterCheck(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	res := struct {
 		Player        string `json:"player"`
 		Mute          string `json:"mute"`

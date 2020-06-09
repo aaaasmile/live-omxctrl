@@ -135,6 +135,16 @@ StandardError=syslog
 
 ------------------------------------------- end file content
 
+== Playlist
+Pe fare andare una play list penso che ci voglia un blocking del 
+comando che gira in una goroutine. Quando poi finisce  fa partire
+la prossima. Altrimenti è difficile sapere quando il player finisce.
+Senza questo non si sa quando deve ricominciare. NextTitle con il dbus
+funziona solo se il player è attivo. Questo non è più vero quando la track è finita.
+Penso anche che ci voglia un websocket per lo stato. Quando una track finisce
+il player è off, ma il browser rimane in stato green.
+
+
 Per stoppare il sevice si usa:
 sudo systemctl stop live-omxctrl
 
