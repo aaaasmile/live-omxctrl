@@ -1,7 +1,9 @@
 package omx
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -132,6 +134,11 @@ func (op *OmxPlayer) StartOmxPlayer(URI string) error {
 	cmd := "omxplayer"
 	args := []string{"-o", "local", URI}
 	log.Println("turn on the player")
+	//out, err := exec.Command(cmd, args...).Output()
+	//log.Println("Out is ", string(out))
+	//if err != nil {
+	//	return fmt.Errorf("Error on executing omxplayer: %v", err)
+	//}
 	op.cmdOmx = exec.Command(cmd, args...)
 	if err := op.cmdOmx.Start(); err != nil {
 		return fmt.Errorf("Error on executing omxplayer: %v", err)
@@ -141,25 +148,51 @@ func (op *OmxPlayer) StartOmxPlayer(URI string) error {
 	return nil
 }
 
+func (op *OmxPlayer) StartYoutubeLink(URI string) error {
+	// doesn't works
+	if op.cmdOmx != nil {
+		op.cmdOmx.Process.Kill()
+	}
+	log.Println("Start youtube player wit URI ", URI)
+
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+
+	c1 := exec.Command("omxplayer", "-o", "local")
+	c2 := exec.Command("youtube-dl", "-f", "mp4", "-g", URI)
+
+	r, w := io.Pipe()
+	c1.Stdout = w
+	c2.Stdin = r
+
+	var b2 bytes.Buffer
+	c2.Stdout = &b2
+
+	c1.Start()
+	c2.Start()
+	c1.Wait()
+	w.Close()
+	c2.Wait()
+	io.Copy(os.Stdout, &b2)
+
+	return nil
+
+}
+
 func (op *OmxPlayer) NextTitle() error {
-	u := "/home/igors/music/youtube/milanoda_bere_spot.mp3"
+	//u := "/home/igors/music/youtube/milanoda_bere_spot.mp3"
+	u := "/home/igors/music/youtube/Elisa - Tua Per Sempre-3czUk1MmmvA.mp3"
 	if op.CurrURI == u {
 		// switch to test how to make a play list
 		//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
 		u = "/home/igors/music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
+		//u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
+		//u = "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
+		//return op.StartOmxPlayer(u)
 	}
 	log.Println("Play the next title", u)
 	op.callStrAction("OpenUri", u)
-	// status, err := op.getProperty("org.mpris.MediaPlayer2.Player.PlaybackStatus")
-	// if err != nil {
-	// 	return err
-	// }
-	// st := status.Value()
-	// log.Println("Current track is in status ", st)
-	// if st == "Paused" {
-	// 	log.Println("Try to reactivate track in paused state")
-	// 	op.callSimpleAction("PlayPause")
-	// }
+
 	op.CurrURI = u
 	op.StatePlaying = "playing"
 	return nil
