@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 )
@@ -40,9 +41,8 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		//u := "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
 		u := "https://www.youtube.com/watch?v=3czUk1MmmvA"
 		//err = pl.StartOmxPlayer(u)
-		//time.Sleep(800 * time.Millisecond)
 		err = pl.StartYoutubeLink(u)
-		return nil
+		time.Sleep(800 * time.Millisecond)
 
 	default:
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)
