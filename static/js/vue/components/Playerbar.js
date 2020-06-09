@@ -43,6 +43,8 @@ export default {
     },
     nextTitle(){
       console.log("Next title")
+      let req = { }
+      API.NextTitle(this, req)
     },
     togglePower() {
       this.loadingMeta = true

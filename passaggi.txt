@@ -1,3 +1,6 @@
+Per stoppare il sevice si usa:
+sudo systemctl stop live-omxctrl
+
 == Compilare per linux Raspberry 4
 Nota che il Raspberry ? un sistema Linux ARM, quindi bisogna settare tutti i parametri
 necessari per il cross compile.

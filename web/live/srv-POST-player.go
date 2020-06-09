@@ -11,6 +11,11 @@ import (
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 )
 
+func handleNextTitle(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
+	pl.NextTitle()
+	return returnStatus(w, req, pl)
+}
+
 func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	rawbody, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -31,7 +36,7 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		err = pl.PowerOff()
 	case "on":
 		err = pl.StartOmxPlayer("http://stream.srg-ssr.ch/m/rsc_de/aacp_96")
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(800 * time.Millisecond)
 
 	default:
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)
