@@ -42,14 +42,14 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		u := "https://www.youtube.com/watch?v=3czUk1MmmvA"
 		//err = pl.StartOmxPlayer(u)
 		err = pl.StartYoutubeLink(u)
-		time.Sleep(800 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 
 	default:
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)
 	}
 
 	i := 0
-	for i < 3 {
+	for i < 5 {
 		err = pl.CheckStatus()
 		if err != nil {
 			log.Println("Error and retry ", i, err)

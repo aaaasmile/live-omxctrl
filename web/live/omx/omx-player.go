@@ -157,15 +157,21 @@ func (op *OmxPlayer) StartYoutubeLink(URI string) error {
 	defer op.mutex.Unlock()
 
 	cmd := fmt.Sprintf("omxplayer -o local  `youtube-dl -f mp4 -g %s`", URI)
-	// out, err := exec.Command("bash", "-c", cmd).Output()
-	// if err != nil {
-	// 	return fmt.Errorf("Failed to execute command. %v", err)
-	// }
-	// log.Println("Command out ", string(out))
 	op.cmdOmx = exec.Command("bash", "-c", cmd)
-	if err := op.cmdOmx.Start(); err != nil {
-		return fmt.Errorf("Error on executing omxplayer: %v", err)
-	}
+
+	go func() {
+		//out, err := exec.Command("bash", "-c", cmd).Output()
+		out, err := op.cmdOmx.Output()
+		if err != nil {
+			log.Println("Failed to execute command: ", err)
+		}
+		log.Println("Command out ", string(out))
+	}()
+
+	// op.cmdOmx = exec.Command("bash", "-c", cmd)
+	// if err := op.cmdOmx.Start(); err != nil {
+	// 	return fmt.Errorf("Error on executing omxplayer: %v", err)
+	// }
 
 	op.CurrURI = URI
 	op.StatePlaying = "playing"
