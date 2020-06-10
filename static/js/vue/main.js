@@ -42,6 +42,12 @@ export const app = new Vue({
 			console.log(event)
 			console.log("Socket connection success")
 		}
+
+		this.connection.onclose = (event) => {
+			console.log(event)
+			console.log("Socket closed")
+			this.connection = null
+		} 
 	},
 	methods: {
 
