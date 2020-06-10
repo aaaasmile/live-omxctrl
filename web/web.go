@@ -32,6 +32,7 @@ func RunService(configfile string) {
 
 	http.Handle(conf.Current.RootURLPattern+"static/", http.StripPrefix(conf.Current.RootURLPattern+"static", http.FileServer(http.Dir(util.GetFullPath("static")))))
 	http.HandleFunc(conf.Current.RootURLPattern, live.APiHandler)
+	http.HandleFunc("/websocket", live.WsHandler)
 
 	srv := &http.Server{
 		Addr: serverurl,
