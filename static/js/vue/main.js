@@ -7,32 +7,46 @@ import routes from './routes.js'
 
 
 export const app = new Vue({
-  el: '#app',
-  router: new VueRouter({ routes }),
-  components: { Navbar, Playerbar },
-  vuetify: new Vuetify(),
-  store,
-  data() {
-    return {
-      Buildnr: "",
-      links: routes,
-      AppTitle: "Omx Control",
-      drawer: false,
-    }
-  },
-  computed: {
-    ...Vuex.mapState({
-     
-    })
-  },
-  created() {
-    // keep in mind that all that is comming from index.html is a string. Boolean or numerics need to be parsed.
-    this.Buildnr = window.myapp.buildnr    
-  },
-  methods: {
+	el: '#app',
+	router: new VueRouter({ routes }),
+	components: { Navbar, Playerbar },
+	vuetify: new Vuetify(),
+	store,
+	data() {
+		return {
+			Buildnr: "",
+			links: routes,
+			AppTitle: "Omx Control",
+			drawer: false,
+			connection: null,
+		}
+	},
+	computed: {
+		...Vuex.mapState({
 
-  },
-  template: `
+		})
+	},
+	created() {
+		// keep in mind that all that is comming from index.html is a string. Boolean or numerics need to be parsed.
+		this.Buildnr = window.myapp.buildnr
+		let port = location.port;
+		let prefix = (window.location.protocol.match(/https/) ? 'wss' : 'ws')
+		let socketUrl = prefix + "://" + location.hostname + (port ? ':' + port : '') + "/websocket";
+		this.connection = new WebSocket(socketUrl)
+
+		this.connection.onmessage = (event) => {
+			console.log(event)
+		}
+
+		this.connection.onopen =  (event) => {
+			console.log(event)
+			console.log("Socket connection success")
+		}
+	},
+	methods: {
+
+	},
+	template: `
   <v-app class="grey lighten-4">
     <Navbar />
     <v-content class="mx-4 mb-4">
@@ -55,7 +69,8 @@ export const app = new Vue({
         </v-row>
       </v-container>
     </v-footer>
-  </v-app>`
+  </v-app>
+`
 })
 
 console.log('Main is here!')

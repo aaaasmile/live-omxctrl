@@ -7,46 +7,46 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type WsHandler struct {
+type WsClients struct {
 	clients     map[*websocket.Conn]bool
 	broadcastCh chan string
 	mux         sync.Mutex
 }
 
-func NewWsHandler() *WsHandler {
-	res := WsHandler{
+func NewWsClients() *WsClients {
+	res := WsClients{
 		clients:     make(map[*websocket.Conn]bool),
 		broadcastCh: make(chan string),
 	}
 	return &res
 }
 
-func (wh *WsHandler) AddConn(conn *websocket.Conn) {
+func (wh *WsClients) AddConn(conn *websocket.Conn) {
 	wh.mux.Lock()
 	wh.clients[conn] = true
 	wh.mux.Unlock()
-	log.Println("New connection. Connected clients", len(wh.clients))
+	log.Println("New connection. Connected clients", conn.RemoteAddr(), len(wh.clients))
 }
 
-func (wh *WsHandler) CloseConn(conn *websocket.Conn) {
-	wh.RemoveConn(conn)
+func (wh *WsClients) CloseConn(conn *websocket.Conn) {
 	conn.Close()
+	wh.RemoveConn(conn)
 }
 
-func (wh *WsHandler) RemoveConn(conn *websocket.Conn) {
+func (wh *WsClients) RemoveConn(conn *websocket.Conn) {
 	wh.mux.Lock()
 	delete(wh.clients, conn)
 	wh.mux.Unlock()
 	log.Println("Clients still connected ", len(wh.clients))
 }
 
-func (wh *WsHandler) closeAllConn() {
+func (wh *WsClients) closeAllConn() {
 	for conn := range wh.clients {
 		wh.CloseConn(conn)
 	}
 }
 
-func (wh *WsHandler) broadcastMsg() {
+func (wh *WsClients) broadcastMsg() {
 	log.Println("WS Waiting for broadcast")
 	for {
 		msg := <-wh.broadcastCh
@@ -61,11 +61,11 @@ func (wh *WsHandler) broadcastMsg() {
 	}
 }
 
-func (wh *WsHandler) StartWS() {
+func (wh *WsClients) StartWS() {
 	go wh.broadcastMsg()
 }
 
-func (wh *WsHandler) EndWS() {
+func (wh *WsClients) EndWS() {
 	log.Println("End od websocket service")
 	wh.closeAllConn()
 }

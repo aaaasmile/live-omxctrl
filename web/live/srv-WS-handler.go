@@ -10,7 +10,7 @@ import (
 
 var (
 	upgrader  websocket.Upgrader
-	wsHanlder *ws.WsHandler
+	wsClients *ws.WsClients
 )
 
 func WsHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,13 +20,13 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wsHanlder.AddConn(conn)
+	wsClients.AddConn(conn)
 
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println("Websocket read error ", err)
-			wsHanlder.CloseConn(conn)
+			wsClients.CloseConn(conn)
 			return
 		}
 		if messageType == websocket.TextMessage {
@@ -35,7 +35,11 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func WsHandlerShutdown() {
+	wsClients.EndWS()
+}
+
 func init() {
-	wsHanlder = ws.NewWsHandler()
-	wsHanlder.StartWS()
+	wsClients = ws.NewWsClients()
+	wsClients.StartWS()
 }

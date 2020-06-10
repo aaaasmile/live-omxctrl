@@ -67,6 +67,8 @@ loop:
 		}
 	}
 
+	live.WsHandlerShutdown()
+
 	ctx, cancel := context.WithTimeout(context.Background(), wait)
 	defer cancel()
 	srv.Shutdown(ctx)
