@@ -36,6 +36,13 @@ export const app = new Vue({
 
 		this.connection.onmessage = (event) => {
 			console.log(event)
+			let dataMsg = JSON.parse(event.data)
+			if (dataMsg.type === "status"){
+				console.log('Socket msg type: status')
+				this.$store.commit('playerstate', dataMsg)
+			}else{
+				console.warn('Socket message type not recognized ', dataMsg.type)
+			}
 		}
 
 		this.connection.onopen =  (event) => {

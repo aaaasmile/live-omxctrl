@@ -78,12 +78,12 @@ func handleGet(w http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
-
 func writeResponse(w http.ResponseWriter, resp interface{}) error {
 	blobresp, err := json.Marshal(resp)
 	if err != nil {
 		return err
 	}
+	wsClients.Broadcast(string(blobresp))
 	w.Write(blobresp)
 	return nil
 }

@@ -21,6 +21,10 @@ func NewWsClients() *WsClients {
 	return &res
 }
 
+func (wh *WsClients) Broadcast(msg string) {
+	wh.broadcastCh <- msg
+}
+
 func (wh *WsClients) AddConn(conn *websocket.Conn) {
 	wh.mux.Lock()
 	wh.clients[conn] = true
@@ -46,7 +50,7 @@ func (wh *WsClients) closeAllConn() {
 	}
 }
 
-func (wh *WsClients) broadcastMsg() {
+func (wh *WsClients) listenBroadcastMsg() {
 	log.Println("WS Waiting for broadcast")
 	for {
 		msg := <-wh.broadcastCh
@@ -62,7 +66,7 @@ func (wh *WsClients) broadcastMsg() {
 }
 
 func (wh *WsClients) StartWS() {
-	go wh.broadcastMsg()
+	go wh.listenBroadcastMsg()
 }
 
 func (wh *WsClients) EndWS() {

@@ -143,6 +143,7 @@ func returnStatusAfterCheck(w http.ResponseWriter, req *http.Request, pl *omx.Om
 		TrackDuration string `json:"trackDuration"`
 		TrackPosition string `json:"trackPosition"`
 		TrackStatus   string `json:"trackStatus"`
+		Type          string `json:"type"`
 	}{
 		Player:        pl.StatePlaying,
 		Mute:          pl.StateMute,
@@ -150,6 +151,7 @@ func returnStatusAfterCheck(w http.ResponseWriter, req *http.Request, pl *omx.Om
 		TrackDuration: pl.TrackDuration,
 		TrackPosition: pl.TrackPosition,
 		TrackStatus:   pl.TrackStatus,
+		Type:          "status",
 	}
 
 	return writeResponse(w, res)
