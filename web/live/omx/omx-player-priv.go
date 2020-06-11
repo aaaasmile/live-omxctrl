@@ -10,6 +10,28 @@ import (
 	"github.com/godbus/dbus"
 )
 
+func (op *OmxPlayer) execCommand(URI string, chst chan *StateOmx) {
+	go func(chst chan *StateOmx) {
+		status := StateOmx{
+			CurrURI:      URI,
+			StatePlaying: SPplaying,
+			StateMute:    SMnormal,
+		}
+		chst <- &status
+		//out, err := exec.Command("bash", "-c", cmd).Output()
+		out, err := op.cmdOmx.Output()
+		if err != nil {
+			log.Println("Failed to execute command: ", err)
+		}
+		log.Println("Command out ", string(out))
+		status = StateOmx{
+			CurrURI:      "",
+			StatePlaying: SPoff,
+		}
+		chst <- &status
+	}(chst)
+}
+
 func (op *OmxPlayer) connectObjectDbBus() error {
 	if op.coDBus != nil {
 		return nil
@@ -42,9 +64,6 @@ func (op *OmxPlayer) connectObjectDbBus() error {
 }
 
 func (op *OmxPlayer) getProperty(prop string) (*dbus.Variant, error) {
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-
 	if err := op.connectObjectDbBus(); err != nil {
 		return nil, err
 	}
@@ -57,9 +76,6 @@ func (op *OmxPlayer) getProperty(prop string) (*dbus.Variant, error) {
 }
 
 func (op *OmxPlayer) callSimpleAction(action string) error {
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-
 	if err := op.connectObjectDbBus(); err != nil {
 		return err
 	}
@@ -68,9 +84,6 @@ func (op *OmxPlayer) callSimpleAction(action string) error {
 }
 
 func (op *OmxPlayer) callIntAction(action string, id int) error {
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-
 	if err := op.connectObjectDbBus(); err != nil {
 		return err
 	}
@@ -79,9 +92,6 @@ func (op *OmxPlayer) callIntAction(action string, id int) error {
 }
 
 func (op *OmxPlayer) callStrAction(action string, para string) error {
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-
 	if err := op.connectObjectDbBus(); err != nil {
 		return err
 	}
@@ -89,7 +99,7 @@ func (op *OmxPlayer) callStrAction(action string, para string) error {
 	return nil
 }
 
-func (op *OmxPlayer) clearStatus() {
+func (op *OmxPlayer) clearTrackStatus() {
 	op.TrackDuration = ""
 	op.TrackPosition = ""
 	op.TrackStatus = ""

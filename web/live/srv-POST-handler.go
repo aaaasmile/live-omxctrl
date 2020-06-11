@@ -11,7 +11,7 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 	lastPath := getURLForRoute(req.RequestURI)
 	log.Println("Check the last path ", lastPath)
 	switch lastPath {
-	case "PlayURI": // TODO provide status on all handlers
+	case "PlayURI":
 		err = handlePlay(w, req, player)
 	case "Pause":
 		err = handlePause(w, req, player)
