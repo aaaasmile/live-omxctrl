@@ -13,7 +13,7 @@ type OmxPlayer struct {
 	coDBus        dbus.BusObject
 	cmdOmx        *exec.Cmd
 	mutex         *sync.Mutex
-	state         *StateOmx
+	state         StateOmx
 	chstatus      chan *StateOmx
 	TrackDuration string
 	TrackPosition string
@@ -255,10 +255,12 @@ func (op *OmxPlayer) PowerOff() error {
 
 func (op *OmxPlayer) setState(st *StateOmx) {
 	log.Println("Set OmxPlayer state ", st)
-	op.state = st
+	op.state.CurrURI = st.CurrURI
+	op.state.StateMute = st.StateMute
+	op.state.StatePlaying = st.StatePlaying
 	if st.StatePlaying == SPoff {
 		op.coDBus = nil
 		op.clearTrackStatus()
 	}
-	op.chstatus <- op.state
+	op.chstatus <- &op.state
 }

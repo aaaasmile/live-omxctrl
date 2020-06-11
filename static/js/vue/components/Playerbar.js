@@ -19,13 +19,13 @@ export default {
         return state.ps.mute === "muted"
       },
       PowerOn: state => {
-        return state.ps.player !== ""
+        return state.ps.player !== "off"
       },
       Playing: state => {
         return state.ps.player === "playing"
       },
       ColorPower: state => {
-        if (state.ps.player !== ""){
+        if (state.ps.player !== "off"){
           return "green"
         }else{
           return "error"
@@ -48,7 +48,7 @@ export default {
     },
     togglePower() {
       this.loadingMeta = true
-      if (this.$store.state.ps.player !== "" ) {
+      if (this.$store.state.ps.player !== "off" ) {
         console.log("Power off")
         let req = { power: "off" }
         API.SetPowerState(this, req)
