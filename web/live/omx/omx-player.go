@@ -9,49 +9,48 @@ import (
 	"github.com/godbus/dbus"
 )
 
-type SPstateplaying int
-
-const (
-	SPoff = iota
-	SPplaying
-	SPpause
-)
-
-type SMstatemute int
-
-const (
-	SMnormal = iota
-	SMmuted
-)
-
-type StateOmx struct {
-	CurrURI      string
-	StatePlaying SPstateplaying
-	StateMute    SMstatemute
-}
-
 type OmxPlayer struct {
 	coDBus        dbus.BusObject
 	cmdOmx        *exec.Cmd
 	mutex         *sync.Mutex
-	State         StateOmx
+	state         *StateOmx
+	chstatus      chan *StateOmx
 	TrackDuration string
 	TrackPosition string
 	TrackStatus   string
 }
 
-func NewOmxPlayer() *OmxPlayer {
+func NewOmxPlayer(chst chan *StateOmx) *OmxPlayer {
 	res := OmxPlayer{
-		mutex: &sync.Mutex{},
+		mutex:    &sync.Mutex{},
+		chstatus: chst,
 	}
 	return &res
 }
 
-func (op *OmxPlayer) StartOmxPlayer(URI string, chst chan *StateOmx) error {
+func (op *OmxPlayer) GetStatePlaying() string {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	return op.state.StatePlaying.String()
+}
+
+func (op *OmxPlayer) GetStateMute() string {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	return op.state.StateMute.String()
+}
+
+func (op *OmxPlayer) GetCurrURI() string {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	return op.state.CurrURI
+}
+
+func (op *OmxPlayer) StartOmxPlayer(URI string) error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
-	if op.State.CurrURI == URI && op.cmdOmx != nil {
+	if op.state.CurrURI == URI && op.cmdOmx != nil {
 		log.Println("Same URI and player is active. Simple play")
 		return op.callSimpleAction("Play")
 	}
@@ -63,12 +62,13 @@ func (op *OmxPlayer) StartOmxPlayer(URI string, chst chan *StateOmx) error {
 	cmd := "omxplayer"
 	args := []string{"-o", "local", URI}
 	op.cmdOmx = exec.Command(cmd, args...)
-	op.execCommand(URI, chst)
+	op.execCommand()
+	op.setState(&StateOmx{CurrURI: URI, StatePlaying: SPplaying})
 
 	return nil
 }
 
-func (op *OmxPlayer) StartYoutubeLink(URI string, chst chan *StateOmx) error {
+func (op *OmxPlayer) StartYoutubeLink(URI string) error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
@@ -79,12 +79,13 @@ func (op *OmxPlayer) StartYoutubeLink(URI string, chst chan *StateOmx) error {
 
 	cmd := fmt.Sprintf("omxplayer -o local  `youtube-dl -f mp4 -g %s`", URI)
 	op.cmdOmx = exec.Command("bash", "-c", cmd)
-	op.execCommand(URI, chst)
+	op.execCommand()
+	op.setState(&StateOmx{CurrURI: URI, StatePlaying: SPplaying})
 
 	return nil
 }
 
-func (op *OmxPlayer) NextTitle(chst chan *StateOmx) error {
+func (op *OmxPlayer) NextTitle() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 	if op.cmdOmx == nil {
@@ -97,7 +98,7 @@ func (op *OmxPlayer) NextTitle(chst chan *StateOmx) error {
 	// Radio url as next, better to restart the player
 	//u := "/home/igors/music/youtube/milanoda_bere_spot.mp3"
 	u := "/home/igors/music/youtube/Elisa - Tua Per Sempre-3czUk1MmmvA.mp3"
-	if op.State.CurrURI == u {
+	if op.state.CurrURI == u {
 		// switch to test how to make a play list
 		//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
 		u = "/home/igors/music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
@@ -108,7 +109,7 @@ func (op *OmxPlayer) NextTitle(chst chan *StateOmx) error {
 	log.Println("Play the next title", u)
 	op.callStrAction("OpenUri", u)
 
-	chst <- &StateOmx{CurrURI: u, StatePlaying: SPplaying}
+	op.setState(&StateOmx{CurrURI: u, StatePlaying: SPplaying})
 	return nil
 }
 
@@ -142,7 +143,7 @@ func (op *OmxPlayer) CheckStatus() error {
 	return nil
 }
 
-func (op *OmxPlayer) Resume(chst chan *StateOmx) error {
+func (op *OmxPlayer) Resume() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 	if op.cmdOmx == nil {
@@ -151,14 +152,14 @@ func (op *OmxPlayer) Resume(chst chan *StateOmx) error {
 
 	log.Println("Resume")
 	op.callSimpleAction("Play")
-	if op.State.CurrURI != "" {
-		chst <- &StateOmx{CurrURI: op.State.CurrURI, StatePlaying: SPplaying}
+	if op.state.CurrURI != "" {
+		op.setState(&StateOmx{CurrURI: op.state.CurrURI, StatePlaying: SPplaying})
 	}
 
 	return nil
 }
 
-func (op *OmxPlayer) Pause(chst chan *StateOmx) error {
+func (op *OmxPlayer) Pause() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 	if op.cmdOmx == nil {
@@ -167,8 +168,8 @@ func (op *OmxPlayer) Pause(chst chan *StateOmx) error {
 
 	log.Println("Pause")
 	op.callSimpleAction("Pause")
-	if op.State.CurrURI != "" {
-		chst <- &StateOmx{CurrURI: op.State.CurrURI, StatePlaying: SPpause}
+	if op.state.CurrURI != "" {
+		op.setState(&StateOmx{CurrURI: op.state.CurrURI, StatePlaying: SPpause})
 	}
 	return nil
 }
@@ -201,7 +202,7 @@ func (op *OmxPlayer) VolumeDown() error {
 	return nil
 }
 
-func (op *OmxPlayer) VolumeMute(chst chan *StateOmx) error {
+func (op *OmxPlayer) VolumeMute() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 	if op.cmdOmx == nil {
@@ -210,13 +211,13 @@ func (op *OmxPlayer) VolumeMute(chst chan *StateOmx) error {
 
 	log.Println("Volume Mute")
 	op.callSimpleAction("Mute")
-	if op.State.CurrURI != "" {
-		chst <- &StateOmx{CurrURI: op.State.CurrURI, StateMute: SMmuted}
+	if op.state.CurrURI != "" {
+		op.setState(&StateOmx{CurrURI: op.state.CurrURI, StateMute: SMmuted})
 	}
 	return nil
 }
 
-func (op *OmxPlayer) VolumeUnmute(chst chan *StateOmx) error {
+func (op *OmxPlayer) VolumeUnmute() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 	if op.cmdOmx == nil {
@@ -225,14 +226,14 @@ func (op *OmxPlayer) VolumeUnmute(chst chan *StateOmx) error {
 
 	log.Println("Volume Unmute")
 	op.callSimpleAction("Unmute")
-	if op.State.CurrURI != "" {
-		chst <- &StateOmx{CurrURI: op.State.CurrURI, StateMute: SMnormal}
+	if op.state.CurrURI != "" {
+		op.setState(&StateOmx{CurrURI: op.state.CurrURI, StateMute: SMnormal})
 	}
 
 	return nil
 }
 
-func (op *OmxPlayer) PowerOff(chst chan *StateOmx) error {
+func (op *OmxPlayer) PowerOff() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 	if op.cmdOmx == nil {
@@ -247,19 +248,17 @@ func (op *OmxPlayer) PowerOff(chst chan *StateOmx) error {
 		op.cmdOmx = nil
 
 	}
-	chst <- &StateOmx{CurrURI: "", StatePlaying: SPoff}
-	op.coDBus = nil
+	op.setState(&StateOmx{StatePlaying: SPoff})
 
 	return nil
 }
 
-func (op *OmxPlayer) SetState(st *StateOmx) {
+func (op *OmxPlayer) setState(st *StateOmx) {
 	log.Println("Set OmxPlayer state ", st)
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-	op.State = *st
+	op.state = st
 	if st.StatePlaying == SPoff {
 		op.coDBus = nil
 		op.clearTrackStatus()
 	}
+	op.chstatus <- op.state
 }

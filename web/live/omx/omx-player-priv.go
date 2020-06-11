@@ -10,26 +10,18 @@ import (
 	"github.com/godbus/dbus"
 )
 
-func (op *OmxPlayer) execCommand(URI string, chst chan *StateOmx) {
-	go func(chst chan *StateOmx) {
-		status := StateOmx{
-			CurrURI:      URI,
-			StatePlaying: SPplaying,
-			StateMute:    SMnormal,
-		}
-		chst <- &status
+func (op *OmxPlayer) execCommand() {
+	go func() {
 		//out, err := exec.Command("bash", "-c", cmd).Output()
 		out, err := op.cmdOmx.Output()
 		if err != nil {
 			log.Println("Failed to execute command: ", err)
 		}
 		log.Println("Command out ", string(out))
-		status = StateOmx{
-			CurrURI:      "",
-			StatePlaying: SPoff,
-		}
-		chst <- &status
-	}(chst)
+		op.mutex.Lock()
+		op.setState(&StateOmx{StatePlaying: SPoff})
+		op.mutex.Unlock()
+	}()
 }
 
 func (op *OmxPlayer) connectObjectDbBus() error {

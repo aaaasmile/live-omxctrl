@@ -15,7 +15,9 @@ import (
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 )
 
-var player *omx.OmxPlayer
+var (
+	player *omx.OmxPlayer
+)
 
 type PageCtx struct {
 	RootUrl string
@@ -74,7 +76,6 @@ func handleGet(w http.ResponseWriter, req *http.Request) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -97,6 +98,33 @@ func writeErrorResponse(w http.ResponseWriter, errorcode int, resp interface{}) 
 	return nil
 }
 
+func listenStatus(statusCh chan *omx.StateOmx) {
+	log.Println("Waiting for status")
+	for {
+		st := <-statusCh
+		resp := struct {
+			Player string `json:"player"`
+			Mute   string `json:"mute"`
+			URI    string `json:"uri"`
+			Type   string `json:"type"`
+		}{
+			Player: st.StatePlaying.String(),
+			Mute:   st.StateMute.String(),
+			URI:    st.CurrURI,
+			Type:   "status",
+		}
+		log.Println("Status update ", st)
+		blobresp, err := json.Marshal(resp)
+		if err != nil {
+			log.Println("Error in state relay: ", err)
+		} else {
+			wsClients.Broadcast(string(blobresp))
+		}
+	}
+}
+
 func init() {
-	player = omx.NewOmxPlayer()
+	statusCh := make(chan *omx.StateOmx)
+	player = omx.NewOmxPlayer(statusCh)
+	go listenStatus(statusCh)
 }
