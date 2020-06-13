@@ -123,6 +123,10 @@ func listenStatus(statusCh chan *omx.StateOmx) {
 	}
 }
 
+func SetPlayerCommandLine(cmdParam string) {
+	player.SetCommandLine(cmdParam)
+}
+
 func init() {
 	statusCh := make(chan *omx.StateOmx)
 	player = omx.NewOmxPlayer(statusCh)

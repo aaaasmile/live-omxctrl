@@ -7,3 +7,4 @@ ServiceURL = "192.168.2.84:5548"
 RootURLPattern = "/omx/"
 UseRelativeRoot = true
 DebugVerbose = false
+OmxCmdParams = "-o,hdmi" #comma separated, example -o,local 

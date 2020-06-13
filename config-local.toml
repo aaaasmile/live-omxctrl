@@ -7,3 +7,4 @@ ServiceURL = "127.0.0.1:5548"
 RootURLPattern = "/omx/"
 UseRelativeRoot = true
 DebugVerbose = false
+OmxCmdParams = ""

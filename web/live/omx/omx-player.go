@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"strings"
 	"sync"
 
 	"github.com/godbus/dbus"
@@ -18,6 +19,7 @@ type OmxPlayer struct {
 	TrackDuration string
 	TrackPosition string
 	TrackStatus   string
+	cmdLine       []string
 }
 
 func NewOmxPlayer(chst chan *StateOmx) *OmxPlayer {
@@ -26,6 +28,16 @@ func NewOmxPlayer(chst chan *StateOmx) *OmxPlayer {
 		chstatus: chst,
 	}
 	return &res
+}
+
+func (op *OmxPlayer) SetCommandLine(commaline string) {
+	op.cmdLine = make([]string, 0)
+	arr := strings.Split(commaline, ",")
+	for _, item := range arr {
+		if len(item) > 0 {
+			op.cmdLine = append(op.cmdLine, item)
+		}
+	}
 }
 
 func (op *OmxPlayer) GetStatePlaying() string {
@@ -60,7 +72,8 @@ func (op *OmxPlayer) StartOmxPlayer(URI string) error {
 	log.Println("Start player wit URI ", URI)
 
 	cmd := "omxplayer"
-	args := []string{"-o", "local", URI}
+	args := append(op.cmdLine, URI)
+	log.Println("Command line is: ", cmd, args)
 	op.cmdOmx = exec.Command(cmd, args...)
 	op.execCommand()
 	op.setState(&StateOmx{CurrURI: URI, StatePlaying: SPplaying})

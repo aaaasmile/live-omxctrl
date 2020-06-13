@@ -12,6 +12,7 @@ type Config struct {
 	RootURLPattern  string
 	UseRelativeRoot bool
 	DebugVerbose    bool
+	OmxCmdParams    string
 }
 
 var Current = &Config{}

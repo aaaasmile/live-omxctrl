@@ -20,7 +20,7 @@ func RunService(configfile string) {
 
 	conf.ReadConfig(configfile)
 	log.Println("Configuration is read")
-
+	live.SetPlayerCommandLine(conf.Current.OmxCmdParams)
 	util.UseRelativeRoot = conf.Current.UseRelativeRoot
 
 	var wait time.Duration

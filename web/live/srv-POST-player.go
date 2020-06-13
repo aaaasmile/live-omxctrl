@@ -37,11 +37,11 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 	case "off":
 		err = pl.PowerOff()
 	case "on":
-		//u := "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
+		u := "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
 		//u := "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
-		u := "https://www.youtube.com/watch?v=3czUk1MmmvA"
-		//err = pl.StartOmxPlayer(u)
-		err = pl.StartYoutubeLink(u)
+		//u := "https://www.youtube.com/watch?v=3czUk1MmmvA"
+		err = pl.StartOmxPlayer(u)
+		//err = pl.StartYoutubeLink(u)
 		time.Sleep(200 * time.Millisecond)
 
 	default:
