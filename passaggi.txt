@@ -107,6 +107,9 @@ viene fatto partire quando anche la wlan ha ottenuto l'IP intranet
 per consentire l'accesso.
 
 -------------------------------- file content
+[Install]
+WantedBy=multi-user.target
+
 [Unit]
 Description=live-omxctrl service
 ConditionPathExists=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
