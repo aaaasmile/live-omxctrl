@@ -110,15 +110,16 @@ func (op *OmxPlayer) NextTitle() error {
 	// Next title as radio swiss doesn't works. Better only with mp3.
 	// Radio url as next, better to restart the player
 	//u := "/home/igors/music/youtube/milanoda_bere_spot.mp3"
-	u := "/home/igors/music/youtube/Elisa - Tua Per Sempre-3czUk1MmmvA.mp3"
+	u := "/home/igors/Music/youtube/Elisa - Tua Per Sempre-3czUk1MmmvA.mp3"
 	if op.state.CurrURI == u {
 		// switch to test how to make a play list
 		//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-		u = "/home/igors/music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
+		u = "/home/igors/Music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
 		//u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
 		//u = "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
 		//return op.StartOmxPlayer(u)
 	}
+
 	log.Println("Play the next title", u)
 	op.callStrAction("OpenUri", u)
 

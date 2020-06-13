@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Buils app"
+echo "Builds app"
 go build -o live-omxctrl.bin
 
 cd ./deploy
