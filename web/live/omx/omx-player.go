@@ -131,6 +131,7 @@ func (op *OmxPlayer) CheckStatus() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
+	log.Println("Check status req")
 	op.clearTrackStatus()
 	if op.cmdOmx == nil {
 		return nil
@@ -226,7 +227,7 @@ func (op *OmxPlayer) VolumeMute() error {
 	log.Println("Volume Mute")
 	op.callSimpleAction("Mute")
 	if op.state.CurrURI != "" {
-		op.setState(&StateOmx{CurrURI: op.state.CurrURI, StateMute: SMmuted})
+		op.setState(&StateOmx{StatePlaying: op.state.StatePlaying, CurrURI: op.state.CurrURI, StateMute: SMmuted})
 	}
 	return nil
 }
@@ -241,7 +242,7 @@ func (op *OmxPlayer) VolumeUnmute() error {
 	log.Println("Volume Unmute")
 	op.callSimpleAction("Unmute")
 	if op.state.CurrURI != "" {
-		op.setState(&StateOmx{CurrURI: op.state.CurrURI, StateMute: SMnormal})
+		op.setState(&StateOmx{StatePlaying: op.state.StatePlaying, CurrURI: op.state.CurrURI, StateMute: SMnormal})
 	}
 
 	return nil
