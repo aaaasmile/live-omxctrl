@@ -291,6 +291,7 @@ func (op *OmxPlayer) setState(st *StateOmx) {
 	op.state.StatePlaying = st.StatePlaying
 	if st.StatePlaying == SPoff {
 		op.coDBus = nil
+		op.cmdOmx = nil
 		op.clearTrackStatus()
 	}
 	op.chstatus <- &op.state
