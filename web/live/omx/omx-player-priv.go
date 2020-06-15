@@ -13,13 +13,18 @@ import (
 func (op *OmxPlayer) execCommand() {
 	go func() {
 		//out, err := exec.Command("bash", "-c", cmd).Output()
+		oldCmd := op.cmdOmx
 		out, err := op.cmdOmx.Output()
 		log.Println("Command out ", string(out))
 		if err != nil {
-			log.Println("Failed to execute command: ", err)
+			log.Println("Command executed with error: ", err)
 		}
+
 		op.mutex.Lock()
-		op.setState(&StateOmx{StatePlaying: SPoff})
+		log.Println("Closing player with ", oldCmd, op.cmdOmx)
+		if oldCmd == op.cmdOmx {
+			op.setState(&StateOmx{StatePlaying: SPoff})
+		}
 		op.mutex.Unlock()
 	}()
 }

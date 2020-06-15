@@ -87,6 +87,7 @@ func (op *OmxPlayer) StartYoutubeLink(URI string) error {
 
 	if op.cmdOmx != nil {
 		log.Println("Shuttind down the current player", op.cmdOmx)
+		op.callIntAction("Action", 15)
 		op.cmdOmx.Process.Kill()
 	}
 	log.Println("Start youtube player wit URI ", URI)
