@@ -22,7 +22,7 @@ func (op *OmxPlayer) execCommand() {
 
 		op.mutex.Lock()
 		log.Println("Closing player with ", oldCmd, op.cmdOmx)
-		if oldCmd == op.cmdOmx {
+		if oldCmd == op.cmdOmx || op.cmdOmx == nil {
 			op.setState(&StateOmx{StatePlaying: SPoff})
 		}
 		op.mutex.Unlock()
