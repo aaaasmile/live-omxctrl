@@ -58,18 +58,38 @@
           </v-row>
           <v-row>
             <v-toolbar flat>
-              <v-btn icon @click="toggleMute">
-                <v-icon>{{ Muted ? 'volume_mute' : 'volume_off' }}</v-icon>
-              </v-btn>
-              <v-btn icon @click="VolumeDown">
-                <v-icon>volume_down</v-icon>
-              </v-btn>
-              <v-btn icon @click="VolumeUp">
-                <v-icon>volume_up</v-icon>
-              </v-btn>
-              <v-btn icon @click="syncStatus">
-                <v-icon>mdi-sync</v-icon>
-              </v-btn>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="toggleMute">
+                    <v-icon>{{ Muted ? 'volume_mute' : 'volume_off' }}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ Muted ? 'Unmute' : 'Mute'}}</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="VolumeDown">
+                    <v-icon>volume_down</v-icon>
+                  </v-btn>
+                </template>
+                <span>Volume down</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="VolumeUp">
+                    <v-icon>volume_up</v-icon>
+                  </v-btn>
+                </template>
+                <span>Volume up</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn icon v-on="on" @click="syncStatus">
+                    <v-icon>mdi-sync</v-icon>
+                  </v-btn>
+                </template>
+                <span>Synchronize status</span>
+              </v-tooltip>
               <v-btn icon @click="togglePower" :color="ColorPower">
                 <v-icon>power_settings_new</v-icon>
               </v-btn>
