@@ -86,11 +86,13 @@ func (op *OmxPlayer) StartYoutubeLink(URI string) error {
 	defer op.mutex.Unlock()
 
 	if op.cmdOmx != nil {
+		log.Println("Shuttind down the current player", op.cmdOmx)
 		op.cmdOmx.Process.Kill()
 	}
 	log.Println("Start youtube player wit URI ", URI)
 
-	cmd := fmt.Sprintf("omxplayer -o local  `youtube-dl -f mp4 -g %s`", URI)
+	args := strings.Join(op.cmdLine, " ")
+	cmd := fmt.Sprintf("omxplayer %s `youtube-dl -f mp4 -g %s`", args, URI)
 	op.cmdOmx = exec.Command("bash", "-c", cmd)
 	op.execCommand()
 	op.setState(&StateOmx{CurrURI: URI, StatePlaying: SPplaying})

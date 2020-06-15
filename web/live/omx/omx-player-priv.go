@@ -14,10 +14,10 @@ func (op *OmxPlayer) execCommand() {
 	go func() {
 		//out, err := exec.Command("bash", "-c", cmd).Output()
 		out, err := op.cmdOmx.Output()
+		log.Println("Command out ", string(out))
 		if err != nil {
 			log.Println("Failed to execute command: ", err)
 		}
-		log.Println("Command out ", string(out))
 		op.mutex.Lock()
 		op.setState(&StateOmx{StatePlaying: SPoff})
 		op.mutex.Unlock()

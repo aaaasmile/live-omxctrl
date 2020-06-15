@@ -11,6 +11,26 @@ import (
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 )
 
+func handlePlayYoutube(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
+	rawbody, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return err
+	}
+
+	reqURI := struct {
+		URI string `json:"uri"`
+	}{}
+	if err := json.Unmarshal(rawbody, &reqURI); err != nil {
+		return err
+	}
+	log.Println("Play youtube URL ", reqURI.URI)
+
+	if err := playUri(reqURI.URI, true, pl); err != nil {
+		return err
+	}
+	return returnStatus(w, req, pl)
+}
+
 func handleNextTitle(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	if err := pl.NextTitle(); err != nil {
 		return err
@@ -43,20 +63,34 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 	switch reqPower.PowerState {
 	case "off":
 		err = pl.PowerOff()
+		return nil
 	case "on":
 		u := "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-		//u := "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
+		err = playUri(u, false, pl)
 		//u := "https://www.youtube.com/watch?v=3czUk1MmmvA"
-		err = pl.StartOmxPlayer(u)
-		//err = pl.StartYoutubeLink(u)
-		time.Sleep(200 * time.Millisecond)
-
+		//err = playUri(u, true, pl)
 	default:
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)
 	}
+	if err != nil {
+		return err
+	}
 
+	return returnStatusAfterCheck(w, req, pl)
+}
+
+func playUri(u string, isYoutube bool, pl *omx.OmxPlayer) error {
+	var err error
+	sleepTime := 400
+	if isYoutube {
+		err = pl.StartYoutubeLink(u)
+		sleepTime = 700
+	} else {
+		err = pl.StartOmxPlayer(u)
+	}
+	time.Sleep(200 * time.Millisecond)
 	i := 0
-	for i < 5 {
+	for i < 8 {
 		err = pl.CheckStatus()
 		if err != nil {
 			log.Println("Error and retry ", i, err)
@@ -64,9 +98,9 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		} else {
 			break
 		}
-		time.Sleep(400 * time.Millisecond)
+		time.Sleep(time.Duration(sleepTime) * time.Millisecond)
 	}
-	return returnStatusAfterCheck(w, req, pl)
+	return err
 }
 
 func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
