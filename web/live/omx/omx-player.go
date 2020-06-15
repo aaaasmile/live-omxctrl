@@ -98,6 +98,22 @@ func (op *OmxPlayer) StartYoutubeLink(URI string) error {
 	return nil
 }
 
+func (op *OmxPlayer) PreviousTitle() error {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	if op.cmdOmx == nil {
+		return nil
+	}
+
+	u := op.state.CurrURI
+
+	log.Println("Play the previous title", u)
+	op.callStrAction("OpenUri", u)
+
+	op.setState(&StateOmx{CurrURI: u, StatePlaying: SPplaying})
+	return nil
+}
+
 func (op *OmxPlayer) NextTitle() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()

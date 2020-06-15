@@ -18,6 +18,13 @@ func handleNextTitle(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer
 	return returnStatus(w, req, pl)
 }
 
+func handlePreviousTitle(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
+	if err := pl.PreviousTitle(); err != nil {
+		return err
+	}
+	return returnStatus(w, req, pl)
+}
+
 func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
 	rawbody, err := ioutil.ReadAll(req.Body)
 	if err != nil {

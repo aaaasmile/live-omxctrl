@@ -46,6 +46,11 @@ export default {
       let req = { }
       API.NextTitle(this, req)
     },
+    previousTitle(){
+      console.log("Previous title")
+      let req = { }
+      API.PreviousTitle(this, req)
+    },
     togglePower() {
       this.loadingMeta = true
       if (this.$store.state.ps.player !== "off" ) {
@@ -104,7 +109,7 @@ export default {
             <v-toolbar flat>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on">
+                  <v-btn icon v-on="on" @click="previousTitle">
                     <v-icon>mdi-skip-previous</v-icon>
                   </v-btn>
                 </template>

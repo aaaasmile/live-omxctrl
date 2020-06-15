@@ -12,7 +12,7 @@
             <v-toolbar flat>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on">
+                  <v-btn icon v-on="on" @click="previousTitle">
                     <v-icon>mdi-skip-previous</v-icon>
                   </v-btn>
                 </template>

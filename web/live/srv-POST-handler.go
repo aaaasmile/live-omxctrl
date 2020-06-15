@@ -23,6 +23,8 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 		err = handlePlayerState(w, req, player)
 	case "NextTitle":
 		err = handleNextTitle(w, req, player)
+	case "PreviousTitle":
+		err = handlePreviousTitle(w, req, player)
 	default:
 		return fmt.Errorf("%s method is not supported", lastPath)
 	}

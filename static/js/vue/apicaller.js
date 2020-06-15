@@ -75,5 +75,15 @@ export default {
 		}, error => {
 			handleError(error, that)
 		});
-	}
+	},
+	PreviousTitle(that, req) {
+		console.log('Request is ', req)
+		that.$http.post("PreviousTitle", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call terminated ', result.data)
+			that.$store.commit('playerstate', result.data)
+			that.loadingMeta = false
+		}, error => {
+			handleError(error, that)
+		});
+	},
 }
