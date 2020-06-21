@@ -29,7 +29,9 @@
         </v-row>
       </v-row>
       <v-row>
-        <Playerbar />
+        <v-col cols="12">
+          <Playerbar class="mr-1 ml-1"/>
+        </v-col>
       </v-row>
     </v-col>
   </v-card>
