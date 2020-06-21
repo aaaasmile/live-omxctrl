@@ -103,15 +103,23 @@ func listenStatus(statusCh chan *omx.StateOmx) {
 	for {
 		st := <-statusCh
 		resp := struct {
-			Player string `json:"player"`
-			Mute   string `json:"mute"`
-			URI    string `json:"uri"`
-			Type   string `json:"type"`
+			Player   string `json:"player"`
+			Mute     string `json:"mute"`
+			URI      string `json:"uri"`
+			Info     string `json:"info"`
+			ItemType string `json:"itemtype"`
+			NextItem string `json:"nextitem"`
+			PrevItem string `json:"previtem"`
+			Type     string `json:"type"`
 		}{
-			Player: st.StatePlaying.String(),
-			Mute:   st.StateMute.String(),
-			URI:    st.CurrURI,
-			Type:   "status",
+			Player:   st.StatePlaying.String(),
+			Mute:     st.StateMute.String(),
+			URI:      st.CurrURI,
+			Info:     st.Info,
+			ItemType: st.ItemType,
+			NextItem: st.NextItem,
+			PrevItem: st.PrevItem,
+			Type:     "status",
 		}
 		log.Println("Status update ", st)
 		blobresp, err := json.Marshal(resp)

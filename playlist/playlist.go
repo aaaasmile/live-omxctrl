@@ -37,18 +37,10 @@ type PlayItem struct {
 }
 
 type PlayList struct {
-	Name       string
-	LastPlayed string
-	List       []*PlayItem
+	Name    string
+	Created string
+	List    []*PlayItem
 }
-
-type LLPlayItem struct {
-	PlayItem *PlayItem
-	Next     *PlayItem
-	Previous *PlayItem
-}
-
-type LLPlayList []*LLPlayItem
 
 func (pl *PlayList) SavePlaylist(plname string) error {
 	path := filepath.Join(dirPlaylistData, plname)
@@ -60,6 +52,74 @@ func (pl *PlayList) SavePlaylist(plname string) error {
 	defer f.Close()
 
 	return json.NewEncoder(f).Encode(pl)
+}
+
+type LLPlayItem struct {
+	PlayItem *PlayItem
+	Next     *LLPlayItem
+	Previous *LLPlayItem
+}
+
+type LLPlayList struct {
+	Name      string
+	FirstItem *LLPlayItem
+	LastItem  *LLPlayItem
+	CurrItem  *LLPlayItem
+}
+
+func (ll *LLPlayList) First() {
+	ll.CurrItem = ll.FirstItem
+}
+
+func (ll *LLPlayList) Last() {
+	ll.CurrItem = ll.LastItem
+}
+
+func (ll *LLPlayList) Next() (*PlayItem, bool) {
+	ll.CurrItem = ll.CurrItem.Next
+	if ll.CurrItem == nil {
+		ll.CurrItem = ll.FirstItem
+	}
+	if ll.CurrItem != nil {
+		return ll.CurrItem.PlayItem, ll.CurrItem.PlayItem != nil
+	} else {
+		return nil, false
+	}
+}
+
+func (ll *LLPlayList) Previous() (*PlayItem, bool) {
+	ll.CurrItem = ll.CurrItem.Previous
+	if ll.CurrItem == nil {
+		ll.CurrItem = ll.LastItem
+	}
+	if ll.CurrItem != nil {
+		return ll.CurrItem.PlayItem, ll.CurrItem.PlayItem != nil
+	} else {
+		return nil, false
+	}
+}
+
+func (ll *LLPlayList) CheckCurrent() (*PlayItem, bool) {
+	if ll.FirstItem == nil ||
+		ll.LastItem == nil ||
+		ll.CurrItem == nil {
+		return nil, false
+	}
+	if ll.CurrItem.PlayItem == nil {
+		return nil, false
+	}
+	return ll.CurrItem.PlayItem, true
+}
+
+// func (ll *LLPlayList) StartPlay() error {
+// 	// TODO
+// 	return nil
+// }
+
+func GetCurrentPlaylist() (LLPlayList, error) {
+	// TODO
+	res := LLPlayList{}
+	return res, fmt.Errorf("TODO GetCurrentPlaylist")
 }
 
 func CheckIfPlaylistExist(plname string) error {

@@ -41,4 +41,8 @@ type StateOmx struct {
 	CurrURI      string
 	StatePlaying SPstateplaying
 	StateMute    SMstatemute
+	Info         string
+	ItemType     string
+	NextItem     string
+	PrevItem     string
 }

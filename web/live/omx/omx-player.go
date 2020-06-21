@@ -6,7 +6,9 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/aaaasmile/live-omxctrl/playlist"
 	"github.com/godbus/dbus"
 )
 
@@ -20,6 +22,8 @@ type OmxPlayer struct {
 	TrackPosition string
 	TrackStatus   string
 	cmdLine       []string
+	startedTime   time.Time
+	PlayList      playlist.LLPlayList
 }
 
 func NewOmxPlayer(chst chan *StateOmx) *OmxPlayer {
@@ -102,26 +106,40 @@ func (op *OmxPlayer) StartYoutubeLink(URI string) error {
 }
 
 func (op *OmxPlayer) PreviousTitle() error {
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-	if op.cmdOmx == nil {
-		return nil
-	}
+	// TODO...
+	return fmt.Errorf("TODO...")
+	// if op.PlayList.FirstItem == nil {
+	// 	return nil
+	// }
+	// op.mutex.Lock()
+	// defer op.mutex.Unlock()
+	// if op.cmdOmx == nil {
+	// 	return nil
+	// }
 
-	u := op.state.CurrURI
+	// // TODO check the start time and if it is small then play op.PlayList.CurrItem.Previous
+	// u := op.state.CurrURI
 
-	log.Println("Play the previous title", u)
-	op.callStrAction("OpenUri", u)
+	// log.Println("Play the previous title", u)
+	// op.callStrAction("OpenUri", u)
 
-	op.setState(&StateOmx{CurrURI: u, StatePlaying: SPplaying})
-	return nil
+	// op.setState(&StateOmx{CurrURI: u, StatePlaying: SPplaying})
+	// return nil
 }
 
 func (op *OmxPlayer) NextTitle() error {
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-	if op.cmdOmx == nil {
+	var curr *playlist.PlayItem
+	var ok bool
+	if _, ok = op.PlayList.CheckCurrent(); !ok {
 		return nil
+	}
+
+	op.mutex.Lock()
+
+	if op.cmdOmx == nil {
+		op.PlayList.First()
+		op.mutex.Unlock()
+		return op.startCurrentItem()
 	}
 
 	// Some try fo a playlist
@@ -129,20 +147,32 @@ func (op *OmxPlayer) NextTitle() error {
 	// Next title as radio swiss doesn't works. Better only with mp3.
 	// Radio url as next, better to restart the player
 	//u := "/home/igors/music/youtube/milanoda_bere_spot.mp3"
-	u := "/home/igors/Music/youtube/Elisa - Tua Per Sempre-3czUk1MmmvA.mp3"
-	if op.state.CurrURI == u {
-		// switch to test how to make a play list
-		//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-		u = "/home/igors/Music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
-		//u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
-		//u = "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
-		//return op.StartOmxPlayer(u)
+	//u := "/home/igors/Music/youtube/Elisa - Tua Per Sempre-3czUk1MmmvA.mp3"
+	//if op.state.CurrURI == u {
+	// switch to test how to make a play list
+	//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
+	//u = "/home/igors/Music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
+	//u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
+	//u = "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
+	//return op.StartOmxPlayer(u)
+	//}
+	oldType := curr.ItemType
+	if curr, ok = op.PlayList.Next(); !ok {
+		op.mutex.Unlock()
+		return nil
 	}
 
-	log.Println("Play the next title", u)
+	if curr.ItemType != oldType {
+		op.mutex.Unlock()
+		return op.startCurrentItem()
+	}
+	u := curr.URI
+	log.Println("Play the next title with action", u)
 	op.callStrAction("OpenUri", u)
 
 	op.setState(&StateOmx{CurrURI: u, StatePlaying: SPplaying})
+
+	op.mutex.Unlock()
 	return nil
 }
 
@@ -265,6 +295,16 @@ func (op *OmxPlayer) VolumeUnmute() error {
 	}
 
 	return nil
+}
+
+func (op *OmxPlayer) PowerOn() error {
+	log.Println("Powern on. Play the current playlist")
+	var err error
+	if op.PlayList, err = playlist.GetCurrentPlaylist(); err != nil {
+		return err
+	}
+
+	return op.NextTitle()
 }
 
 func (op *OmxPlayer) PowerOff() error {

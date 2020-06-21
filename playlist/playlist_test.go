@@ -15,9 +15,9 @@ func TestCreateDefault(t *testing.T) {
 	list = append(list, &pli)
 
 	strl := PlayList{
-		Name:       "RadioCH",
-		List:       list,
-		LastPlayed: time.Now().Format("02.01.2006 15:04:05"),
+		Name:    "RadioCH",
+		List:    list,
+		Created: time.Now().Format("02.01.2006 15:04:05"),
 	}
 	playlistName := "default"
 	strl.SavePlaylist(playlistName)

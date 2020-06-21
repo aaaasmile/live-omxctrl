@@ -6,6 +6,9 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"time"
+
+	"github.com/aaaasmile/live-omxctrl/playlist"
 
 	"github.com/godbus/dbus"
 )
@@ -13,6 +16,7 @@ import (
 func (op *OmxPlayer) execCommand() {
 	go func() {
 		//out, err := exec.Command("bash", "-c", cmd).Output()
+		op.startedTime = time.Now()
 		oldCmd := op.cmdOmx
 		out, err := op.cmdOmx.Output()
 		log.Println("Command out ", string(out))
@@ -27,6 +31,25 @@ func (op *OmxPlayer) execCommand() {
 		}
 		op.mutex.Unlock()
 	}()
+}
+
+func (op *OmxPlayer) startCurrentItem() error {
+	var curr *playlist.PlayItem
+	var ok bool
+	if curr, ok = op.PlayList.CheckCurrent(); !ok {
+		return nil
+	}
+
+	if curr.ItemType == playlist.PITYoutube {
+		if err := op.StartYoutubeLink(curr.URI); err != nil {
+			return err
+		}
+	} else {
+		if err := op.StartOmxPlayer(curr.URI); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (op *OmxPlayer) connectObjectDbBus() error {
