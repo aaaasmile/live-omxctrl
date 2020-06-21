@@ -40,11 +40,11 @@ export default {
     </v-toolbar>
     <v-col class="mb-1" cols="12">
       <v-row justify="center">
-        <v-col cols="12" md="3">
+        <v-col cols="12">
           <v-text-field v-model="uriToPlay" label="Select an URL"></v-text-field>
         </v-col>
         <v-row>
-          <v-col class="mb-5" cols="12">
+          <v-col class="mb-1" cols="12">
             <v-card>
               <v-card-title>Current Media</v-card-title>
               <div class="mx-4">
