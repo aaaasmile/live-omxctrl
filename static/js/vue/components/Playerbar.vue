@@ -6,7 +6,6 @@
     type="list-item-two-line"
   >
     <v-card class="d-flex align-content-end flex-wrap" flat tile>
-      <v-card>
         <v-toolbar flat>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
@@ -53,8 +52,6 @@
             <span>Repeat</span>
           </v-tooltip>
         </v-toolbar>
-      </v-card>
-      <v-card>
         <v-toolbar flat>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
@@ -92,7 +89,6 @@
             <v-icon>power_settings_new</v-icon>
           </v-btn>
         </v-toolbar>
-      </v-card>
     </v-card>
   </v-skeleton-loader>
 </template>

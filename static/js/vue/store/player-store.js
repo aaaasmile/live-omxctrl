@@ -5,7 +5,13 @@ export default {
         trackStatus: '',
         uri: '',
         mute: '',
-        player: ''
+        player: '',
+        info: '',
+        itemtype: '',
+        listname: '',
+        next: '',
+        previous: '',
+
     },
     mutations: {
         playerstate(state, data) {
@@ -15,6 +21,11 @@ export default {
             state.uri = data.uri
             state.mute = data.mute
             state.player = data.player
+            state.info = data.info
+            state.itemtype = data.itemtype
+            state.listname = data.listname
+            state.previous = data.previous
+            state.next = data.next
         }
     }
 }
