@@ -145,7 +145,7 @@ la prossima. Altrimenti è difficile sapere quando il player finisce.
 Senza questo non si sa quando deve ricominciare. NextTitle con il dbus
 funziona solo se il player è attivo. Questo non è più vero quando la track è finita.
 Penso anche che ci voglia un websocket per lo stato. Quando una track finisce
-il player è off, ma il browser rimane in stato green.
+il player è off, ma il browser rimane in stato green. [DONE]
 
 
 Per stoppare il sevice si usa:
