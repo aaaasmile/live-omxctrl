@@ -1,7 +1,4 @@
-
-
 import Navbar from './components/Navbar.js'
-import Playerbar from './components/Playerbar.js'
 import store from './store/index.js'
 import routes from './routes.js'
 
@@ -9,7 +6,7 @@ import routes from './routes.js'
 export const app = new Vue({
 	el: '#app',
 	router: new VueRouter({ routes }),
-	components: { Navbar, Playerbar },
+	components: { Navbar },
 	vuetify: new Vuetify(),
 	store,
 	data() {
@@ -37,15 +34,15 @@ export const app = new Vue({
 		this.connection.onmessage = (event) => {
 			console.log(event)
 			let dataMsg = JSON.parse(event.data)
-			if (dataMsg.type === "status"){
+			if (dataMsg.type === "status") {
 				console.log('Socket msg type: status')
 				this.$store.commit('playerstate', dataMsg)
-			}else{
+			} else {
 				console.warn('Socket message type not recognized ', dataMsg.type)
 			}
 		}
 
-		this.connection.onopen =  (event) => {
+		this.connection.onopen = (event) => {
 			console.log(event)
 			console.log("Socket connection success")
 		}
@@ -54,7 +51,7 @@ export const app = new Vue({
 			console.log(event)
 			console.log("Socket closed")
 			this.connection = null
-		} 
+		}
 	},
 	methods: {
 
@@ -65,25 +62,13 @@ export const app = new Vue({
     <v-content class="mx-4 mb-4">
       <router-view></router-view>
     </v-content>
-    <v-footer absolute>
-      <v-container>
-        <v-row>
-          <v-col class="d-flex text-center caption" cols="12">
-            <Playerbar />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col class="d-flex text-center caption" cols="12">
-            <div>
-              {{ new Date().getFullYear() }} —
-              <span>Buildnr: {{Buildnr}}</span>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
+    <v-footer>
+      <div class="caption">
+        {{ new Date().getFullYear() }} —
+        <span>Buildnr: {{Buildnr}}</span>
+      </div>
     </v-footer>
-  </v-app>
-`
+  </v-app>`
 })
 
 console.log('Main is here!')

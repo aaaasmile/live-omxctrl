@@ -1,6 +1,8 @@
 import API from '../apicaller.js'
+import Playerbar from '../components/Playerbar.js'
 
 export default {
+  components: { Playerbar },
   data() {
     return {
       loadingyoutube: false,
@@ -51,6 +53,9 @@ export default {
             </v-card>
           </v-col>
         </v-row>
+      </v-row>
+      <v-row>
+        <Playerbar />
       </v-row>
     </v-col>
   </v-card>`

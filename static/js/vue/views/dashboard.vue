@@ -28,6 +28,9 @@
           </v-col>
         </v-row>
       </v-row>
+      <v-row>
+        <Playerbar />
+      </v-row>
     </v-col>
   </v-card>
 </template>
