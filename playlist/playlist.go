@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
+
+const dirPlaylistData = "../playlist-data"
 
 type PlayItemType int
 
@@ -47,7 +50,8 @@ type LLPlayItem struct {
 
 type LLPlayList []*LLPlayItem
 
-func (pl *PlayList) SavePlaylist(path string) error {
+func (pl *PlayList) SavePlaylist(plname string) error {
+	path := filepath.Join(dirPlaylistData, plname)
 	log.Printf("Saving playlist file to: %s\n", path)
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
@@ -56,4 +60,10 @@ func (pl *PlayList) SavePlaylist(path string) error {
 	defer f.Close()
 
 	return json.NewEncoder(f).Encode(pl)
+}
+
+func CheckIfPlaylistExist(plname string) error {
+	path := filepath.Join(dirPlaylistData, plname)
+	_, err := os.Stat(path)
+	return err
 }
