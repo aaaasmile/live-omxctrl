@@ -25,7 +25,7 @@ func handlePlayYoutube(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlay
 	}
 	log.Println("Play youtube URL ", reqURI.URI)
 
-	if err := playUri(reqURI.URI, true, pl); err != nil {
+	if err := playYoutubeUri(reqURI.URI, pl); err != nil {
 		return err
 	}
 	return returnStatus(w, req, pl)
@@ -66,7 +66,7 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		return nil
 	case "on":
 		u := "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-		err = playUri(u, false, pl)
+		err = playYoutubeUri(u, pl)
 		//u := "https://www.youtube.com/watch?v=3czUk1MmmvA"
 		//err = playUri(u, true, pl)
 	default:
@@ -79,15 +79,19 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 	return returnStatusAfterCheck(w, req, pl)
 }
 
-func playUri(u string, isYoutube bool, pl *omx.OmxPlayer) error {
-	var err error
+func playOmxUri(u string, pl *omx.OmxPlayer) error {
 	sleepTime := 400
-	if isYoutube {
-		err = pl.StartYoutubeLink(u)
-		sleepTime = 700
-	} else {
-		err = pl.StartOmxPlayer(u)
-	}
+	err := pl.StartOmxPlayer(u)
+	return checkAfterStartPlay(sleepTime, err, pl)
+}
+
+func playYoutubeUri(u string, pl *omx.OmxPlayer) error {
+	sleepTime := 700
+	err := pl.StartYoutubeLink(u)
+	return checkAfterStartPlay(sleepTime, err, pl)
+}
+
+func checkAfterStartPlay(sleepTime int, err error, pl *omx.OmxPlayer) error {
 	time.Sleep(200 * time.Millisecond)
 	i := 0
 	for i < 8 {
