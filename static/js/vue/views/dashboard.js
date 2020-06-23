@@ -6,6 +6,7 @@ export default {
   data() {
     return {
       loadingyoutube: false,
+      loadingplaylist: false,
       uriToPlay: '',
     }
   },
@@ -37,6 +38,11 @@ export default {
       let req = { uri: this.uriToPlay }
       this.loadingyoutube = true
       API.PlayYoutube(this, req)
+    },
+    playPlaylist() {
+      let req = { uri: this.uriToPlay }
+      console.log("Play a playlist", this.uriToPlay)
+      API.PlayPlaylist(this, req)
     }
   },
   template: `
@@ -52,11 +58,19 @@ export default {
         </template>
         <span>Play youtube url</span>
       </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon @click="playPlaylist" :loading="loadingplaylist" v-on="on">
+            <v-icon>queue_music</v-icon>
+          </v-btn>
+        </template>
+        <span>Play Playlist</span>
+      </v-tooltip>
     </v-toolbar>
     <v-col cols="12">
       <v-row>
         <v-col cols="12">
-          <v-text-field v-model="uriToPlay" label="Select an URL"></v-text-field>
+          <v-text-field v-model="uriToPlay" label="Select an URL or playlist"></v-text-field>
         </v-col>
       </v-row>
       <v-row>

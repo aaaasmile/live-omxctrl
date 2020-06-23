@@ -2,4 +2,4 @@
 *.bin
 *.pem
 live-omxctrl
-./playlist-data/*.*
+playlist-data/*.json
