@@ -6,7 +6,12 @@ import (
 	"time"
 )
 
+func setup() {
+	dirPlaylistData = "../playlist-data"
+}
+
 func TestCreateDefault(t *testing.T) {
+	setup()
 	pli := PlayItem{
 		URI:      "http://stream.srg-ssr.ch/m/rsc_de/aacp_96",
 		Info:     "Radio Swiss Classic",
@@ -30,6 +35,7 @@ func TestCreateDefault(t *testing.T) {
 }
 
 func TestCreateChello(t *testing.T) {
+	setup()
 	list := make([]*PlayItem, 0)
 
 	titles := []string{"Serotonin.mp3",

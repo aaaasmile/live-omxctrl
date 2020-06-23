@@ -3,12 +3,25 @@ package playlist
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-const dirPlaylistData = "../playlist-data"
+var (
+	dirPlaylistData = "playlist-data"
+)
+
+const (
+	lastPlayedInfo = "info.json"
+)
+
+type PlayinfoLast struct {
+	Playlist string
+	URI      string
+}
 
 type PlayItemType int
 
@@ -110,16 +123,75 @@ func (ll *LLPlayList) CheckCurrent() (*PlayItem, bool) {
 	}
 	return ll.CurrItem.PlayItem, true
 }
+func (ll *LLPlayList) IsEmpty() bool {
+	return ll.FirstItem == nil ||
+		ll.LastItem == nil
+}
 
 // func (ll *LLPlayList) StartPlay() error {
 // 	// TODO
 // 	return nil
 // }
 
-func GetCurrentPlaylist() (LLPlayList, error) {
-	// TODO
-	res := LLPlayList{}
-	return res, fmt.Errorf("TODO GetCurrentPlaylist")
+func GetCurrentPlaylist() (*LLPlayList, error) {
+	res := &LLPlayList{}
+	var err error
+	infopath := filepath.Join(dirPlaylistData, lastPlayedInfo)
+	if _, err = os.Stat(infopath); err == nil {
+		raw, err := ioutil.ReadFile(infopath)
+		if err != nil {
+			return res, err
+		}
+		pllast := PlayinfoLast{}
+		if err := json.Unmarshal(raw, &pllast); err != nil {
+			return res, err
+		}
+		log.Println("Last played info ", pllast)
+		return res, fmt.Errorf("TODO provides the last playlist")
+	}
+
+	fileitems, err := ioutil.ReadDir(dirPlaylistData)
+	if err != nil {
+		return res, err
+	}
+	plname := ""
+	for _, item := range fileitems {
+		if !item.IsDir() {
+			log.Println("Selected list ", item)
+		}
+		nn := item.Name()
+		plname = nn
+		if strings.Contains(nn, "default") {
+			break
+		}
+	}
+	if plname != "" {
+		res, err = BuildLListFromfile(filepath.Join(dirPlaylistData, plname))
+		if err != nil {
+			return res, err
+		}
+	}
+
+	if res.IsEmpty() {
+		return res, fmt.Errorf("Nothing to play")
+	}
+	return res, nil
+}
+
+func BuildLListFromfile(fname string) (*LLPlayList, error) {
+	log.Println("Building LL list from file ", fname)
+	res := &LLPlayList{}
+	raw, err := ioutil.ReadFile(fname)
+	if err != nil {
+		return res, err
+	}
+	list := PlayList{}
+	if err := json.Unmarshal(raw, &list); err != nil {
+		return res, err
+	}
+	log.Println("Playlist is ", list)
+
+	return res, nil
 }
 
 func CheckIfPlaylistExist(plname string) error {

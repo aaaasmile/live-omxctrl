@@ -23,7 +23,7 @@ type OmxPlayer struct {
 	TrackStatus   string
 	cmdLine       []string
 	startedTime   time.Time
-	PlayList      playlist.LLPlayList
+	PlayList      *playlist.LLPlayList
 }
 
 func NewOmxPlayer(chst chan *StateOmx) *OmxPlayer {
