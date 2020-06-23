@@ -73,8 +73,18 @@ type LLPlayItem struct {
 	Previous *LLPlayItem
 }
 
+func NewLLPlayItem(nx, pr *LLPlayItem, plit *PlayItem) *LLPlayItem {
+	res := LLPlayItem{
+		PlayItem: plit,
+		Next:     nx,
+		Previous: pr,
+	}
+	return &res
+}
+
 type LLPlayList struct {
 	Name      string
+	Count     int
 	FirstItem *LLPlayItem
 	LastItem  *LLPlayItem
 	CurrItem  *LLPlayItem
@@ -175,6 +185,7 @@ func GetCurrentPlaylist() (*LLPlayList, error) {
 	if res.IsEmpty() {
 		return res, fmt.Errorf("Nothing to play")
 	}
+	log.Println("playlist len", res.Count)
 	return res, nil
 }
 
@@ -190,6 +201,21 @@ func BuildLListFromfile(fname string) (*LLPlayList, error) {
 		return res, err
 	}
 	log.Println("Playlist is ", list)
+	res.Name = list.Name
+	var llitem, pr *LLPlayItem
+	for _, item := range list.List {
+		pr = llitem
+		llitem = NewLLPlayItem(nil, pr, item)
+		if pr != nil {
+			pr.Next = llitem
+		}
+		if res.CurrItem == nil {
+			res.CurrItem = llitem
+			res.FirstItem = llitem
+		}
+		res.LastItem = llitem
+		res.Count++
+	}
 
 	return res, nil
 }
