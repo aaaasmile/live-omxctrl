@@ -147,6 +147,22 @@ funziona solo se il player è attivo. Questo non è più vero quando la track è
 Penso anche che ci voglia un websocket per lo stato. Quando una track finisce
 il player è off, ma il browser rimane in stato green. [DONE]
 
+== urls
+//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
+//u = "/home/igors/Music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
+//u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
+//u = "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
+	
+== TODO
+- Quando parte con una URI tipo youtube, ci deve essere associata una playlist con
+un titolo solo, altrimenti mi parte un altro omx
+- Previous, Random e riciclo
+- Posizione e durata
+- La url può essere un mp3 ma anche un video. Quindi non si lancia youtube in 
+automatico.
+- Play della playlist
+- Database
+
 
 Per stoppare il sevice si usa:
 sudo systemctl stop live-omxctrl

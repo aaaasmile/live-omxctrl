@@ -65,10 +65,6 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		err = pl.PowerOff()
 		return nil
 	case "on":
-		//u := "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-		//err = playOmxUri(u, pl)
-		//u := "https://www.youtube.com/watch?v=3czUk1MmmvA"
-		//err = playYoutubeUri(u, true, pl)
 		err = pl.PowerOn()
 	default:
 		return fmt.Errorf("Toggle power state  not recognized %s", reqPower.PowerState)

@@ -128,6 +128,10 @@ func (op *OmxPlayer) PreviousTitle() error {
 }
 
 func (op *OmxPlayer) NextTitle() error {
+	if op.PlayList == nil {
+		log.Println("Nothing to play because no playlist is provided")
+		return nil
+	}
 	var curr *playlist.PlayItem
 	var ok bool
 	if _, ok = op.PlayList.CheckCurrent(); !ok {
@@ -137,32 +141,17 @@ func (op *OmxPlayer) NextTitle() error {
 	op.mutex.Lock()
 
 	if op.cmdOmx == nil {
-		op.PlayList.First()
 		op.mutex.Unlock()
-		return op.startCurrentItem()
+		log.Println("Player is not active, ignore next title")
+		return nil
 	}
 
-	// Some try fo a playlist
-	// Next Title works only if the the player is still running
-	// Next title as radio swiss doesn't works. Better only with mp3.
-	// Radio url as next, better to restart the player
-	//u := "/home/igors/music/youtube/milanoda_bere_spot.mp3"
-	//u := "/home/igors/Music/youtube/Elisa - Tua Per Sempre-3czUk1MmmvA.mp3"
-	//if op.state.CurrURI == u {
-	// switch to test how to make a play list
-	//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-	//u = "/home/igors/Music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
-	//u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
-	//u = "`youtube-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
-	//return op.StartOmxPlayer(u)
-	//}
-	oldType := curr.ItemType
 	if curr, ok = op.PlayList.Next(); !ok {
 		op.mutex.Unlock()
 		return nil
 	}
 
-	if curr.ItemType != oldType {
+	if curr.ItemType != playlist.PITMp3 {
 		op.mutex.Unlock()
 		return op.startCurrentItem()
 	}
@@ -298,13 +287,14 @@ func (op *OmxPlayer) VolumeUnmute() error {
 }
 
 func (op *OmxPlayer) PowerOn() error {
-	log.Println("Powern on. Play the current playlist")
+	log.Println("Powern on")
 	var err error
 	if op.PlayList, err = playlist.GetCurrentPlaylist(); err != nil {
 		return err
 	}
+	log.Println("Start the play list ", op.PlayList.Name)
 
-	return op.NextTitle()
+	return op.startCurrentItem()
 }
 
 func (op *OmxPlayer) PowerOff() error {

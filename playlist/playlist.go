@@ -99,6 +99,9 @@ func (ll *LLPlayList) Last() {
 }
 
 func (ll *LLPlayList) Next() (*PlayItem, bool) {
+	if ll.CurrItem == nil {
+		return nil, false
+	}
 	ll.CurrItem = ll.CurrItem.Next
 	if ll.CurrItem == nil {
 		ll.CurrItem = ll.FirstItem
@@ -111,6 +114,9 @@ func (ll *LLPlayList) Next() (*PlayItem, bool) {
 }
 
 func (ll *LLPlayList) Previous() (*PlayItem, bool) {
+	if ll.CurrItem == nil {
+		return nil, false
+	}
 	ll.CurrItem = ll.CurrItem.Previous
 	if ll.CurrItem == nil {
 		ll.CurrItem = ll.LastItem
@@ -150,24 +156,24 @@ func GetCurrentPlaylist() (*LLPlayList, error) {
 	if _, err = os.Stat(infopath); err == nil {
 		raw, err := ioutil.ReadFile(infopath)
 		if err != nil {
-			return res, err
+			return nil, err
 		}
 		pllast := PlayinfoLast{}
 		if err := json.Unmarshal(raw, &pllast); err != nil {
-			return res, err
+			return nil, err
 		}
 		log.Println("Last played info ", pllast)
-		return res, fmt.Errorf("TODO provides the last playlist")
+		return nil, fmt.Errorf("TODO provides the last playlist")
 	}
 
 	fileitems, err := ioutil.ReadDir(dirPlaylistData)
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 	plname := ""
 	for _, item := range fileitems {
-		if !item.IsDir() {
-			log.Println("Selected list ", item)
+		if item.IsDir() {
+			continue
 		}
 		nn := item.Name()
 		plname = nn
@@ -178,12 +184,12 @@ func GetCurrentPlaylist() (*LLPlayList, error) {
 	if plname != "" {
 		res, err = BuildLListFromfile(filepath.Join(dirPlaylistData, plname))
 		if err != nil {
-			return res, err
+			return nil, err
 		}
 	}
 
 	if res.IsEmpty() {
-		return res, fmt.Errorf("Nothing to play")
+		return nil, fmt.Errorf("Nothing to play")
 	}
 	log.Println("playlist len", res.Count)
 	return res, nil
