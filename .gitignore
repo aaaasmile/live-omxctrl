@@ -1,0 +1,8 @@
+*.exe
+*.bin
+*.pem
+live-omxctrl
+playlist-data/*.json
+db/test/*
+db/test/*.*
+web/live/soundcloud/soundcloud_test.go

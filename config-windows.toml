@@ -1,0 +1,13 @@
+#Configuration file used in DEVELOPEMENT. 
+## NOTE: if you get this error: 
+# Near line 0 (last key parsed ''): bare keys cannot contain '\ufeff'
+# It is because this config.toml file is saved with BOM. Notepad does it, please use "save as.." with UTF-8 without BOM.
+
+#used to develop under windows
+
+ServiceURL = "127.0.0.1:5548"
+RootURLPattern = "/omx/"
+UseRelativeRoot = true
+DebugVerbose = false
+OmxCmdParams = ""
+DBPath= "C:\\local\\github\\live-omxctrl\\db\\omx-player-repo.db"
