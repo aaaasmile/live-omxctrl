@@ -29,7 +29,7 @@ func main() {
 	flag.Parse()
 
 	rootDirRel := ".."
-	pathItems := []string{"live-omxctrl.exe", "static", "templates", "playlist-data"}
+	pathItems := []string{"live-omxctrl.exe", "static", "templates", "playlist-data", "plugin"}
 	switch *target {
 	case pi4:
 		pathItems = append(pathItems, "deploy/config_files/pi4_config.toml")

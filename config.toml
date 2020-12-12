@@ -13,3 +13,8 @@ OmxCmdParams = "-o,hdmi" #comma separated, example -o,local. Could not be empty
 DBPath= "/home/igors/app/go/live-omxctrl/db/test/test-data.db"
 TmpInfo= "/home/igors/tmp/info"
 VueLibName = "vue.js"
+
+[SoundCloud]
+ClientID=""
+AuthToken=""
+UserAgent=""

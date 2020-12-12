@@ -16,6 +16,13 @@ type Config struct {
 	DBPath          string
 	TmpInfo         string
 	VueLibName      string
+	SoundCloud      *SoundCloud
+}
+
+type SoundCloud struct {
+	ClientID  string
+	AuthToken string
+	UserAgent string
 }
 
 var Current = &Config{}
@@ -28,5 +35,6 @@ func ReadConfig(configfile string) *Config {
 	if _, err := toml.DecodeFile(configfile, &Current); err != nil {
 		log.Fatal(err)
 	}
+	// TODO read SoundCloud from soundclod.json plugins dir.
 	return Current
 }
