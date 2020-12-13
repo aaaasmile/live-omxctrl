@@ -49,16 +49,20 @@ export default {
       API.PreviousTitle(this, req)
     },
     togglePower() {
-      this.loadingMeta = true
-      if (this.$store.state.ps.player !== "off" && this.$store.state.ps.player !== "undef") {
+      if (this.$store.state.ps.player === "on" ||
+        this.$store.state.ps.player === "playing") {
+        this.loadingMeta = true
         console.log("Power off")
         let req = { power: "off" }
         API.SetPowerState(this, req)
-      } else {
+      } else if (this.$store.state.ps.player === "off" ||
+        this.$store.state.ps.player === "undef") {
         this.loadingMeta = true
         console.log("Power on")
         let req = { power: "on" }
         API.SetPowerState(this, req)
+      } else {
+        console.log("ignore toggle on state ", this.$store.state.ps.player)
       }
     },
     toggleMute() {

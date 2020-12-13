@@ -58,21 +58,18 @@ func (op *OmxPlayer) SetCommandLine(commaline string) {
 func (op *OmxPlayer) GetStatePlaying() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx GetStatePlaying ")
 	return op.state.StatePlayer.String()
 }
 
 func (op *OmxPlayer) GetStateMute() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx GetStateMute ")
 	return op.state.StateMute.String()
 }
 
 func (op *OmxPlayer) GetStateTitle() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx GetStateTitle ")
 	if prov, ok := op.Providers[op.state.CurrURI]; ok {
 		return prov.GetTitle()
 	}
@@ -83,7 +80,6 @@ func (op *OmxPlayer) GetStateTitle() string {
 func (op *OmxPlayer) GetStateDescription() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx GetStateDescription ")
 	if prov, ok := op.Providers[op.state.CurrURI]; ok {
 		return prov.GetDescription()
 	}
@@ -96,7 +92,6 @@ func (op *OmxPlayer) GetCurrURI() string {
 	log.Println("getCurrURI")
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx GetCurrURI ")
 	return op.state.CurrURI
 }
 
@@ -123,7 +118,6 @@ func (op *OmxPlayer) PreviousTitle() (string, error) {
 
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx PreviousTitle")
 
 	if op.cmdOmx == nil {
 		log.Println("Player is not active, ignore next title")
@@ -153,7 +147,6 @@ func (op *OmxPlayer) NextTitle() (string, error) {
 
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx NextTitle")
 
 	if op.cmdOmx == nil {
 		log.Println("Player is not active, ignore next title")
@@ -173,7 +166,6 @@ func (op *OmxPlayer) NextTitle() (string, error) {
 func (op *OmxPlayer) CheckStatus(uri string) error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx CheckStatus")
 
 	log.Println("Check status req", op.state)
 	op.clearTrackStatus()
@@ -216,7 +208,6 @@ func (op *OmxPlayer) CheckStatus(uri string) error {
 func (op *OmxPlayer) Resume() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx Resume")
 	if op.cmdOmx == nil {
 		return nil
 	}
@@ -231,7 +222,6 @@ func (op *OmxPlayer) Resume() error {
 func (op *OmxPlayer) Pause() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx Pause")
 	if op.cmdOmx == nil {
 		return nil
 	}
@@ -245,7 +235,6 @@ func (op *OmxPlayer) Pause() error {
 func (op *OmxPlayer) VolumeUp() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx VolumeUp")
 	if op.cmdOmx == nil {
 		return nil
 	}
@@ -261,7 +250,6 @@ func (op *OmxPlayer) VolumeUp() error {
 func (op *OmxPlayer) VolumeDown() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx VolumeDown")
 	if op.cmdOmx == nil {
 		return nil
 	}
@@ -275,7 +263,6 @@ func (op *OmxPlayer) VolumeDown() error {
 func (op *OmxPlayer) VolumeMute() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx VolumeMute")
 	if op.cmdOmx == nil {
 		return nil
 	}
@@ -291,7 +278,6 @@ func (op *OmxPlayer) VolumeMute() error {
 func (op *OmxPlayer) VolumeUnmute() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx VolumeUnmute")
 	if op.cmdOmx == nil {
 		return nil
 	}
@@ -308,20 +294,17 @@ func (op *OmxPlayer) VolumeUnmute() error {
 func (op *OmxPlayer) PowerOff() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx PowerOff")
 	if op.cmdOmx == nil {
 		log.Println("Player is not active. Nothing to do")
 		return nil
 	}
 
-	log.Println("Power off, terminate omxplayer")
-	op.callIntAction("Action", 15)
-	if op.cmdOmx != nil {
-		op.cmdOmx.Process.Kill()
-		op.cmdOmx = nil
+	log.Println("Power off, terminate omxplayer with kill ", op.cmdOmx)
+	//op.callIntAction("Action", 15)
+	op.cmdOmx.Process.Kill()
+	op.cmdOmx = nil
 
-	}
-	op.setState(&StateOmx{StatePlayer: SPoff})
+	//op.setState(&StateOmx{StatePlayer: SPoff})
 
 	return nil
 }

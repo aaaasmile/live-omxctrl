@@ -29,7 +29,7 @@ type actionDef struct {
 }
 
 func (op *OmxPlayer) execCommand(uri string) {
-
+	log.Println("Prepare to start the player with execCommand")
 	go func(cmdOmx *exec.Cmd, actCh chan *actionDef, uri string) {
 		actCh <- &actionDef{
 			URI:    uri,
@@ -112,10 +112,9 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	log.Println("Current item is ", curr)
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	log.Println("In Mx startPlayListCurrent")
 	if op.cmdOmx != nil {
 		log.Println("Shutting down the current player", op.cmdOmx)
-		op.callIntAction("Action", 15)
+		//op.callIntAction("Action", 15)
 		op.cmdOmx.Process.Kill()
 	}
 	uri := prov.GetURI()

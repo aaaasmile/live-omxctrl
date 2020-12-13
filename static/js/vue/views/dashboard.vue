@@ -11,6 +11,7 @@
               <template v-slot:activator="{ on }">
                 <v-btn
                   icon
+                  @keydown.enter="playUri"
                   @click="playUri"
                   :loading="loadingyoutube"
                   v-on="on"

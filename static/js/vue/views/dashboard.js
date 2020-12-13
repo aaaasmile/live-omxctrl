@@ -40,7 +40,11 @@ export default {
   },
   methods: {
     playUri() {
-      console.log('play playUri')
+      if (this.uriToPlay === ''){
+        console.log('Nothig to play')
+        return
+      }
+      console.log('call playUri')
       let req = { uri: this.uriToPlay }
       this.loadingyoutube = true
       API.PlayUri(this, req)
@@ -59,6 +63,7 @@ export default {
               <template v-slot:activator="{ on }">
                 <v-btn
                   icon
+                  @keydown.enter="playUri"
                   @click="playUri"
                   :loading="loadingyoutube"
                   v-on="on"
