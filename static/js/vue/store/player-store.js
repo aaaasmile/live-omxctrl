@@ -16,6 +16,9 @@ export default {
     },
     mutations: {
         playerstate(state, data) {
+            if (!data){
+                return
+            }
             state.trackDuration = data.trackDuration
             state.trackPosition = data.trackPosition
             state.trackStatus = data.trackStatus

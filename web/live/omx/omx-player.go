@@ -280,25 +280,18 @@ func (op *OmxPlayer) VolumeUnmute() error {
 func (op *OmxPlayer) PowerOff() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	// if op.cmdOmx == nil {
-	// 	log.Println("Player is not active. Nothing to do")
-	// 	return nil
-	// }
 
 	log.Println("Power off, terminate omxplayer with kill ")
 	//op.callIntAction("Action", 15)
 
-	for _, prov := range op.Providers {
+	for k, prov := range op.Providers {
+		log.Println("Sending stop signal to ", k)
 		ch := prov.GetStopChannel()
 		ch <- struct{}{}
 		prov.CloseStopChannel()
 	}
+
 	op.Providers = make(map[string]idl.StreamProvider)
-
-	//op.cmdOmx.Process.Kill()
-	//op.cmdOmx = nil
-
-	//op.setState(&StateOmx{StatePlayer: SPoff})
 
 	return nil
 }

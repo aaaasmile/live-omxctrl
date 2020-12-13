@@ -187,6 +187,20 @@ per vedere com si usa la API.
 Si lancia come il video dei tube basta avere una trackid
 Per esempio: https://api.soundcloud.com/tracks/62576046
 
+== Terminare il player
+Una funzionalità che ho fatto molta fatica a capire in quanto non ha mai funzionato a dovere.
+Se uso il dbus, bisogna trovare il file corretto per mandare il segnale 15. 
+Meglio usare il process kill del comando exec. Il problema è che allo start vengono
+creati due processi e vanno entrambi killati. Il Kill sul parent non è sufficiente.
+Si usa:
+cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+Nella funzione execCommand() c'è un pattern che usa cmd Start e Wait. Wait blocca
+fino alla fine dell'esecuzione. Per questo è messa in una go sub routine e setta il channel done.
+Il channell done è buffered in quanto se arriva prima un segnale di kill, quando Wait()
+finisce il channel done sarebbe settato senza essere consumato e genera un leak.
+
+
 == TODO
 
 - Il mutex sullo state del player dovrebe essere superfluo

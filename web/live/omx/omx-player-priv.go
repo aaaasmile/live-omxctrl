@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"syscall"
 
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/playlist"
@@ -28,70 +29,6 @@ const (
 type actionDef struct {
 	URI    string
 	Action actionTD
-}
-
-func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
-	log.Println("Prepare to start the player with execCommand")
-	go func(cmdText string, actCh chan *actionDef, uri string, chstop chan struct{}) {
-		// op.cmdOmx = exec.Command("bash", "-c", cmd)
-		log.Println("Submit the command ", cmdText)
-		//cmd := exec.Command("omxplayer", "-o", "hdmi", "/home/igors/Music/youtube/gianna-fenomenale.mp3")
-		//cmd := exec.Command("bash", "-c", "omxplayer -o luz /home/igors/Music/youtube/gianna-fenomenale.mp3")
-		cmd := exec.Command("bash", "-c", cmdText)
-		actCh <- &actionDef{
-			URI:    uri,
-			Action: actPlaying,
-		}
-		// out, err := cmdOmx.Output()
-		// log.Println("Command out ", string(out))
-		// if err != nil {
-		// 	log.Println("Command executed with error: ", err)
-		// }
-		var stdoutBuf bytes.Buffer
-		cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
-
-		if err := cmd.Start(); err == nil {
-			done := make(chan error, 1)
-			go func() {
-				done <- cmd.Wait()
-			}()
-		loop:
-			for {
-
-				select {
-				case <-chstop:
-					log.Println("Received stop signal")
-					if err := cmd.Process.Kill(); err != nil {
-						log.Println("Error on killing the process ", err)
-						break loop
-					}
-				case err := <-done:
-					log.Println("Process finished")
-					if err != nil {
-						log.Println("Error on process termination")
-					}
-					log.Println(string(stdoutBuf.Bytes()))
-					break loop
-				default:
-					outStr := string(stdoutBuf.Bytes())
-					if outStr != "" {
-						log.Println("***> ", outStr)
-					}
-				}
-			}
-			log.Println("Exit from loop")
-
-		} else {
-			log.Println("ERROR cmd.Run() failed with", err)
-		}
-
-		log.Println("Player has been terminated. Cmd was ", cmdText)
-		actCh <- &actionDef{
-			URI:    uri,
-			Action: actTerminate,
-		}
-
-	}(cmdText, op.chAction, uri, chstop)
 }
 
 func listenStateAction(actCh chan *actionDef, op *OmxPlayer) {
@@ -147,6 +84,60 @@ func listenStateAction(actCh chan *actionDef, op *OmxPlayer) {
 	}
 }
 
+func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
+	log.Println("Prepare to start the player with execCommand")
+	go func(cmdText string, actCh chan *actionDef, uri string, chstop chan struct{}) {
+		log.Println("Submit the command in background ", cmdText)
+		cmd := exec.Command("bash", "-c", cmdText)
+		actCh <- &actionDef{
+			URI:    uri,
+			Action: actPlaying,
+		}
+
+		var stdoutBuf, stderrBuf bytes.Buffer
+		cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
+		cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true} // for killing children
+
+		if err := cmd.Start(); err == nil {
+			log.Println("PID started ", cmd.Process.Pid)
+			done := make(chan error, 1) // buffered channel to prevent leak on kill
+			go func() {
+				done <- cmd.Wait()
+				log.Println("Wait ist terminated")
+			}()
+
+			select {
+			case <-chstop:
+				log.Println("Received stop signal")
+				// The problem here ist that we have also a child process
+				// The child should be also killed not only the parent
+				if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
+					log.Println("Error on killing the process ", err)
+				}
+			case err := <-done:
+				log.Println("Process finished")
+				if err != nil {
+					log.Println("Error on process termination =>", err)
+				}
+				log.Println(string(stderrBuf.Bytes()))
+				log.Println(string(stdoutBuf.Bytes()))
+			}
+			log.Println("Exit from loop")
+
+		} else {
+			log.Println("ERROR cmd.Start() failed with", err)
+		}
+
+		log.Println("Player has been terminated. Cmd was ", cmdText)
+		actCh <- &actionDef{
+			URI:    uri,
+			Action: actTerminate,
+		}
+
+	}(cmdText, op.chAction, uri, chstop)
+}
+
 func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	log.Println("Start current item ", op.PlayList)
 	var curr *playlist.PlayItem
@@ -160,7 +151,6 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 
 	if op.state.CurrURI != "" {
 		log.Println("Shutting down the current player of ", op.state.CurrURI)
-		//op.callIntAction("Action", 15)
 		if pp, ok := op.Providers[op.state.CurrURI]; ok {
 			chStop := pp.GetStopChannel()
 			chStop <- struct{}{}
@@ -178,9 +168,7 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	}
 	cmd := prov.GetStreamerCmd(op.cmdLineArr)
 	log.Println("Start the command: ", cmd)
-	//op.cmdOmx = exec.Command("bash", "-c", cmd)
 	op.execCommand(uri, cmd, prov.GetStopChannel())
-	//op.setState(&StateOmx{CurrURI: uri, StatePlaying: SPplaying})
 
 	return nil
 }
