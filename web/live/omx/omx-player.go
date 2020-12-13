@@ -234,7 +234,6 @@ func (op *OmxPlayer) VolumeUp() error {
 		// dbus-send --print-reply=literal --session --dest=org.mpris.MediaPlayer2.omxplayer /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Action int32:18 >/dev/null
 		op.callIntAction("Action", 18)
 	}
-	// ACTION_INCREASE_VOLUME = 18,
 	// TODO check the volume level
 	return nil
 }
@@ -245,7 +244,7 @@ func (op *OmxPlayer) VolumeDown() error {
 
 	if op.state.CurrURI != "" {
 		log.Println("VolumeDown")
-		op.callIntAction("Action", 17) // ACTION_DECREASE_VOLUME = 17,
+		op.callIntAction("Action", 17)
 	}
 	// TODO check the volume level
 	return nil
@@ -281,11 +280,10 @@ func (op *OmxPlayer) PowerOff() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
-	log.Println("Power off, terminate omxplayer with kill ")
-	//op.callIntAction("Action", 15)
+	log.Println("Power off, terminate omxplayer with signal kill")
 
 	for k, prov := range op.Providers {
-		log.Println("Sending stop signal to ", k)
+		log.Println("Sending kill signal to ", k)
 		ch := prov.GetStopChannel()
 		ch <- struct{}{}
 		prov.CloseStopChannel()

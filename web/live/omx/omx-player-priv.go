@@ -97,11 +97,11 @@ func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 		var stdoutBuf, stderrBuf bytes.Buffer
 		cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
 		cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
-		cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true} // for killing children
+		cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 
 		if err := cmd.Start(); err == nil {
 			log.Println("PID started ", cmd.Process.Pid)
-			done := make(chan error, 1) // buffered channel to prevent leak on kill
+			done := make(chan error, 1)
 			go func() {
 				done <- cmd.Wait()
 				log.Println("Wait ist terminated")
@@ -109,9 +109,7 @@ func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 
 			select {
 			case <-chstop:
-				log.Println("Received stop signal")
-				// The problem here ist that we have also a child process
-				// The child should be also killed not only the parent
+				log.Println("Received stop signal, kill parent and child processes")
 				if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
 					log.Println("Error on killing the process ", err)
 				}
@@ -123,7 +121,7 @@ func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 				log.Println(string(stderrBuf.Bytes()))
 				log.Println(string(stdoutBuf.Bytes()))
 			}
-			log.Println("Exit from loop")
+			log.Println("Exit from waiting command execution")
 
 		} else {
 			log.Println("ERROR cmd.Start() failed with", err)

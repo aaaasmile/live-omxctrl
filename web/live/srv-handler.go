@@ -132,7 +132,6 @@ func listenStatus(statusCh chan *omx.StateOmx) {
 			NextItem string `json:"nextitem"`
 			PrevItem string `json:"previtem"`
 			Type     string `json:"type"`
-			//IsYoutubePlayer bool   `json:"isyoutube"`
 		}{
 			Player:   st.StatePlayer.String(),
 			Mute:     st.StateMute.String(),
@@ -142,7 +141,6 @@ func listenStatus(statusCh chan *omx.StateOmx) {
 			NextItem: st.NextItem,
 			PrevItem: st.PrevItem,
 			Type:     "status",
-			//IsYoutubePlayer: st.YoutubePlayer,
 		}
 		log.Println("Status update received ", st)
 		blobresp, err := json.Marshal(resp)
