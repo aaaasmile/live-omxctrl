@@ -147,13 +147,14 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
-	if op.state.CurrURI != "" {
-		log.Println("Shutting down the current player of ", op.state.CurrURI)
-		if pp, ok := op.Providers[op.state.CurrURI]; ok {
+	curURI := op.state.CurrURI
+	if curURI != "" {
+		log.Println("Shutting down the current player of ", curURI)
+		if pp, ok := op.Providers[curURI]; ok {
 			chStop := pp.GetStopChannel()
 			chStop <- struct{}{}
 			pp.CloseStopChannel()
-			op.Providers[op.state.CurrURI] = nil
+			delete(op.Providers, curURI)
 		}
 	}
 	uri := prov.GetURI()

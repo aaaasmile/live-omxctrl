@@ -161,6 +161,9 @@ func (op *OmxPlayer) NextTitle() (string, error) {
 }
 
 func (op *OmxPlayer) CheckStatus(uri string) error {
+	if uri == "" {
+		return nil
+	}
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
