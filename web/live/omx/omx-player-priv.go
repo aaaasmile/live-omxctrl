@@ -29,10 +29,14 @@ type actionDef struct {
 	Action actionTD
 }
 
-func (op *OmxPlayer) execCommand(uri string) {
+func (op *OmxPlayer) execCommand(uri, cmdText string) {
 	log.Println("Prepare to start the player with execCommand")
-	go func(cmd *exec.Cmd, actCh chan *actionDef, uri string) {
+	go func(cmdText string, actCh chan *actionDef, uri string) {
 		// op.cmdOmx = exec.Command("bash", "-c", cmd)
+		log.Println("Submit the command ", cmdText)
+		//cmd := exec.Command("omxplayer", "-o", "hdmi", "/home/igors/Music/youtube/gianna-fenomenale.mp3")
+		//cmd := exec.Command("bash", "-c", "omxplayer -o luz /home/igors/Music/youtube/gianna-fenomenale.mp3")
+		cmd := exec.Command("bash", "-c", cmdText)
 		actCh <- &actionDef{
 			URI:    uri,
 			Action: actPlaying,
@@ -42,24 +46,14 @@ func (op *OmxPlayer) execCommand(uri string) {
 		// if err != nil {
 		// 	log.Println("Command executed with error: ", err)
 		// }
-		stderr, _ := cmd.StderrPipe()
 		stdout, _ := cmd.StdoutPipe()
 		if err := cmd.Start(); err == nil {
-			scanErr := bufio.NewScanner(stderr)
-			scanStdio := bufio.NewScanner(stdout)
-
-			scanErr.Split(bufio.ScanWords)
-			for scanErr.Scan() {
-				m := scanErr.Text()
-				fmt.Println("**E ", m)
+			scanner := bufio.NewScanner(stdout)
+			scanner.Split(bufio.ScanWords)
+			for scanner.Scan() {
+				m := scanner.Text()
+				fmt.Println("O* ", m)
 			}
-
-			scanStdio.Split(bufio.ScanWords)
-			for scanStdio.Scan() {
-				m := scanStdio.Text()
-				fmt.Println("**O ", m)
-			}
-
 			cmd.Wait()
 		} else {
 			log.Println("ERROR on exec cmd", err)
@@ -71,7 +65,7 @@ func (op *OmxPlayer) execCommand(uri string) {
 			Action: actTerminate,
 		}
 
-	}(op.cmdOmx, op.chAction, uri)
+	}(cmdText, op.chAction, uri)
 }
 
 func listenStateAction(actCh chan *actionDef, op *OmxPlayer) {
@@ -152,8 +146,8 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	}
 	cmd := prov.GetStreamerCmd(op.cmdLineArr)
 	log.Println("Start the command: ", cmd)
-	op.cmdOmx = exec.Command("bash", "-c", cmd)
-	op.execCommand(uri)
+	//op.cmdOmx = exec.Command("bash", "-c", cmd)
+	op.execCommand(uri, cmd)
 	//op.setState(&StateOmx{CurrURI: uri, StatePlaying: SPplaying})
 
 	return nil
