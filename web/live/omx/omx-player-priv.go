@@ -1,15 +1,13 @@
 package omx
 
 import (
-	"bytes"
+	"bufio"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"os/user"
-	"sync"
 
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/playlist"
@@ -31,30 +29,6 @@ type actionDef struct {
 	Action actionTD
 }
 
-// CapturingPassThroughWriter is a writer that remembers
-// data written to it and passes it to w
-type CapturingPassThroughWriter struct {
-	buf bytes.Buffer
-	w   io.Writer
-}
-
-// NewCapturingPassThroughWriter creates new CapturingPassThroughWriter
-func NewCapturingPassThroughWriter(w io.Writer) *CapturingPassThroughWriter {
-	return &CapturingPassThroughWriter{
-		w: w,
-	}
-}
-
-func (w *CapturingPassThroughWriter) Write(d []byte) (int, error) {
-	w.buf.Write(d)
-	return w.w.Write(d)
-}
-
-// Bytes returns bytes written to the writer
-func (w *CapturingPassThroughWriter) Bytes() []byte {
-	return w.buf.Bytes()
-}
-
 func (op *OmxPlayer) execCommand(uri string) {
 	log.Println("Prepare to start the player with execCommand")
 	go func(cmd *exec.Cmd, actCh chan *actionDef, uri string) {
@@ -68,37 +42,28 @@ func (op *OmxPlayer) execCommand(uri string) {
 		// if err != nil {
 		// 	log.Println("Command executed with error: ", err)
 		// }
-		var errStdout, errStderr error
-		stdoutIn, _ := cmd.StdoutPipe()
-		stderrIn, _ := cmd.StderrPipe()
-		stdout := NewCapturingPassThroughWriter(os.Stdout)
-		stderr := NewCapturingPassThroughWriter(os.Stderr)
+		stderr, _ := cmd.StderrPipe()
+		stdout, _ := cmd.StdoutPipe()
+		if err := cmd.Start(); err == nil {
+			scanErr := bufio.NewScanner(stderr)
+			scanStdio := bufio.NewScanner(stdout)
 
-		err := cmd.Start()
-		if err != nil {
-			log.Fatalf("cmd.Start() failed with '%s'\n", err)
+			scanErr.Split(bufio.ScanWords)
+			for scanErr.Scan() {
+				m := scanErr.Text()
+				fmt.Println("**E ", m)
+			}
+
+			scanStdio.Split(bufio.ScanWords)
+			for scanStdio.Scan() {
+				m := scanStdio.Text()
+				fmt.Println("**O ", m)
+			}
+
+			cmd.Wait()
+		} else {
+			log.Println("ERROR on exec cmd", err)
 		}
-
-		var wg sync.WaitGroup
-		wg.Add(1)
-
-		go func() {
-			_, errStdout = io.Copy(stdout, stdoutIn)
-			wg.Done()
-		}()
-
-		_, errStderr = io.Copy(stderr, stderrIn)
-		wg.Wait()
-
-		err = cmd.Wait()
-		if err != nil {
-			log.Println("ERROR:  cmd.Run() failed with", err)
-		}
-		if errStdout != nil || errStderr != nil {
-			log.Println("ERROR: failed to capture stdout or stderr")
-		}
-		outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
-		fmt.Printf("\nout:\n%s\nerr:\n%s\n", outStr, errStr)
 
 		log.Println("Closing player with ", cmd)
 		actCh <- &actionDef{
