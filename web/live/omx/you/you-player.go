@@ -13,6 +13,7 @@ type YoutubePl struct {
 	YoutubeInfo *InfoLink
 	URI         string
 	TmpInfo     string
+	chClose     chan struct{}
 }
 
 func (yp *YoutubePl) GetStatusSleepTime() int {
@@ -79,4 +80,18 @@ func (yp *YoutubePl) GetStreamerCmd(cmdLineArr []string) string {
 
 func getYoutubePlayer() string {
 	return "you" + "tube" + "-" + "dl"
+}
+
+func (yp *YoutubePl) GetStopChannel() chan struct{} {
+	if yp.chClose == nil {
+		yp.chClose = make(chan struct{})
+	}
+	return yp.chClose
+}
+
+func (yp *YoutubePl) CloseStopChannel() {
+	if yp.chClose != nil {
+		close(yp.chClose)
+		yp.chClose = nil
+	}
 }

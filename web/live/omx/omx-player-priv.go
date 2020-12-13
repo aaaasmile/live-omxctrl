@@ -1,8 +1,9 @@
 package omx
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -29,9 +30,9 @@ type actionDef struct {
 	Action actionTD
 }
 
-func (op *OmxPlayer) execCommand(uri, cmdText string) {
+func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 	log.Println("Prepare to start the player with execCommand")
-	go func(cmdText string, actCh chan *actionDef, uri string) {
+	go func(cmdText string, actCh chan *actionDef, uri string, chstop chan struct{}) {
 		// op.cmdOmx = exec.Command("bash", "-c", cmd)
 		log.Println("Submit the command ", cmdText)
 		//cmd := exec.Command("omxplayer", "-o", "hdmi", "/home/igors/Music/youtube/gianna-fenomenale.mp3")
@@ -46,26 +47,51 @@ func (op *OmxPlayer) execCommand(uri, cmdText string) {
 		// if err != nil {
 		// 	log.Println("Command executed with error: ", err)
 		// }
-		stdout, _ := cmd.StdoutPipe()
+		var stdoutBuf bytes.Buffer
+		cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
+
 		if err := cmd.Start(); err == nil {
-			scanner := bufio.NewScanner(stdout)
-			scanner.Split(bufio.ScanWords)
-			for scanner.Scan() {
-				m := scanner.Text()
-				fmt.Println("O* ", m)
+			done := make(chan error, 1)
+			go func() {
+				done <- cmd.Wait()
+			}()
+		loop:
+			for {
+
+				select {
+				case <-chstop:
+					log.Println("Received stop signal")
+					if err := cmd.Process.Kill(); err != nil {
+						log.Println("Error on killing the process ", err)
+						break loop
+					}
+				case err := <-done:
+					log.Println("Process finished")
+					if err != nil {
+						log.Println("Error on process termination")
+					}
+					log.Println(string(stdoutBuf.Bytes()))
+					break loop
+				default:
+					outStr := string(stdoutBuf.Bytes())
+					if outStr != "" {
+						log.Println("***> ", outStr)
+					}
+				}
 			}
-			cmd.Wait()
+			log.Println("Exit from loop")
+
 		} else {
-			log.Println("ERROR on exec cmd", err)
+			log.Println("ERROR cmd.Run() failed with", err)
 		}
 
-		log.Println("Closing player with ", cmd)
+		log.Println("Player has been terminated. Cmd was ", cmdText)
 		actCh <- &actionDef{
 			URI:    uri,
 			Action: actTerminate,
 		}
 
-	}(cmdText, op.chAction, uri)
+	}(cmdText, op.chAction, uri, chstop)
 }
 
 func listenStateAction(actCh chan *actionDef, op *OmxPlayer) {
@@ -131,10 +157,16 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	log.Println("Current item is ", curr)
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-	if op.cmdOmx != nil {
-		log.Println("Shutting down the current player", op.cmdOmx)
+
+	if op.state.CurrURI != "" {
+		log.Println("Shutting down the current player of ", op.state.CurrURI)
 		//op.callIntAction("Action", 15)
-		op.cmdOmx.Process.Kill()
+		if pp, ok := op.Providers[op.state.CurrURI]; ok {
+			chStop := pp.GetStopChannel()
+			chStop <- struct{}{}
+			pp.CloseStopChannel()
+			op.Providers[op.state.CurrURI] = nil
+		}
 	}
 	uri := prov.GetURI()
 	op.Providers[uri] = prov
@@ -147,7 +179,7 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	cmd := prov.GetStreamerCmd(op.cmdLineArr)
 	log.Println("Start the command: ", cmd)
 	//op.cmdOmx = exec.Command("bash", "-c", cmd)
-	op.execCommand(uri, cmd)
+	op.execCommand(uri, cmd, prov.GetStopChannel())
 	//op.setState(&StateOmx{CurrURI: uri, StatePlaying: SPplaying})
 
 	return nil
@@ -159,6 +191,8 @@ func (op *OmxPlayer) connectObjectDbBus() error {
 	}
 	u, err := user.Current()
 	log.Println("User ", u.Username)
+
+	// TODO multiple istance of omxplayerdbus are possible
 	fname := fmt.Sprintf("/tmp/omxplayerdbus.%s", u.Username)
 	if _, err := os.Stat(fname); err == nil {
 		//busAddr := "unix:abstract=/tmp/dbus-1OTLRLIFgE,guid=39be549b2196c379ccdf29585ed9674d"
@@ -234,7 +268,6 @@ func (op *OmxPlayer) setState(st *StateOmx) {
 	op.state.Info = st.Info
 	if st.StatePlayer == SPoff {
 		op.coDBus = nil
-		op.cmdOmx = nil
 		op.clearTrackStatus()
 	}
 	op.chstatus <- &op.state

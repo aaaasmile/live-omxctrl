@@ -16,8 +16,9 @@ type infoFile struct {
 }
 
 type FilePlayer struct {
-	URI  string
-	Info *infoFile
+	URI     string
+	Info    *infoFile
+	chClose chan struct{}
 }
 
 func (fp *FilePlayer) IsUriForMe(uri string) bool {
@@ -73,4 +74,18 @@ func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, err
 		chHistoryItem <- &hi
 	}
 	return false, nil
+}
+
+func (fp *FilePlayer) GetStopChannel() chan struct{} {
+	if fp.chClose == nil {
+		fp.chClose = make(chan struct{})
+	}
+	return fp.chClose
+}
+
+func (fp *FilePlayer) CloseStopChannel() {
+	if fp.chClose != nil {
+		close(fp.chClose)
+		fp.chClose = nil
+	}
 }
