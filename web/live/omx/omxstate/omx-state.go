@@ -87,14 +87,17 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 	uriPlaying := ""
 	for {
 		st := <-actCh
+		olduriPlaying := uriPlaying
 		log.Println("New action in state: ", st.Action.String(), stateCurrent.String())
-		stateNext := StateOmx{CurrURI: st.URI, StatePlayer: SPundef, StateMute: SMundef}
+		stateNext := StateOmx{CurrURI: olduriPlaying, StatePlayer: SPundef, StateMute: SMundef}
 		switch stateCurrent {
 		case SPoff:
 			switch st.Action {
 			case ActPlaying:
-				stateNext.StatePlayer = SPplaying
-				uriPlaying = st.URI
+				if st.URI != "" {
+					stateNext.StatePlayer = SPplaying
+					uriPlaying = st.URI
+				}
 			case ActMute:
 				stateNext.StateMute = SMmuted
 			case ActUnmute:
@@ -103,8 +106,10 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 		case SPplaying:
 			switch st.Action {
 			case ActPlaying:
-				stateNext.StatePlayer = SPrestart
-				uriPlaying = st.URI
+				if st.URI != "" {
+					stateNext.StatePlayer = SPrestart
+					uriPlaying = st.URI
+				}
 			case ActPause:
 				stateNext.StatePlayer = SPpause
 			case ActTerminate:
@@ -145,6 +150,10 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 			log.Println("State trigger a mute change")
 			stateNext.StatePlayer = stateCurrent
 			muteStateCurrent = stateNext.StateMute
+			ntfyChange = true
+		}
+		if olduriPlaying != uriPlaying {
+			stateNext.CurrURI = uriPlaying
 			ntfyChange = true
 		}
 		if ntfyChange {

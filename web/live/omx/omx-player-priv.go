@@ -84,9 +84,11 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	if curURI != "" {
 		log.Println("Shutting down the current player of ", curURI)
 		if pp, ok := op.Providers[curURI]; ok {
-			chStop := pp.GetStopChannel()
-			chStop <- struct{}{}
-			pp.CloseStopChannel()
+			chStop := pp.GetCmdStopChannel()
+			if chStop != nil {
+				chStop <- struct{}{}
+				pp.CloseStopChannel()
+			}
 			delete(op.Providers, curURI)
 		}
 	}
@@ -100,9 +102,31 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	}
 	cmd := prov.GetStreamerCmd(op.cmdLineArr)
 	log.Println("Start the command: ", cmd)
-	op.execCommand(uri, cmd, prov.GetStopChannel())
+	op.execCommand(uri, cmd, prov.CreateStopChannel())
 
 	return nil
+}
+
+func (op *OmxPlayer) listenStatus(statusCh chan *omxstate.StateOmx) {
+	log.Println("Waiting for status in omxplayer")
+	for {
+		st := <-statusCh
+		op.mutex.Lock()
+		log.Println("Set OmxPlayer state ", st)
+		if st.StatePlayer == omxstate.SPoff {
+			k := op.state.CurrURI
+			if _, ok := op.Providers[k]; ok {
+				delete(op.Providers, k)
+			}
+			op.coDBus = nil
+			op.clearTrackStatus()
+		}
+		op.state.CurrURI = st.CurrURI
+		op.state.StateMute = st.StateMute
+		op.state.StatePlayer = st.StatePlayer
+		op.state.Info = st.Info
+		op.mutex.Unlock()
+	}
 }
 
 func (op *OmxPlayer) connectObjectDbBus() error {
@@ -112,7 +136,7 @@ func (op *OmxPlayer) connectObjectDbBus() error {
 	u, err := user.Current()
 	log.Println("User ", u.Username)
 
-	// TODO multiple istance of omxplayerdbus are possible
+	// TODO figure out how multiple app instance works with dbus
 	fname := fmt.Sprintf("/tmp/omxplayerdbus.%s", u.Username)
 	if _, err := os.Stat(fname); err == nil {
 		//busAddr := "unix:abstract=/tmp/dbus-1OTLRLIFgE,guid=39be549b2196c379ccdf29585ed9674d"
@@ -179,32 +203,3 @@ func (op *OmxPlayer) clearTrackStatus() {
 	op.TrackPosition = ""
 	op.TrackStatus = ""
 }
-
-func (op *OmxPlayer) listenStatus(statusCh chan *omxstate.StateOmx) {
-	log.Println("Waiting for status in omxplayer")
-	for {
-		st := <-statusCh
-		log.Println("Set OmxPlayer state ", st)
-		op.state.CurrURI = st.CurrURI
-		op.state.StateMute = st.StateMute
-		op.state.StatePlayer = st.StatePlayer
-		op.state.Info = st.Info
-		if st.StatePlayer == omxstate.SPoff {
-			op.coDBus = nil
-			op.clearTrackStatus()
-		}
-	}
-}
-
-// func (op *OmxPlayer) setState(st *StateOmx) {
-// 	log.Println("Set OmxPlayer state ", st)
-// 	op.state.CurrURI = st.CurrURI
-// 	op.state.StateMute = st.StateMute
-// 	op.state.StatePlayer = st.StatePlayer
-// 	op.state.Info = st.Info
-// 	if st.StatePlayer == SPoff {
-// 		op.coDBus = nil
-// 		op.clearTrackStatus()
-// 	}
-// 	op.chstatus <- &op.state
-// }

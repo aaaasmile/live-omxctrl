@@ -72,10 +72,14 @@ func (rp *RadioPlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, er
 	return false, nil
 }
 
-func (rp *RadioPlayer) GetStopChannel() chan struct{} {
+func (rp *RadioPlayer) CreateStopChannel() chan struct{} {
 	if rp.chClose == nil {
 		rp.chClose = make(chan struct{})
 	}
+	return rp.chClose
+}
+
+func (rp *RadioPlayer) GetCmdStopChannel() chan struct{} {
 	return rp.chClose
 }
 

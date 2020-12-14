@@ -4,7 +4,7 @@ import "github.com/aaaasmile/live-omxctrl/db"
 
 var (
 	Appname = "live-omxctrl"
-	Buildnr = "00.01.19.20201213-02"
+	Buildnr = "00.01.20.20201213-00"
 )
 
 type StreamProvider interface {
@@ -16,6 +16,7 @@ type StreamProvider interface {
 	Name() string
 	GetStreamerCmd(cmdLineArr []string) string
 	CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, error)
-	GetStopChannel() chan struct{}
+	CreateStopChannel() chan struct{}
+	GetCmdStopChannel() chan struct{}
 	CloseStopChannel()
 }

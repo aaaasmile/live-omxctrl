@@ -82,10 +82,14 @@ func getYoutubePlayer() string {
 	return "you" + "tube" + "-" + "dl"
 }
 
-func (yp *YoutubePl) GetStopChannel() chan struct{} {
+func (yp *YoutubePl) CreateStopChannel() chan struct{} {
 	if yp.chClose == nil {
 		yp.chClose = make(chan struct{})
 	}
+	return yp.chClose
+}
+
+func (yp *YoutubePl) GetCmdStopChannel() chan struct{} {
 	return yp.chClose
 }
 

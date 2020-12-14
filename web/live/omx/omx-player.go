@@ -302,9 +302,12 @@ func (op *OmxPlayer) PowerOff() error {
 func (op *OmxPlayer) freeAllProviders() {
 	for k, prov := range op.Providers {
 		log.Println("Sending kill signal to ", k)
-		ch := prov.GetStopChannel()
-		ch <- struct{}{}
-		prov.CloseStopChannel()
+		ch := prov.GetCmdStopChannel()
+		if ch != nil {
+			log.Println("Force kill with channel")
+			ch <- struct{}{}
+			prov.CloseStopChannel()
+		}
 	}
 
 	op.Providers = make(map[string]idl.StreamProvider)

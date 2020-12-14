@@ -76,10 +76,14 @@ func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, err
 	return false, nil
 }
 
-func (fp *FilePlayer) GetStopChannel() chan struct{} {
+func (fp *FilePlayer) CreateStopChannel() chan struct{} {
 	if fp.chClose == nil {
 		fp.chClose = make(chan struct{})
 	}
+	return fp.chClose
+}
+
+func (fp *FilePlayer) GetCmdStopChannel() chan struct{} {
 	return fp.chClose
 }
 

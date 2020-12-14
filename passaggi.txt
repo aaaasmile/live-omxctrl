@@ -202,6 +202,9 @@ finisce il channel done sarebbe settato senza essere consumato e genera un leak.
 
 
 == TODO
+- Le icone di mute non vanno bene. Ne serve una che toggle tra volume_down e volume_off
+Le icone del volume indicano lo stato attuale e non l'azione. 
+Invece il volume si fa con una slidebar.
 - dbus è da rivedere. Se c'è gia un player in funzione, la seconda istanza su una porta diversa (dev)
 va a cambiare l'istanza del service. Andrebbe magari anche isolata.
 - Mute e unmute mi cancella le info come title e description. Questo perché lo stato

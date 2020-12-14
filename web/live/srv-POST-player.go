@@ -195,8 +195,7 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPla
 		Mute: st.StateMute.String(),
 	}
 	close(chres)
-	return writeResponse(w, res)
-
+	return writeResponseNoWsBroadcast(w, res)
 }
 
 func handleResume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
