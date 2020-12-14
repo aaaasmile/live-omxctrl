@@ -66,7 +66,7 @@ func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 			Action: omxstate.ActTerminate,
 		}
 
-	}(cmdText, op.chAction, uri, chstop)
+	}(cmdText, op.ChAction, uri, chstop)
 }
 
 func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
@@ -178,6 +178,22 @@ func (op *OmxPlayer) clearTrackStatus() {
 	op.TrackDuration = ""
 	op.TrackPosition = ""
 	op.TrackStatus = ""
+}
+
+func (op *OmxPlayer) listenStatus(statusCh chan *omxstate.StateOmx) {
+	log.Println("Waiting for status in omxplayer")
+	for {
+		st := <-statusCh
+		log.Println("Set OmxPlayer state ", st)
+		op.state.CurrURI = st.CurrURI
+		op.state.StateMute = st.StateMute
+		op.state.StatePlayer = st.StatePlayer
+		op.state.Info = st.Info
+		if st.StatePlayer == omxstate.SPoff {
+			op.coDBus = nil
+			op.clearTrackStatus()
+		}
+	}
 }
 
 // func (op *OmxPlayer) setState(st *StateOmx) {

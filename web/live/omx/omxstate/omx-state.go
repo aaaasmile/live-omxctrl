@@ -72,7 +72,11 @@ type ActionDef struct {
 	Action ActionTD
 }
 
-func ListenStateAction(actCh chan *ActionDef, chstatus chan *StateOmx) {
+type WorkerState struct {
+	ChStatus chan *StateOmx
+}
+
+func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 	log.Println("Waiting for action to change the state")
 	var stateCurrent SPstateplaying
 	stateCurrent = SPoff
@@ -119,7 +123,9 @@ func ListenStateAction(actCh chan *ActionDef, chstatus chan *StateOmx) {
 			//op.mutex.Lock()
 			//op.setState(&stateNext)
 			//op.mutex.Unlock()
-			chstatus <- &stateNext
+			for _, worker := range workers {
+				worker.ChStatus <- &stateNext
+			}
 		} else {
 			log.Println("Ignored action ", st.Action.String())
 		}

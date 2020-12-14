@@ -121,7 +121,7 @@ func listenHistoryItem(hisCh chan *db.HistoryItem) {
 }
 
 func listenStatus(statusCh chan *omxstate.StateOmx) {
-	log.Println("Waiting for status")
+	log.Println("Waiting for status in srvhanlder")
 	for {
 		st := <-statusCh
 		resp := struct {
@@ -165,10 +165,19 @@ func InitFromConfig(cmdParam string, debug bool, dbPath string) error {
 }
 
 func init() {
-	statusCh := make(chan *omxstate.StateOmx)
+	chStatus := make(chan *omxstate.StateOmx)
+	w1 := omxstate.WorkerState{ChStatus: chStatus}
+	workers := make([]omxstate.WorkerState, 0)
+	workers = append(workers, w1)
+
 	historyItemCh := make(chan *db.HistoryItem)
-	player = omx.NewOmxPlayer(statusCh, historyItemCh)
+
+	player = omx.NewOmxPlayer(historyItemCh)
+	w2 := omxstate.WorkerState{ChStatus: player.ChStatus}
+	workers = append(workers, w2)
+
 	liteDB = &db.LiteDB{}
-	go listenStatus(statusCh)
+	go listenStatus(chStatus)
 	go listenHistoryItem(historyItemCh)
+	go omxstate.ListenStateAction(player.ChAction, workers)
 }

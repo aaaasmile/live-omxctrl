@@ -17,7 +17,6 @@ type OmxPlayer struct {
 	coDBus        dbus.BusObject
 	mutex         *sync.Mutex
 	state         omxstate.StateOmx
-	chstatus      chan *omxstate.StateOmx
 	chHistoryItem chan *db.HistoryItem
 	TrackDuration string
 	TrackPosition string
@@ -25,20 +24,23 @@ type OmxPlayer struct {
 	cmdLineArr    []string
 	PlayList      *playlist.LLPlayList
 	Providers     map[string]idl.StreamProvider
-	chAction      chan *omxstate.ActionDef
+	ChAction      chan *omxstate.ActionDef
+	ChStatus      chan *omxstate.StateOmx
 }
 
-func NewOmxPlayer(chst chan *omxstate.StateOmx, chhisitem chan *db.HistoryItem) *OmxPlayer {
+func NewOmxPlayer(chhisitem chan *db.HistoryItem) *OmxPlayer {
 	cha := make(chan *omxstate.ActionDef)
+	chst := make(chan *omxstate.StateOmx)
 	res := OmxPlayer{
 		mutex:         &sync.Mutex{},
-		chstatus:      chst,
 		chHistoryItem: chhisitem,
 		cmdLineArr:    make([]string, 0),
 		Providers:     make(map[string]idl.StreamProvider),
-		chAction:      cha,
+		ChAction:      cha,
+		ChStatus:      chst,
 	}
-	go omxstate.ListenStateAction(res.chAction, chst)
+
+	go res.listenStatus(chst)
 
 	return &res
 }
@@ -211,7 +213,7 @@ func (op *OmxPlayer) Resume() error {
 	if op.state.CurrURI != "" {
 		log.Println("Resume")
 		op.callSimpleAction("Play")
-		op.chAction <- &omxstate.ActionDef{Action: omxstate.ActPlaying}
+		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActPlaying}
 	}
 
 	return nil
@@ -224,7 +226,7 @@ func (op *OmxPlayer) Pause() error {
 	if op.state.CurrURI != "" {
 		log.Println("Pause")
 		op.callSimpleAction("Pause")
-		op.chAction <- &omxstate.ActionDef{Action: omxstate.ActPause}
+		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActPause}
 	}
 	return nil
 }
@@ -262,7 +264,7 @@ func (op *OmxPlayer) VolumeMute() error {
 		log.Println("Volume Mute")
 		op.callSimpleAction("Mute")
 
-		op.chAction <- &omxstate.ActionDef{Action: omxstate.ActMute}
+		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActMute}
 		//op.setState(&StateOmx{StatePlayer: op.state.StatePlayer, CurrURI: op.state.CurrURI, StateMute: SMmuted})
 	}
 	return nil
@@ -275,7 +277,7 @@ func (op *OmxPlayer) VolumeUnmute() error {
 	if op.state.CurrURI != "" {
 		log.Println("Volume Unmute")
 		op.callSimpleAction("Unmute")
-		op.chAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute}
+		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute}
 
 		//op.setState(&StateOmx{StatePlayer: op.state.StatePlayer, CurrURI: op.state.CurrURI, StateMute: SMnormal})
 	}
