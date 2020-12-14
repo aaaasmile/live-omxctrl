@@ -12,6 +12,7 @@ import (
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/fileplayer"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/radio"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/you"
 )
 
@@ -19,6 +20,7 @@ func getProviderForURI(uri string, pl *omx.OmxPlayer) (idl.StreamProvider, error
 	streamers := make([]idl.StreamProvider, 0)
 	streamers = append(streamers, &you.YoutubePl{TmpInfo: conf.Current.TmpInfo})
 	streamers = append(streamers, &fileplayer.FilePlayer{})
+	streamers = append(streamers, &radio.RadioPlayer{})
 
 	for _, prov := range streamers {
 		if prov.IsUriForMe(uri) {
