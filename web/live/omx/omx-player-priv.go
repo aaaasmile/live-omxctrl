@@ -12,86 +12,19 @@ import (
 	"syscall"
 
 	"github.com/aaaasmile/live-omxctrl/web/idl"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/playlist"
 	"github.com/godbus/dbus"
 )
 
-type actionTD int
-
-///home/igors/projects/go/bin/stringer -type=actionTD
-
-const (
-	actTerminate actionTD = iota
-	actPlaying
-	actPause
-)
-
-type actionDef struct {
-	URI    string
-	Action actionTD
-}
-
-func listenStateAction(actCh chan *actionDef, op *OmxPlayer) {
-	log.Println("Waiting for action to change the state")
-	var stateCurrent SPstateplaying
-	stateCurrent = SPoff
-	uriPlaying := ""
-	for {
-		st := <-actCh
-		log.Println("New action in state: ", st.Action.String(), stateCurrent.String())
-		stateNext := StateOmx{CurrURI: st.URI, StatePlayer: SPundef}
-		switch stateCurrent {
-		case SPoff:
-			switch st.Action {
-			case actPlaying:
-				stateNext.StatePlayer = SPplaying
-				uriPlaying = st.URI
-			}
-		case SPplaying:
-			switch st.Action {
-			case actPlaying:
-				stateNext.StatePlayer = SPrestart
-				uriPlaying = st.URI
-			case actPause:
-				stateNext.StatePlayer = SPpause
-			case actTerminate:
-				stateNext.StatePlayer = SPoff
-				uriPlaying = ""
-			}
-		case SPpause:
-			switch st.Action {
-			case actPlaying:
-				stateNext.StatePlayer = SPplaying
-			}
-		case SPrestart:
-			switch st.Action {
-			case actTerminate:
-				stateNext.StatePlayer = SPplaying
-			}
-		}
-
-		log.Println("Calculated next state ", stateNext.StatePlayer.String())
-		if stateNext.StatePlayer != SPundef {
-			log.Println("State trigger a change")
-			stateCurrent = stateNext.StatePlayer
-			stateNext.CurrURI = uriPlaying
-			op.mutex.Lock()
-			op.setState(&stateNext)
-			op.mutex.Unlock()
-		} else {
-			log.Println("Ignored action ", st.Action.String())
-		}
-	}
-}
-
 func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 	log.Println("Prepare to start the player with execCommand")
-	go func(cmdText string, actCh chan *actionDef, uri string, chstop chan struct{}) {
+	go func(cmdText string, actCh chan *omxstate.ActionDef, uri string, chstop chan struct{}) {
 		log.Println("Submit the command in background ", cmdText)
 		cmd := exec.Command("bash", "-c", cmdText)
-		actCh <- &actionDef{
+		actCh <- &omxstate.ActionDef{
 			URI:    uri,
-			Action: actPlaying,
+			Action: omxstate.ActPlaying,
 		}
 
 		var stdoutBuf, stderrBuf bytes.Buffer
@@ -128,9 +61,9 @@ func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 		}
 
 		log.Println("Player has been terminated. Cmd was ", cmdText)
-		actCh <- &actionDef{
+		actCh <- &omxstate.ActionDef{
 			URI:    uri,
-			Action: actTerminate,
+			Action: omxstate.ActTerminate,
 		}
 
 	}(cmdText, op.chAction, uri, chstop)
@@ -247,15 +180,15 @@ func (op *OmxPlayer) clearTrackStatus() {
 	op.TrackStatus = ""
 }
 
-func (op *OmxPlayer) setState(st *StateOmx) {
-	log.Println("Set OmxPlayer state ", st)
-	op.state.CurrURI = st.CurrURI
-	op.state.StateMute = st.StateMute
-	op.state.StatePlayer = st.StatePlayer
-	op.state.Info = st.Info
-	if st.StatePlayer == SPoff {
-		op.coDBus = nil
-		op.clearTrackStatus()
-	}
-	op.chstatus <- &op.state
-}
+// func (op *OmxPlayer) setState(st *StateOmx) {
+// 	log.Println("Set OmxPlayer state ", st)
+// 	op.state.CurrURI = st.CurrURI
+// 	op.state.StateMute = st.StateMute
+// 	op.state.StatePlayer = st.StatePlayer
+// 	op.state.Info = st.Info
+// 	if st.StatePlayer == SPoff {
+// 		op.coDBus = nil
+// 		op.clearTrackStatus()
+// 	}
+// 	op.chstatus <- &op.state
+// }

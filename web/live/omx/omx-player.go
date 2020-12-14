@@ -8,6 +8,7 @@ import (
 
 	"github.com/aaaasmile/live-omxctrl/db"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/playlist"
 	"github.com/godbus/dbus"
 )
@@ -15,8 +16,8 @@ import (
 type OmxPlayer struct {
 	coDBus        dbus.BusObject
 	mutex         *sync.Mutex
-	state         StateOmx
-	chstatus      chan *StateOmx
+	state         omxstate.StateOmx
+	chstatus      chan *omxstate.StateOmx
 	chHistoryItem chan *db.HistoryItem
 	TrackDuration string
 	TrackPosition string
@@ -24,11 +25,11 @@ type OmxPlayer struct {
 	cmdLineArr    []string
 	PlayList      *playlist.LLPlayList
 	Providers     map[string]idl.StreamProvider
-	chAction      chan *actionDef
+	chAction      chan *omxstate.ActionDef
 }
 
-func NewOmxPlayer(chst chan *StateOmx, chhisitem chan *db.HistoryItem) *OmxPlayer {
-	cha := make(chan *actionDef)
+func NewOmxPlayer(chst chan *omxstate.StateOmx, chhisitem chan *db.HistoryItem) *OmxPlayer {
+	cha := make(chan *omxstate.ActionDef)
 	res := OmxPlayer{
 		mutex:         &sync.Mutex{},
 		chstatus:      chst,
@@ -37,7 +38,7 @@ func NewOmxPlayer(chst chan *StateOmx, chhisitem chan *db.HistoryItem) *OmxPlaye
 		Providers:     make(map[string]idl.StreamProvider),
 		chAction:      cha,
 	}
-	go listenStateAction(res.chAction, &res)
+	go omxstate.ListenStateAction(res.chAction, chst)
 
 	return &res
 }
@@ -210,7 +211,7 @@ func (op *OmxPlayer) Resume() error {
 	if op.state.CurrURI != "" {
 		log.Println("Resume")
 		op.callSimpleAction("Play")
-		op.chAction <- &actionDef{Action: actPlaying}
+		op.chAction <- &omxstate.ActionDef{Action: omxstate.ActPlaying}
 	}
 
 	return nil
@@ -223,7 +224,7 @@ func (op *OmxPlayer) Pause() error {
 	if op.state.CurrURI != "" {
 		log.Println("Pause")
 		op.callSimpleAction("Pause")
-		op.chAction <- &actionDef{Action: actPause}
+		op.chAction <- &omxstate.ActionDef{Action: omxstate.ActPause}
 	}
 	return nil
 }
@@ -261,7 +262,8 @@ func (op *OmxPlayer) VolumeMute() error {
 		log.Println("Volume Mute")
 		op.callSimpleAction("Mute")
 
-		op.setState(&StateOmx{StatePlayer: op.state.StatePlayer, CurrURI: op.state.CurrURI, StateMute: SMmuted})
+		op.chAction <- &omxstate.ActionDef{Action: omxstate.ActMute}
+		//op.setState(&StateOmx{StatePlayer: op.state.StatePlayer, CurrURI: op.state.CurrURI, StateMute: SMmuted})
 	}
 	return nil
 }
@@ -273,7 +275,9 @@ func (op *OmxPlayer) VolumeUnmute() error {
 	if op.state.CurrURI != "" {
 		log.Println("Volume Unmute")
 		op.callSimpleAction("Unmute")
-		op.setState(&StateOmx{StatePlayer: op.state.StatePlayer, CurrURI: op.state.CurrURI, StateMute: SMnormal})
+		op.chAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute}
+
+		//op.setState(&StateOmx{StatePlayer: op.state.StatePlayer, CurrURI: op.state.CurrURI, StateMute: SMnormal})
 	}
 
 	return nil
@@ -284,7 +288,11 @@ func (op *OmxPlayer) PowerOff() error {
 	defer op.mutex.Unlock()
 
 	log.Println("Power off, terminate omxplayer with signal kill")
+	op.freeAllProviders()
+	return nil
+}
 
+func (op *OmxPlayer) freeAllProviders() {
 	for k, prov := range op.Providers {
 		log.Println("Sending kill signal to ", k)
 		ch := prov.GetStopChannel()
@@ -294,5 +302,4 @@ func (op *OmxPlayer) PowerOff() error {
 
 	op.Providers = make(map[string]idl.StreamProvider)
 
-	return nil
 }

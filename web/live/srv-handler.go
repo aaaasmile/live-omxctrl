@@ -14,6 +14,7 @@ import (
 	"github.com/aaaasmile/live-omxctrl/db"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 )
 
 var (
@@ -119,7 +120,7 @@ func listenHistoryItem(hisCh chan *db.HistoryItem) {
 	}
 }
 
-func listenStatus(statusCh chan *omx.StateOmx) {
+func listenStatus(statusCh chan *omxstate.StateOmx) {
 	log.Println("Waiting for status")
 	for {
 		st := <-statusCh
@@ -164,7 +165,7 @@ func InitFromConfig(cmdParam string, debug bool, dbPath string) error {
 }
 
 func init() {
-	statusCh := make(chan *omx.StateOmx)
+	statusCh := make(chan *omxstate.StateOmx)
 	historyItemCh := make(chan *db.HistoryItem)
 	player = omx.NewOmxPlayer(statusCh, historyItemCh)
 	liteDB = &db.LiteDB{}
