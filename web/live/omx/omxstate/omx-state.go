@@ -43,6 +43,7 @@ func (s *SMstatemute) String() string {
 const (
 	SMnormal = iota
 	SMmuted
+	SMundef
 )
 
 type StateOmx struct {
@@ -79,18 +80,24 @@ type WorkerState struct {
 func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 	log.Println("Waiting for action to change the state")
 	var stateCurrent SPstateplaying
+	var muteStateCurrent SMstatemute
 	stateCurrent = SPoff
+	muteStateCurrent = SMnormal
 	uriPlaying := ""
 	for {
 		st := <-actCh
 		log.Println("New action in state: ", st.Action.String(), stateCurrent.String())
-		stateNext := StateOmx{CurrURI: st.URI, StatePlayer: SPundef}
+		stateNext := StateOmx{CurrURI: st.URI, StatePlayer: SPundef, StateMute: SMundef}
 		switch stateCurrent {
 		case SPoff:
 			switch st.Action {
 			case ActPlaying:
 				stateNext.StatePlayer = SPplaying
 				uriPlaying = st.URI
+			case ActMute:
+				stateNext.StateMute = SMmuted
+			case ActUnmute:
+				stateNext.StateMute = SMnormal
 			}
 		case SPplaying:
 			switch st.Action {
@@ -102,11 +109,19 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 			case ActTerminate:
 				stateNext.StatePlayer = SPoff
 				uriPlaying = ""
+			case ActMute:
+				stateNext.StateMute = SMmuted
+			case ActUnmute:
+				stateNext.StateMute = SMnormal
 			}
 		case SPpause:
 			switch st.Action {
 			case ActPlaying:
 				stateNext.StatePlayer = SPplaying
+			case ActMute:
+				stateNext.StateMute = SMmuted
+			case ActUnmute:
+				stateNext.StateMute = SMnormal
 			}
 		case SPrestart:
 			switch st.Action {
@@ -116,13 +131,21 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 		}
 
 		log.Println("Calculated next state ", stateNext.StatePlayer.String())
+		ntfyChange := false
 		if stateNext.StatePlayer != SPundef {
 			log.Println("State trigger a change")
 			stateCurrent = stateNext.StatePlayer
 			stateNext.CurrURI = uriPlaying
-			//op.mutex.Lock()
-			//op.setState(&stateNext)
-			//op.mutex.Unlock()
+			if stateNext.StateMute == SMundef {
+				stateNext.StateMute = muteStateCurrent
+			}
+			ntfyChange = true
+		} else if stateNext.StateMute != SMundef {
+			stateNext.StatePlayer = stateCurrent
+			muteStateCurrent = stateNext.StateMute
+			ntfyChange = true
+		}
+		if ntfyChange {
 			for _, worker := range workers {
 				worker.ChStatus <- &stateNext
 			}

@@ -265,7 +265,6 @@ func (op *OmxPlayer) VolumeMute() error {
 		op.callSimpleAction("Mute")
 
 		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActMute}
-		//op.setState(&StateOmx{StatePlayer: op.state.StatePlayer, CurrURI: op.state.CurrURI, StateMute: SMmuted})
 	}
 	return nil
 }
@@ -278,8 +277,6 @@ func (op *OmxPlayer) VolumeUnmute() error {
 		log.Println("Volume Unmute")
 		op.callSimpleAction("Unmute")
 		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute}
-
-		//op.setState(&StateOmx{StatePlayer: op.state.StatePlayer, CurrURI: op.state.CurrURI, StateMute: SMnormal})
 	}
 
 	return nil
