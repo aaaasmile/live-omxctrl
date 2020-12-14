@@ -12,6 +12,7 @@ import (
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/fileplayer"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/radio"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/you"
 )
@@ -173,17 +174,29 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPla
 	switch reqVol.VolumeType {
 	case "up":
 		err = pl.VolumeUp()
+		return returnStatus(w, req, pl)
 	case "down":
 		err = pl.VolumeDown()
+		return returnStatus(w, req, pl)
+	}
+	chres := make(chan *omxstate.StateOmx)
+	switch reqVol.VolumeType {
 	case "mute":
-		err = pl.VolumeMute()
+		err = pl.VolumeMute(chres)
 	case "unmute":
-		err = pl.VolumeUnmute()
+		err = pl.VolumeUnmute(chres)
 	default:
 		return fmt.Errorf("Change volume request not recognized %s", reqVol.VolumeType)
 	}
+	st := <-chres
+	res := struct {
+		Mute string `json:"mute"`
+	}{
+		Mute: st.StateMute.String(),
+	}
+	close(chres)
+	return writeResponse(w, res)
 
-	return returnStatus(w, req, pl)
 }
 
 func handleResume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {

@@ -69,8 +69,9 @@ const (
 )
 
 type ActionDef struct {
-	URI    string
-	Action ActionTD
+	URI        string
+	Action     ActionTD
+	ChStateRsp chan *StateOmx
 }
 
 type WorkerState struct {
@@ -152,6 +153,9 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 			}
 		} else {
 			log.Println("Ignored action ", st.Action.String())
+		}
+		if st.ChStateRsp != nil {
+			st.ChStateRsp <- &stateNext
 		}
 	}
 }

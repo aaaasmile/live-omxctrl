@@ -256,7 +256,7 @@ func (op *OmxPlayer) VolumeDown() error {
 	return nil
 }
 
-func (op *OmxPlayer) VolumeMute() error {
+func (op *OmxPlayer) VolumeMute(chStateRsp chan *omxstate.StateOmx) error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
@@ -265,14 +265,15 @@ func (op *OmxPlayer) VolumeMute() error {
 		log.Println("Volume Mute")
 		op.callSimpleAction("Mute")
 
-		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActMute}
+		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActMute, ChStateRsp: chStateRsp}
 	} else {
 		log.Println("Ignore Mute request in state ", op.state)
+		chStateRsp <- &op.state
 	}
 	return nil
 }
 
-func (op *OmxPlayer) VolumeUnmute() error {
+func (op *OmxPlayer) VolumeUnmute(chStateRsp chan *omxstate.StateOmx) error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
@@ -280,9 +281,10 @@ func (op *OmxPlayer) VolumeUnmute() error {
 		(op.state.StateMute == omxstate.SMmuted) {
 		log.Println("Volume Unmute")
 		op.callSimpleAction("Unmute")
-		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute}
+		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute, ChStateRsp: chStateRsp}
 	} else {
 		log.Println("Ignore Unmute request in state ", op.state)
+		chStateRsp <- &op.state
 	}
 
 	return nil
