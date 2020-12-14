@@ -164,6 +164,11 @@ func InitFromConfig(cmdParam string, debug bool, dbPath string) error {
 	return nil
 }
 
+func HandlerShutdown() {
+	player.PowerOff()
+	WsHandlerShutdown()
+}
+
 func init() {
 	chStatus := make(chan *omxstate.StateOmx)
 	w1 := omxstate.WorkerState{ChStatus: chStatus}
