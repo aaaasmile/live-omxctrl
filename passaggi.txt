@@ -238,6 +238,7 @@ Prova a fare andare qualcosa di simile a:
 Per stoppare il sevice si usa:
 sudo systemctl stop live-omxctrl
 
-
+Per generare js
+ /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue 
 
 

@@ -11,7 +11,6 @@
               <template v-slot:activator="{ on }">
                 <v-btn
                   icon
-                  @keydown.enter="playUri"
                   @click="playUri"
                   :loading="loadingyoutube"
                   v-on="on"
@@ -26,6 +25,7 @@
             <v-row>
               <v-col cols="12">
                 <v-text-field
+                  @keydown.enter="enterPress"
                   v-model="uriToPlay"
                   label="Select an URI"
                 ></v-text-field>
