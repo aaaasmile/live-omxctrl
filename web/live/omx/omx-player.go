@@ -260,11 +260,14 @@ func (op *OmxPlayer) VolumeMute() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
-	if op.state.CurrURI != "" {
+	if (op.state.StatePlayer == omxstate.SPplaying) &&
+		(op.state.StateMute == omxstate.SMnormal) {
 		log.Println("Volume Mute")
 		op.callSimpleAction("Mute")
 
 		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActMute}
+	} else {
+		log.Println("Ignore Mute request in state ", op.state)
 	}
 	return nil
 }
@@ -273,10 +276,13 @@ func (op *OmxPlayer) VolumeUnmute() error {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
-	if op.state.CurrURI != "" {
+	if (op.state.StatePlayer == omxstate.SPplaying) &&
+		(op.state.StateMute == omxstate.SMmuted) {
 		log.Println("Volume Unmute")
 		op.callSimpleAction("Unmute")
 		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute}
+	} else {
+		log.Println("Ignore Unmute request in state ", op.state)
 	}
 
 	return nil

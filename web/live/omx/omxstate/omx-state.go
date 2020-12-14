@@ -130,7 +130,7 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 			}
 		}
 
-		log.Println("Calculated next state ", stateNext.StatePlayer.String())
+		log.Println("Calculated next state ", stateNext.StatePlayer.String(), stateNext.StateMute.String())
 		ntfyChange := false
 		if stateNext.StatePlayer != SPundef {
 			log.Println("State trigger a change")
@@ -141,6 +141,7 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 			}
 			ntfyChange = true
 		} else if stateNext.StateMute != SMundef {
+			log.Println("State trigger a mute change")
 			stateNext.StatePlayer = stateCurrent
 			muteStateCurrent = stateNext.StateMute
 			ntfyChange = true
