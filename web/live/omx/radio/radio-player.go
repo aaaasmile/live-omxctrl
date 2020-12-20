@@ -56,7 +56,7 @@ func (rp *RadioPlayer) GetStreamerCmd(cmdLineArr []string) string {
 	cmd := fmt.Sprintf("omxplayer %s %s", args, rp.URI)
 	return cmd
 }
-func (rp *RadioPlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, error) {
+func (rp *RadioPlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 	if rp.Info == nil {
 		info := infoFile{
 			// TODO read from db afetr file scan
@@ -71,7 +71,7 @@ func (rp *RadioPlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, er
 		rp.Info = &info
 	}
 
-	return false, nil
+	return nil
 }
 
 func (rp *RadioPlayer) CreateStopChannel() chan struct{} {

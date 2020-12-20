@@ -35,12 +35,12 @@ func (yp *YoutubePl) Name() string {
 	return "youtube"
 }
 
-func (yp *YoutubePl) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, error) {
+func (yp *YoutubePl) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 	if yp.YoutubeInfo == nil {
 		info, err := readLinkDescription(yp.URI, yp.TmpInfo)
 		yp.YoutubeInfo = info
 		if err != nil {
-			return false, err
+			return err
 		}
 
 		hi := db.HistoryItem{
@@ -53,7 +53,7 @@ func (yp *YoutubePl) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, erro
 		}
 		chHistoryItem <- &hi
 	}
-	return true, nil
+	return nil
 }
 
 func (yp *YoutubePl) GetDescription() string {

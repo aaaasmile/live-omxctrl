@@ -65,10 +65,10 @@ func (fp *FilePlayer) GetStreamerCmd(cmdLineArr []string) string {
 	cmd := fmt.Sprintf("omxplayer %s %s", args, fp.URI)
 	return cmd
 }
-func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, error) {
+func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 	st := &omxstate.StateOmx{}
 	if err := fp.Dbus.CheckTrackStatus(st); err != nil {
-		return false, err
+		return err
 	}
 
 	if fp.Info == nil {
@@ -92,8 +92,8 @@ func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, err
 
 	fp.Info.TrackPosition = st.TrackPosition
 	fp.Info.TrackStatus = st.TrackStatus
-
-	return false, nil
+	log.Println("Status set to ", fp.Info)
+	return nil
 }
 
 func (fp *FilePlayer) CreateStopChannel() chan struct{} {
@@ -115,11 +115,22 @@ func (fp *FilePlayer) CloseStopChannel() {
 }
 
 func (fp *FilePlayer) GetTrackDuration() (string, bool) {
+	if fp.Info != nil {
+		return fp.Info.TrackDuration, true
+	}
 	return "", false
+
 }
 func (fp *FilePlayer) GetTrackPosition() (string, bool) {
+	if fp.Info != nil {
+		return fp.Info.TrackPosition, true
+	}
 	return "", false
+
 }
 func (fp *FilePlayer) GetTrackStatus() (string, bool) {
+	if fp.Info != nil {
+		return fp.Info.TrackStatus, true
+	}
 	return "", false
 }

@@ -101,6 +101,7 @@ func (op *OmxPlayer) GetTrackStatus() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 	if prov, ok := op.Providers[op.state.CurrURI]; ok {
+		log.Println("Tracking satus of ", prov)
 		if td, ok := prov.GetTrackStatus(); ok {
 			return td
 		}
@@ -232,8 +233,7 @@ func (op *OmxPlayer) CheckStatus(uri string) error {
 	log.Println("Check status req", op.state)
 
 	if prov, ok := op.Providers[op.state.CurrURI]; ok {
-		_, err := prov.CheckStatus(op.chHistoryItem)
-		if err != nil {
+		if err := prov.CheckStatus(op.chHistoryItem); err != nil {
 			return err
 		}
 	}

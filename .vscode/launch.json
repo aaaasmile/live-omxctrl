@@ -2,14 +2,19 @@
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // Sul target non si debugga (target not supported in dlv):
+    //igors@pi4:~/app/go/delve $ go get github.com/go-delve/delve/cmd/dlv
+    //../../../projects/go/src/github.com/go-delve/delve/service/debugger/debugger.go:26:2: found packages native (proc.go) and your_operating_system_and_architecture_combination_is_not_supported_by_delve (support_sentinel.go) in /home/igors/projects/go/src/github.com/go-delve/delve/pkg/proc/native
+
     "version": "0.2.0",
     "configurations": [
         {
             "name": "Debug Main",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
+            "mode": "remote",
             "program": "${workspaceFolder}/main.go",
+            "host": "SSH:pi4",
             "env": {},
             "args": []
         }

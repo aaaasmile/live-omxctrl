@@ -15,7 +15,7 @@ type StreamProvider interface {
 	GetDescription() string
 	Name() string
 	GetStreamerCmd(cmdLineArr []string) string
-	CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, error)
+	CheckStatus(chHistoryItem chan *db.HistoryItem) error
 	CreateStopChannel() chan struct{}
 	GetCmdStopChannel() chan struct{}
 	CloseStopChannel()
