@@ -5,5 +5,5 @@ UseRelativeRoot = true
 DebugVerbose = false
 OmxCmdParams = "-o,hdmi" #comma separated, example -o,local. Could not be empty
 DBPath= "/home/igors/app/go/db/service-liveomx.db"
-TmpInfo= "/home/igors/tmp/info"
+TmpInfo= "/tmp"
 VueLibName = "vue_prod.js"

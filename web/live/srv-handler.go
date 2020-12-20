@@ -165,8 +165,42 @@ func InitFromConfig(cmdParam string, debug bool, dbPath string) error {
 }
 
 func HandlerShutdown() {
-	player.PowerOff()
-	WsHandlerShutdown()
+	chstop := make(chan struct{})
+	chstop2 := make(chan struct{})
+	chTimeout := make(chan struct{})
+	timeout := 3 * time.Second
+	time.AfterFunc(timeout, func() {
+		chTimeout <- struct{}{}
+	})
+
+	go func(chst1 chan struct{}) {
+		player.PowerOff()
+		chst1 <- struct{}{}
+	}(chstop)
+	go func(chst2 chan struct{}) {
+		WsHandlerShutdown()
+	}(chstop2)
+	count := 2
+	select {
+	case <-chstop2:
+		log.Println("WS handler terminated ok")
+		count--
+		if count <= 0 {
+			log.Println("Shutdown in player ok")
+			break
+		}
+	case <-chstop:
+		log.Println("POweroff terminated ok")
+		count--
+		if count <= 0 {
+			log.Println("Shutdown in player ok")
+			break
+		}
+	case <-chTimeout:
+		log.Println("Timeout on shutdown, something was blockd")
+		break
+	}
+	log.Println("Exit from HandlerShutdown")
 }
 
 func init() {

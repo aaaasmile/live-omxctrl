@@ -113,6 +113,12 @@ Nota il Type=idle che è meglio di simple in quanto così
 viene fatto partire quando anche la wlan ha ottenuto l'IP intranet
 per consentire l'accesso.
 
+Il service lo faccio andare con l'utente Pi in quando il dbus ha un'istanza
+sola ed è legata all'utente. Se sviluppo con igors usando un'altra porta,
+dbus usa l'istanza legata all'utente. Questo vuol dire che il service
+viene lanciato sotto l'utente pi, mentre lo sviluppo si svolge sotto igors.
+Così non si hanno conflitti. 
+
 -------------------------------- file content
 [Install]
 WantedBy=multi-user.target
