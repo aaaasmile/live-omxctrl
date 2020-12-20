@@ -210,22 +210,32 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPla
 	return writeResponseNoWsBroadcast(w, res)
 }
 
-func handleResume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
+func handlePauseOrResume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer, act string) error {
 	log.Println("Resume request ")
-	if err := pl.Resume(); err != nil {
-		return err
+	statePlay := ""
+	var err error
+	switch act {
+	case "Resume":
+		if statePlay, err = pl.Resume(); err != nil {
+			return err
+		}
+	case "Pause":
+		if statePlay, err = pl.Pause(); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("Action in pause/resume %s not recognized", act)
 	}
 
-	return returnStatus(w, req, pl)
-}
-
-func handlePause(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {
-	log.Println("Pause request ")
-	if err := pl.Pause(); err != nil {
-		return err
+	res := struct {
+		PlayState string `json:"playstate"`
+		Type      string `json:"type"`
+	}{
+		PlayState: statePlay,
+		Type:      "playsate",
 	}
-
-	return returnStatus(w, req, pl)
+	log.Println("Playing state ", statePlay)
+	return writeResponseNoWsBroadcast(w, res)
 }
 
 func handlePlayerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) error {

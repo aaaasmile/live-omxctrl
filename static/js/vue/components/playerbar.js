@@ -57,7 +57,9 @@ export default {
     },
     togglePower() {
       if (this.$store.state.ps.player === "on" ||
-        this.$store.state.ps.player === "playing") {
+        this.$store.state.ps.player === "playing" ||
+        this.$store.state.ps.player === "pause" ||
+        this.$store.state.ps.player === "restart") {
         this.loadingMeta = true
         console.log("Power off")
         let req = { power: "off" }

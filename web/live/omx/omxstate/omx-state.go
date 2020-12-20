@@ -139,6 +139,10 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 				stateNext.StateMute = SMmuted
 			case ActUnmute:
 				stateNext.StateMute = SMnormal
+			case ActTerminate:
+				stateNext.StatePlayer = SPoff
+				stateNext.StateMute = SMnormal
+				uriPlaying = ""
 			}
 		case SPrestart:
 			switch st.Action {

@@ -208,14 +208,10 @@ finisce il channel done sarebbe settato senza essere consumato e genera un leak.
 
 
 == TODO
-- Le icone di mute non vanno bene. Ne serve una che toggle tra volume_down e volume_off
-Le icone del volume indicano lo stato attuale e non l'azione. 
-Invece il volume si fa con una slidebar.
-- dbus è da rivedere. Se c'è gia un player in funzione, la seconda istanza su una porta diversa (dev)
-va a cambiare l'istanza del service. Andrebbe magari anche isolata.
 - Mute e unmute mi cancella le info come title e description. Questo perché lo stato
 viene riscritto completamente, invece di essere incrementale. Setstate va chiamata solo all'interno
 di listenStateAction.
+- Supporto per lo stream della uri
 - Da rividere anche lo sleep del check status.
 - Mettere un icona che indica lo stato di connession col ws socket
 - Il collegamento con ws socket va fatto non solo al reload, ma anche quando il server si disconnete eil client manda un comando.
@@ -227,6 +223,11 @@ di listenStateAction.
 - Play della playlist
 - Previous, Random e riciclo
 
+- dbus è da rivedere. Se c'è gia un player in funzione, la seconda istanza su una porta diversa (dev)
+va a cambiare l'istanza del service. Andrebbe magari anche isolata.[DONE]
+- Le icone di mute non vanno bene. Ne serve una che toggle tra volume_down e volume_off
+Le icone del volume indicano lo stato attuale e non l'azione. [DONE]
+Invece il volume si fa con una slidebar. [REJ per il momento no]
 - Il mutex sullo state del player dovrebe essere superfluo. Non lo è in quanto ho multipli device
 su un singolo player. [DONE]
 - Non mi piace la struttura di OmxPlayer è troppo grande e ridistribuita in strutture

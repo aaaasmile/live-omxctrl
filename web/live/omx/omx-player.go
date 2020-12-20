@@ -241,29 +241,38 @@ func (op *OmxPlayer) CheckStatus(uri string) error {
 	return nil
 }
 
-func (op *OmxPlayer) Resume() error {
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-
-	if op.state.CurrURI != "" {
-		log.Println("Resume")
-		op.dbus.CallSimpleAction("Play")
-		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActPlaying}
-	}
-
-	return nil
+func (op *OmxPlayer) Resume() (string, error) {
+	return op.resumeOrPause("Play")
 }
 
-func (op *OmxPlayer) Pause() error {
+func (op *OmxPlayer) Pause() (string, error) {
+	return op.resumeOrPause("Pause")
+}
+
+func (op *OmxPlayer) resumeOrPause(act string) (string, error) {
+	log.Println("Resume/pause action ", act)
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
-
+	var res omxstate.SPstateplaying
 	if op.state.CurrURI != "" {
-		log.Println("Pause")
-		op.dbus.CallSimpleAction("Pause")
-		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActPause}
+		if err := op.dbus.CallSimpleAction(act); err != nil {
+			return "", err
+		}
+		if act == "Pause" {
+			log.Println("Pause")
+			op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActPause}
+			res = omxstate.SPpause
+		} else {
+			log.Println("Resume")
+			op.dbus.CallSimpleAction("Play")
+			op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActPlaying}
+			res = omxstate.SPplaying
+		}
+	} else {
+		log.Println("Ignore request in state ", act, op.state)
+		res = op.state.StatePlayer
 	}
-	return nil
+	return res.String(), nil
 }
 
 func (op *OmxPlayer) VolumeUp() error {
@@ -302,7 +311,8 @@ func (op *OmxPlayer) muteUmute(act string) (string, error) {
 	defer op.mutex.Unlock()
 
 	var res omxstate.SMstatemute
-	if op.state.StatePlayer == omxstate.SPplaying {
+	if (op.state.StatePlayer == omxstate.SPplaying) ||
+		(op.state.StatePlayer == omxstate.SPpause) {
 		log.Println("Volume", act)
 		if err := op.dbus.CallSimpleAction(act); err != nil {
 			return "", err

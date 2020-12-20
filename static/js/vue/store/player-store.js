@@ -23,6 +23,11 @@ export default {
                 state.mute = data.mute
                 return
             }
+            if (data.type === "playsate"){
+                state.player = data.playstate
+                console.log('Set player state to ', state)
+                return
+            }
             state.trackDuration = data.trackDuration
             state.trackPosition = data.trackPosition
             state.trackStatus = data.trackStatus

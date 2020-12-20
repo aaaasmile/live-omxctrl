@@ -12,9 +12,9 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 	log.Println("Check the last path ", lastPath)
 	switch lastPath {
 	case "Resume":
-		err = handleResume(w, req, player)
+		err = handlePauseOrResume(w, req, player, "Resume")
 	case "Pause":
-		err = handlePause(w, req, player)
+		err = handlePauseOrResume(w, req, player, "Pause")
 	case "ChangeVolume":
 		err = handleChangeVolume(w, req, player)
 	case "SetPowerState":

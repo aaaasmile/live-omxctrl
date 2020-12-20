@@ -4,7 +4,7 @@ import "github.com/aaaasmile/live-omxctrl/db"
 
 var (
 	Appname = "live-omxctrl"
-	Buildnr = "00.01.20.20201213-00"
+	Buildnr = "00.01.21.20201221-00"
 )
 
 type StreamProvider interface {
