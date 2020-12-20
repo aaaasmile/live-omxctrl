@@ -63,6 +63,7 @@ func (so *StateOmx) ClearTrackStatus() {
 	so.TrackDuration = ""
 	so.TrackPosition = ""
 	so.TrackStatus = ""
+	so.StateMute = SMundef
 }
 
 type ActionTD int
@@ -123,6 +124,7 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 				stateNext.StatePlayer = SPpause
 			case ActTerminate:
 				stateNext.StatePlayer = SPoff
+				stateNext.StateMute = SMnormal
 				uriPlaying = ""
 			case ActMute:
 				stateNext.StateMute = SMmuted
@@ -158,8 +160,10 @@ func ListenStateAction(actCh chan *ActionDef, workers []WorkerState) {
 		} else if stateNext.StateMute != SMundef {
 			log.Println("State trigger a mute change")
 			stateNext.StatePlayer = stateCurrent
-			muteStateCurrent = stateNext.StateMute
 			ntfyChange = true
+		}
+		if stateNext.StateMute != SMundef {
+			muteStateCurrent = stateNext.StateMute
 		}
 		if olduriPlaying != uriPlaying {
 			stateNext.CurrURI = uriPlaying

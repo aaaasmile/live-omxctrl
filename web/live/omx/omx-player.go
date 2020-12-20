@@ -54,9 +54,9 @@ func (op *OmxPlayer) ListenOmxState(statusCh chan *omxstate.StateOmx) {
 			op.state.TrackDuration = st.TrackDuration
 			op.state.TrackPosition = st.TrackPosition
 			op.state.TrackStatus = st.TrackStatus
+			op.state.StateMute = st.StateMute
 		}
 		op.state.CurrURI = st.CurrURI
-		op.state.StateMute = st.StateMute
 		op.state.StatePlayer = st.StatePlayer
 		op.state.Info = st.Info
 		op.mutex.Unlock()

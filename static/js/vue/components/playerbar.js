@@ -27,7 +27,14 @@ export default {
         } else {
           return "error"
         }
-      }
+      },
+      ColorMute: state => {
+        if (state.ps.mute === "muted") {
+          return "error"
+        } else {
+          return "gray"
+        }
+      },
     }),
 
   },
@@ -164,8 +171,8 @@ export default {
               </v-tooltip>
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                  <v-btn icon v-on="on" @click="toggleMute">
-                    <v-icon>{{ Muted ? "volume_mute" : "volume_off" }}</v-icon>
+                  <v-btn icon v-on="on" @click="toggleMute" :color="ColorMute">
+                    <v-icon>{{ Muted ? "volume_off" : "volume_mute" }}</v-icon>
                   </v-btn>
                 </template>
                 <span>{{ Muted ? "Unmute" : "Mute" }}</span>
