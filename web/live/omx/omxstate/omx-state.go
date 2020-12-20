@@ -47,13 +47,22 @@ const (
 )
 
 type StateOmx struct {
-	CurrURI     string
-	StatePlayer SPstateplaying
-	StateMute   SMstatemute
-	Info        string
-	ItemType    string
-	NextItem    string
-	PrevItem    string
+	CurrURI       string
+	StatePlayer   SPstateplaying
+	StateMute     SMstatemute
+	Info          string
+	ItemType      string
+	NextItem      string
+	PrevItem      string
+	TrackDuration string
+	TrackPosition string
+	TrackStatus   string
+}
+
+func (so *StateOmx) ClearTrackStatus() {
+	so.TrackDuration = ""
+	so.TrackPosition = ""
+	so.TrackStatus = ""
 }
 
 type ActionTD int

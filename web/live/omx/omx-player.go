@@ -1,48 +1,66 @@
 package omx
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"sync"
 
 	"github.com/aaaasmile/live-omxctrl/db"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/dbus"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/playlist"
-	"github.com/godbus/dbus"
 )
 
 type OmxPlayer struct {
-	coDBus        dbus.BusObject
+	dbus          *dbus.OmxDbus
 	mutex         *sync.Mutex
 	state         omxstate.StateOmx
 	chHistoryItem chan *db.HistoryItem
-	TrackDuration string
-	TrackPosition string
-	TrackStatus   string
 	cmdLineArr    []string
 	PlayList      *playlist.LLPlayList
 	Providers     map[string]idl.StreamProvider
 	ChAction      chan *omxstate.ActionDef
-	ChStatus      chan *omxstate.StateOmx
 }
 
 func NewOmxPlayer(chhisitem chan *db.HistoryItem) *OmxPlayer {
 	cha := make(chan *omxstate.ActionDef)
-	chst := make(chan *omxstate.StateOmx)
 	res := OmxPlayer{
+		dbus:          &dbus.OmxDbus{},
 		mutex:         &sync.Mutex{},
 		chHistoryItem: chhisitem,
 		cmdLineArr:    make([]string, 0),
 		Providers:     make(map[string]idl.StreamProvider),
 		ChAction:      cha,
-		ChStatus:      chst,
 	}
 
-	go res.listenStatus(chst)
-
 	return &res
+}
+
+func (op *OmxPlayer) ListenOmxState(statusCh chan *omxstate.StateOmx) {
+	log.Println("start listenOmxState. Waiting for status change in omxplayer")
+	for {
+		st := <-statusCh
+		op.mutex.Lock()
+		log.Println("Set OmxPlayer state ", st)
+		if st.StatePlayer == omxstate.SPoff {
+			k := op.state.CurrURI
+			if _, ok := op.Providers[k]; ok {
+				delete(op.Providers, k)
+			}
+			op.state.ClearTrackStatus()
+			op.dbus.ClearDbus()
+		} else {
+			op.state.TrackDuration = st.TrackDuration
+			op.state.TrackPosition = st.TrackPosition
+			op.state.TrackStatus = st.TrackStatus
+		}
+		op.state.CurrURI = st.CurrURI
+		op.state.StateMute = st.StateMute
+		op.state.StatePlayer = st.StatePlayer
+		op.state.Info = st.Info
+		op.mutex.Unlock()
+	}
 }
 
 func (op *OmxPlayer) SetCommandLine(commaline string) {
@@ -54,6 +72,24 @@ func (op *OmxPlayer) SetCommandLine(commaline string) {
 		}
 	}
 	log.Println("Command line set to ", commaline, op.cmdLineArr)
+}
+
+func (op *OmxPlayer) GetTrackDuration() string {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	return op.state.TrackDuration
+}
+
+func (op *OmxPlayer) GetTrackPosition() string {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	return op.state.TrackPosition
+}
+
+func (op *OmxPlayer) GetTrackStatus() string {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	return op.state.TrackStatus
 }
 
 func (op *OmxPlayer) GetStatePlaying() string {
@@ -89,7 +125,6 @@ func (op *OmxPlayer) GetStateDescription() string {
 }
 
 func (op *OmxPlayer) GetCurrURI() string {
-	// please do not call this after a mutex lock
 	log.Println("getCurrURI")
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
@@ -172,38 +207,14 @@ func (op *OmxPlayer) CheckStatus(uri string) error {
 	defer op.mutex.Unlock()
 
 	log.Println("Check status req", op.state)
-	op.clearTrackStatus()
 
 	if prov, ok := op.Providers[op.state.CurrURI]; ok {
-		completed, err := prov.CheckStatus(op.chHistoryItem)
+		_, err := prov.CheckStatus(op.chHistoryItem)
 		if err != nil {
 			return err
 		}
-		if completed {
-			log.Println("Check status completed")
-			return nil
-		}
-	}
-	log.Println("go ahead with dbus status")
-	dur, err := op.getProperty("org.mpris.MediaPlayer2.Player.Duration")
-	if err != nil {
-		return err
-	}
-	pos, err := op.getProperty("org.mpris.MediaPlayer2.Player.Position")
-	if err != nil {
-		return err
 	}
 
-	status, err := op.getProperty("org.mpris.MediaPlayer2.Player.PlaybackStatus")
-	if err != nil {
-		return err
-	}
-
-	op.TrackDuration = fmt.Sprint(dur)
-	op.TrackPosition = fmt.Sprint(pos)
-	op.TrackStatus = fmt.Sprint(status)
-
-	log.Println("Duration, position,  status ", dur, pos, status)
 	return nil
 }
 
@@ -213,7 +224,7 @@ func (op *OmxPlayer) Resume() error {
 
 	if op.state.CurrURI != "" {
 		log.Println("Resume")
-		op.callSimpleAction("Play")
+		op.dbus.CallSimpleAction("Play")
 		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActPlaying}
 	}
 
@@ -226,7 +237,7 @@ func (op *OmxPlayer) Pause() error {
 
 	if op.state.CurrURI != "" {
 		log.Println("Pause")
-		op.callSimpleAction("Pause")
+		op.dbus.CallSimpleAction("Pause")
 		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActPause}
 	}
 	return nil
@@ -238,8 +249,7 @@ func (op *OmxPlayer) VolumeUp() error {
 
 	if op.state.CurrURI != "" {
 		log.Println("VolumeUp")
-		// dbus-send --print-reply=literal --session --dest=org.mpris.MediaPlayer2.omxplayer /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Action int32:18 >/dev/null
-		op.callIntAction("Action", 18)
+		op.dbus.CallIntAction("Action", 18)
 	}
 	return nil
 }
@@ -250,7 +260,7 @@ func (op *OmxPlayer) VolumeDown() error {
 
 	if op.state.CurrURI != "" {
 		log.Println("VolumeDown")
-		op.callIntAction("Action", 17)
+		op.dbus.CallIntAction("Action", 17)
 	}
 	return nil
 }
@@ -271,7 +281,7 @@ func (op *OmxPlayer) muteUmute(act string) (string, error) {
 	var res omxstate.SMstatemute
 	if op.state.StatePlayer == omxstate.SPplaying {
 		log.Println("Volume", act)
-		if err := op.callSimpleAction(act); err != nil {
+		if err := op.dbus.CallSimpleAction(act); err != nil {
 			return "", err
 		}
 		if act == "Unmute" {

@@ -204,19 +204,22 @@ func HandlerShutdown() {
 }
 
 func init() {
-	chStatus := make(chan *omxstate.StateOmx)
-	w1 := omxstate.WorkerState{ChStatus: chStatus}
-	workers := make([]omxstate.WorkerState, 0)
-	workers = append(workers, w1)
-
 	historyItemCh := make(chan *db.HistoryItem)
+	workers := make([]omxstate.WorkerState, 0)
 
+	chStatus1 := make(chan *omxstate.StateOmx)
+	w1 := omxstate.WorkerState{ChStatus: chStatus1}
+	workers = append(workers, w1)
+	go listenStatus(w1.ChStatus)
+
+	chStatus2 := make(chan *omxstate.StateOmx)
 	player = omx.NewOmxPlayer(historyItemCh)
-	w2 := omxstate.WorkerState{ChStatus: player.ChStatus}
+	w2 := omxstate.WorkerState{ChStatus: chStatus2}
 	workers = append(workers, w2)
+	go player.ListenOmxState(chStatus2)
 
 	liteDB = &db.LiteDB{}
-	go listenStatus(chStatus)
+
 	go listenHistoryItem(historyItemCh)
 	go omxstate.ListenStateAction(player.ChAction, workers)
 }
