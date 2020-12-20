@@ -19,6 +19,10 @@ export default {
             if (!data){
                 return
             }
+            if (data.type === "mute"){
+                state.mute = data.mute
+                return
+            }
             state.trackDuration = data.trackDuration
             state.trackPosition = data.trackPosition
             state.trackStatus = data.trackStatus

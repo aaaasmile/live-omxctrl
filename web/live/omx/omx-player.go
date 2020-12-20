@@ -241,7 +241,6 @@ func (op *OmxPlayer) VolumeUp() error {
 		// dbus-send --print-reply=literal --session --dest=org.mpris.MediaPlayer2.omxplayer /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Action int32:18 >/dev/null
 		op.callIntAction("Action", 18)
 	}
-	// TODO check the volume level
 	return nil
 }
 
@@ -253,40 +252,41 @@ func (op *OmxPlayer) VolumeDown() error {
 		log.Println("VolumeDown")
 		op.callIntAction("Action", 17)
 	}
-	// TODO check the volume level
 	return nil
 }
 
 func (op *OmxPlayer) VolumeMute() (string, error) {
-	op.mutex.Lock()
-	defer op.mutex.Unlock()
-
-	if (op.state.StatePlayer == omxstate.SPplaying) &&
-		(op.state.StateMute == omxstate.SMnormal) {
-		log.Println("Volume Mute")
-		op.callSimpleAction("Mute")
-
-		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActMute}
-	} else {
-		log.Println("Ignore Mute request in state ", op.state)
-	}
-	return op.state.StateMute.String(), nil
+	return op.muteUmute("Mute")
 }
 
 func (op *OmxPlayer) VolumeUnmute() (string, error) {
+	return op.muteUmute("Unmute")
+}
+
+func (op *OmxPlayer) muteUmute(act string) (string, error) {
+	log.Println("Voulme action request: ", act)
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 
-	if (op.state.StatePlayer == omxstate.SPplaying) &&
-		(op.state.StateMute == omxstate.SMmuted) {
-		log.Println("Volume Unmute")
-		op.callSimpleAction("Unmute")
-		op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute}
+	var res omxstate.SMstatemute
+	if op.state.StatePlayer == omxstate.SPplaying {
+		log.Println("Volume", act)
+		if err := op.callSimpleAction(act); err != nil {
+			return "", err
+		}
+		if act == "Unmute" {
+			res = omxstate.SMnormal
+			op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActUnmute}
+		} else {
+			res = omxstate.SMmuted
+			op.ChAction <- &omxstate.ActionDef{Action: omxstate.ActMute}
+		}
 	} else {
-		log.Println("Ignore Unmute request in state ", op.state)
+		log.Println("Ignore request in state ", act, op.state)
+		res = op.state.StateMute
 	}
 
-	return op.state.StateMute.String(), nil
+	return res.String(), nil
 }
 
 func (op *OmxPlayer) PowerOff() error {

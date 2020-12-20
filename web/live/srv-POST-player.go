@@ -178,8 +178,9 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPla
 		return returnStatus(w, req, pl)
 	case "down":
 		if err = pl.VolumeDown(); err != nil {
-			return returnStatus(w, req, pl)
+			return err
 		}
+		return returnStatus(w, req, pl)
 	}
 
 	stateMute := ""
@@ -197,7 +198,9 @@ func handleChangeVolume(w http.ResponseWriter, req *http.Request, pl *omx.OmxPla
 	}
 	res := struct {
 		Mute string `json:"mute"`
+		Type string `json:"type"`
 	}{
+		Type: "mute",
 		Mute: stateMute,
 	}
 	log.Println("Mute state ", stateMute)

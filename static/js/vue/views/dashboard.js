@@ -74,7 +74,7 @@ export default {
                   <v-icon>airplay</v-icon>
                 </v-btn>
               </template>
-              <span>Play url</span>
+              <span>Play uri</span>
             </v-tooltip>
           </v-toolbar>
           <v-col cols="12">
