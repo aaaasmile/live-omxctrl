@@ -3,21 +3,28 @@ package fileplayer
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/aaaasmile/live-omxctrl/db"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/dbus"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 )
 
 type infoFile struct {
 	Title         string
 	Description   string
 	DurationInSec int
+	TrackDuration string
+	TrackPosition string
+	TrackStatus   string
 }
 
 type FilePlayer struct {
 	URI     string
 	Info    *infoFile
+	Dbus    *dbus.OmxDbus
 	chClose chan struct{}
 }
 
@@ -59,20 +66,33 @@ func (fp *FilePlayer) GetStreamerCmd(cmdLineArr []string) string {
 	return cmd
 }
 func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, error) {
+	st := &omxstate.StateOmx{}
+	if err := fp.Dbus.CheckTrackStatus(st); err != nil {
+		return false, err
+	}
+
 	if fp.Info == nil {
 		info := infoFile{
 			// TODO read from db afetr file scan
 		}
+		info.DurationInSec, _ = strconv.Atoi(st.TrackDuration)
+		info.TrackDuration = time.Duration(int64(info.DurationInSec) * int64(time.Second)).String()
 		hi := db.HistoryItem{
 			URI:           fp.URI,
 			Title:         info.Title,
 			Description:   info.Description,
 			DurationInSec: info.DurationInSec,
 			Type:          fp.Name(),
-			Duration:      time.Duration(int64(info.DurationInSec) * int64(time.Second)).String(),
+			Duration:      info.TrackDuration,
 		}
 		chHistoryItem <- &hi
+		fp.Info = &info
+		log.Println("file-player info status set")
 	}
+
+	fp.Info.TrackPosition = st.TrackPosition
+	fp.Info.TrackStatus = st.TrackStatus
+
 	return false, nil
 }
 
@@ -92,4 +112,14 @@ func (fp *FilePlayer) CloseStopChannel() {
 		close(fp.chClose)
 		fp.chClose = nil
 	}
+}
+
+func (fp *FilePlayer) GetTrackDuration() (string, bool) {
+	return "", false
+}
+func (fp *FilePlayer) GetTrackPosition() (string, bool) {
+	return "", false
+}
+func (fp *FilePlayer) GetTrackStatus() (string, bool) {
+	return "", false
 }

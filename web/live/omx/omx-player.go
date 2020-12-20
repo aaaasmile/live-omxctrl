@@ -77,18 +77,34 @@ func (op *OmxPlayer) SetCommandLine(commaline string) {
 func (op *OmxPlayer) GetTrackDuration() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
+	if prov, ok := op.Providers[op.state.CurrURI]; ok {
+		if td, ok := prov.GetTrackDuration(); ok {
+			return td
+		}
+	}
+
 	return op.state.TrackDuration
 }
 
 func (op *OmxPlayer) GetTrackPosition() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
+	if prov, ok := op.Providers[op.state.CurrURI]; ok {
+		if td, ok := prov.GetTrackPosition(); ok {
+			return td
+		}
+	}
 	return op.state.TrackPosition
 }
 
 func (op *OmxPlayer) GetTrackStatus() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
+	if prov, ok := op.Providers[op.state.CurrURI]; ok {
+		if td, ok := prov.GetTrackStatus(); ok {
+			return td
+		}
+	}
 	return op.state.TrackStatus
 }
 
@@ -129,6 +145,13 @@ func (op *OmxPlayer) GetCurrURI() string {
 	op.mutex.Lock()
 	defer op.mutex.Unlock()
 	return op.state.CurrURI
+}
+
+func (op *OmxPlayer) GetDbus() *dbus.OmxDbus {
+	log.Println("GetDbus")
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	return op.dbus
 }
 
 func (op *OmxPlayer) StartPlay(URI string, prov idl.StreamProvider) error {

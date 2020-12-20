@@ -19,7 +19,7 @@ import (
 func getProviderForURI(uri string, pl *omx.OmxPlayer) (idl.StreamProvider, error) {
 	streamers := make([]idl.StreamProvider, 0)
 	streamers = append(streamers, &you.YoutubePl{TmpInfo: conf.Current.TmpInfo})
-	streamers = append(streamers, &fileplayer.FilePlayer{})
+	streamers = append(streamers, &fileplayer.FilePlayer{Dbus: pl.GetDbus()})
 	streamers = append(streamers, &radio.RadioPlayer{})
 
 	for _, prov := range streamers {
@@ -55,6 +55,9 @@ func handlePlayUri(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) 
 }
 
 func startUri(uri string, pl *omx.OmxPlayer) error {
+	if uri == "" {
+		return fmt.Errorf("Nothing to play")
+	}
 	prov, err := getProviderForURI(uri, pl)
 	if err != nil {
 		return err

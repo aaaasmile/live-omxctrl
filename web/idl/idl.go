@@ -19,4 +19,7 @@ type StreamProvider interface {
 	CreateStopChannel() chan struct{}
 	GetCmdStopChannel() chan struct{}
 	CloseStopChannel()
+	GetTrackDuration() (string, bool)
+	GetTrackPosition() (string, bool)
+	GetTrackStatus() (string, bool)
 }

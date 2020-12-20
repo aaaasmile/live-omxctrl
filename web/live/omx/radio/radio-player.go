@@ -68,7 +68,9 @@ func (rp *RadioPlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) (bool, er
 			Type:        rp.Name(),
 		}
 		chHistoryItem <- &hi
+		rp.Info = &info
 	}
+
 	return false, nil
 }
 
@@ -88,4 +90,14 @@ func (rp *RadioPlayer) CloseStopChannel() {
 		close(rp.chClose)
 		rp.chClose = nil
 	}
+}
+
+func (rp *RadioPlayer) GetTrackDuration() (string, bool) {
+	return "", false
+}
+func (rp *RadioPlayer) GetTrackPosition() (string, bool) {
+	return "", false
+}
+func (rp *RadioPlayer) GetTrackStatus() (string, bool) {
+	return "", false
 }

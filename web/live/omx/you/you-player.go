@@ -99,3 +99,13 @@ func (yp *YoutubePl) CloseStopChannel() {
 		yp.chClose = nil
 	}
 }
+
+func (yp *YoutubePl) GetTrackDuration() (string, bool) {
+	return "", false
+}
+func (yp *YoutubePl) GetTrackPosition() (string, bool) {
+	return "", false
+}
+func (yp *YoutubePl) GetTrackStatus() (string, bool) {
+	return "", false
+}
