@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aaaasmile/live-omxctrl/db"
+	"github.com/aaaasmile/live-omxctrl/web/idl"
 )
 
 type YoutubePl struct {
@@ -35,7 +36,7 @@ func (yp *YoutubePl) Name() string {
 	return "youtube"
 }
 
-func (yp *YoutubePl) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
+func (yp *YoutubePl) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	if yp.YoutubeInfo == nil {
 		info, err := readLinkDescription(yp.URI, yp.TmpInfo)
 		yp.YoutubeInfo = info
@@ -51,7 +52,11 @@ func (yp *YoutubePl) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 			Type:          yp.Name(),
 			Duration:      time.Duration(int64(info.Duration) * int64(time.Second)).String(),
 		}
-		chHistoryItem <- &hi
+		dop := idl.DbOperation{
+			DbOpType: idl.DbOpHistoryInsert,
+			Payload:  hi,
+		}
+		chDbOperation <- &dop
 	}
 	return nil
 }

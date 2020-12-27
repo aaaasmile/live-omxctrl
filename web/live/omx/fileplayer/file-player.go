@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aaaasmile/live-omxctrl/db"
+	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/dbus"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 )
@@ -65,7 +66,7 @@ func (fp *FilePlayer) GetStreamerCmd(cmdLineArr []string) string {
 	cmd := fmt.Sprintf("omxplayer %s %s", args, fp.URI)
 	return cmd
 }
-func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
+func (fp *FilePlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	st := &omxstate.StateOmx{}
 	if err := fp.Dbus.CheckTrackStatus(st); err != nil {
 		return err
@@ -73,7 +74,7 @@ func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 
 	if fp.Info == nil {
 		info := infoFile{
-			// TODO read from db afetr file scan
+			// TODO read from db
 		}
 		info.DurationInSec, _ = strconv.Atoi(st.TrackDuration)
 		info.TrackDuration = time.Duration(int64(info.DurationInSec) * int64(time.Second)).String()
@@ -85,7 +86,11 @@ func (fp *FilePlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 			Type:          fp.Name(),
 			Duration:      info.TrackDuration,
 		}
-		chHistoryItem <- &hi
+		dop := idl.DbOperation{
+			DbOpType: idl.DbOpHistoryInsert,
+			Payload:  hi,
+		}
+		chDbOperation <- &dop
 		fp.Info = &info
 		log.Println("file-player info status set")
 	}

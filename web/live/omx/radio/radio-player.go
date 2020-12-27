@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aaaasmile/live-omxctrl/db"
+	"github.com/aaaasmile/live-omxctrl/web/idl"
 )
 
 type infoFile struct {
@@ -56,10 +57,10 @@ func (rp *RadioPlayer) GetStreamerCmd(cmdLineArr []string) string {
 	cmd := fmt.Sprintf("omxplayer %s %s", args, rp.URI)
 	return cmd
 }
-func (rp *RadioPlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
+func (rp *RadioPlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	if rp.Info == nil {
 		info := infoFile{
-			// TODO read from db afetr file scan
+			// TODO read radio info from db
 		}
 		hi := db.HistoryItem{
 			URI:         rp.URI,
@@ -67,7 +68,11 @@ func (rp *RadioPlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 			Description: info.Description,
 			Type:        rp.Name(),
 		}
-		chHistoryItem <- &hi
+		dop := idl.DbOperation{
+			DbOpType: idl.DbOpHistoryInsert,
+			Payload:  hi,
+		}
+		chDbOperation <- &dop
 		rp.Info = &info
 	}
 
