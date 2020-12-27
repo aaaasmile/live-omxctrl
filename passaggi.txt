@@ -38,7 +38,7 @@ riesce ad eseguire l`aggiornamento del service in modo completo senza usare dire
 == Deployment dettagli e preparazione
 - Sul laptop occorre il file copy_app_to_pi4.sh posizionato nella dir ../deployed
 - Su Pi4 occorre la directory /home/igors/app/live-omxctrl con all` interno il file update-service.sh
-cos? come la dir /home/igors/app/live-omxctrl/zips
+così come la dir /home/igors/app/live-omxctrl/zips
 
 Sul firewall ho aperto la porta 5548 in intranet con:
 ufw allow from 192.168.2.0/24 to any port 5548
@@ -56,6 +56,7 @@ Abilitare il service:
 sudo systemctl enable live-omxctrl.service
 Ora si fa partire il service (resistente al reboot):
 sudo systemctl start live-omxctrl
+
 Per vedere i logs si usa:
 sudo journalctl -f -u live-omxctrl
 
@@ -114,10 +115,14 @@ viene fatto partire quando anche la wlan ha ottenuto l'IP intranet
 per consentire l'accesso.
 
 Il service lo faccio andare con l'utente Pi in quando il dbus ha un'istanza
-sola ed è legata all'utente. Se sviluppo con igors usando un'altra porta,
+sola ed è legata all'utente. Il db deve appartenere a pi.
+Se sviluppo con igors usando un'altra porta,
 dbus usa l'istanza legata all'utente. Questo vuol dire che il service
 viene lanciato sotto l'utente pi, mentre lo sviluppo si svolge sotto igors.
-Così non si hanno conflitti. 
+Così non si hanno quasi mai conflitti. Di rado mi va a cambiare le istanze del service
+anche se va sotto un altro utente, e da qui il dbus proprio non mi convince neanche un po'.
+Con una porta del processo sarebbe tutto molto più comodo e separato per avere istanze
+multiple. 
 
 -------------------------------- file content
 [Install]
@@ -130,8 +135,8 @@ After=network.target
 
 [Service]
 Type=idle
-User=igors
-Group=igors
+User=pi
+Group=pi
 LimitNOFILE=1024
 
 Restart=on-failure
@@ -144,7 +149,7 @@ ExecStart=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
 # make sure log directory exists and owned by syslog
 PermissionsStartOnly=true
 ExecStartPre=/bin/mkdir -p /var/log/live-omxctrl
-ExecStartPre=/bin/chown igors:igors /var/log/live-omxctrl
+ExecStartPre=/bin/chown pi:pi /var/log/live-omxctrl
 ExecStartPre=/bin/chmod 755 /var/log/live-omxctrl
 StandardOutput=syslog
 StandardError=syslog
@@ -184,6 +189,11 @@ Per fare andare sqlitebrowser bisogna far partire Xming server in windwos.
 Poin WLC si lancia:
 export DISPLAY=localhost:0.0
 ssh -Y pi4
+Il db del service deve avere come owner pi, in quanto uso l'utente pi per il deployment.
+Ho avuto dei problemi che il database per il service era sempre readonly (utente pi).
+Quello che mi ha risolto la faccenda è stato il comando:
+igors@pi4:~/app/go $ chmod 777 db
+Vale a dire la directory dove si trova il file sqlite va messa accessibile.
 
 == Soundcloud
 Si prende come riferimento l'extension di mopidy: 
