@@ -116,7 +116,9 @@ func listenHistoryItem(hisCh chan *db.HistoryItem) {
 	log.Println("Waiting for history item")
 	for {
 		item := <-hisCh
-		liteDB.InsertHistoryItem(item)
+		if err := liteDB.InsertHistoryItem(item); err != nil {
+			log.Println("Error on insert history: ", err)
+		}
 	}
 }
 
