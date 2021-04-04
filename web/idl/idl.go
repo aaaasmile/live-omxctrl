@@ -2,7 +2,7 @@ package idl
 
 var (
 	Appname = "live-omxctrl"
-	Buildnr = "00.01.22.20201227-00"
+	Buildnr = "00.01.23.20210404-00"
 )
 
 type StreamProvider interface {
