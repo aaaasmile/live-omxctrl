@@ -6,6 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path"
+	"path/filepath"
+
+	"github.com/aaaasmile/live-omxctrl/conf"
 )
 
 func handleVideoRequest(w http.ResponseWriter, req *http.Request) error {
@@ -24,9 +29,22 @@ func handleVideoRequest(w http.ResponseWriter, req *http.Request) error {
 	switch reqReq.Name {
 	case "FetchVideo":
 		return fetchVideoReq(rawbody, w, req)
+	case "ScanVideo":
+		return scanVideoReq(rawbody, w, req)
 	default:
 		return fmt.Errorf("Video request %s not supported", reqReq.Name)
 	}
+}
+
+func scanVideoReq(rawbody []byte, w http.ResponseWriter, req *http.Request) error {
+	videoPath := conf.Current.VideoDir
+	list, err := getVideoFiles(videoPath)
+	if err != nil {
+		return err
+	}
+	log.Println("Video file found: ", len(list), list)
+
+	return fetchVideoReq(rawbody, w, req)
 }
 
 func fetchVideoReq(rawbody []byte, w http.ResponseWriter, req *http.Request) error {
@@ -70,4 +88,55 @@ func fetchVideoReq(rawbody []byte, w http.ResponseWriter, req *http.Request) err
 	}
 
 	return writeResponseNoWsBroadcast(w, res)
+}
+
+func getVideoFiles(rootPath string) ([]string, error) {
+	rootPath, _ = filepath.Abs(rootPath)
+	onlyFiles := []string{}
+	filterVideo := []string{".mp4", ".avi"}
+	log.Printf("Process path %s", rootPath)
+	if info, err := os.Stat(rootPath); err == nil && info.IsDir() {
+		arr := []string{}
+		arr, err = getFilesinDir(rootPath, filterVideo, arr)
+		if err != nil {
+			return nil, err
+		}
+		//fmt.Println("Dir process result: ", arr)
+		for _, ele := range arr {
+			onlyFiles = append(onlyFiles, ele)
+		}
+	} else {
+		return nil, err
+	}
+
+	return onlyFiles, nil
+}
+
+func getFilesinDir(dirAbs string, filterVideo []string, parentFiles []string) ([]string, error) {
+	r := parentFiles
+	log.Println("Scan dir ", dirAbs)
+	files, err := ioutil.ReadDir(dirAbs)
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range files {
+		itemAbs := path.Join(dirAbs, f.Name())
+		if info, err := os.Stat(itemAbs); err == nil && info.IsDir() {
+			//fmt.Println("** Sub dir found ", f.Name())
+			r, err = getFilesinDir(itemAbs, filterVideo, r)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			//fmt.Println("** file is ", f.Name())
+			ext := filepath.Ext(itemAbs)
+			for _, v := range filterVideo {
+				if v == ext {
+					r = append(r, itemAbs)
+					break
+				}
+			}
+		}
+	}
+	return r, nil
 }

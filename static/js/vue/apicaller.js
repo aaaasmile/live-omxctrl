@@ -123,7 +123,21 @@ export default {
 		req.name = 'FetchVideo'
 		console.log('FetchVideo request is ', req)
 		that.videoloading = true
-		that.$http.post("FetchVideo", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+		that.$http.post("HandleVideo", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call result ', result.data)
+			that.videoloading = false
+			that.$store.commit('videofetch', result.data)
+		}, error => {
+			that.videoloading = false	
+			handleError(error, that)
+		});
+	},
+	ScanVideo(that, req) {
+		req.name = 'ScanVideo'
+		console.log('ScanVideo request is ', req)
+		that.videoloading = true
+		that.dialogScan = false
+		that.$http.post("HandleVideo", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call result ', result.data)
 			that.videoloading = false
 			that.$store.commit('videofetch', result.data)

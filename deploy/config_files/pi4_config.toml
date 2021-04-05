@@ -7,3 +7,4 @@ OmxCmdParams = "-o,hdmi" #comma separated, example -o,local. Could not be empty
 DBPath= "/home/igors/app/db/service-liveomx.db"
 TmpInfo= "/tmp"
 VueLibName = "vue_prod.js"
+VideoDir="/home/igors/Video"

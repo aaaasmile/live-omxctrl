@@ -17,6 +17,7 @@ type Config struct {
 	DBPath          string
 	TmpInfo         string
 	VueLibName      string
+	VideoDir        string
 	SoundCloud      SoundCloud
 }
 
