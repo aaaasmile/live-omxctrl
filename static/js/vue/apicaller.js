@@ -119,4 +119,16 @@ export default {
 			handleError(error, that)
 		});
 	},
+	FetchVideo(that, req) {
+		console.log('FetchVideo request is ', req)
+		that.videoloading = true
+		that.$http.post("FetchVideo", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call result ', result.data)
+			that.videoloading = false
+			that.$store.commit('videofetch', result.data)
+		}, error => {
+			that.videoloading = false	
+			handleError(error, that)
+		});
+	},
 }

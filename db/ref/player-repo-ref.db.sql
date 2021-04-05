@@ -49,4 +49,16 @@ CREATE TABLE IF NOT EXISTS `Current` (
 	`ItemType`	INTEGER,
 	PRIMARY KEY(`id`)
 );
+DROP TABLE IF EXISTS `Video`;
+CREATE TABLE IF NOT EXISTS `Video` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`Timestamp`	INTEGER,
+	`URI`	TEXT,
+	`Title`	TEXT,
+	`Description`	TEXT,
+	`Duration`	TEXT,
+	`PlayPosition`	INTEGER,
+	`DurationInSec`	INTEGER,
+	`Type`	TEXT
+);
 COMMIT;

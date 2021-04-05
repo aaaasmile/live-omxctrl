@@ -1,25 +1,45 @@
+# live-omxctrl
+Programma per gestire files e urls lanciati sul Raspi Pi4 collegato allo stereo.
+Lo scopo è quello di accedere il Pi4, lo stereo e di selezionare una risorsa, che sia una url un video
+o un file musicale, attraverso una interfaccia web che funzioni anche, e sopratutto, su un iphone.
+
+## Uso abituale
+- Lanciare una nuova uri del tubo.
+- Lanciare una uri ascoltata ieri.
+- Lanciare un video memorizzato sul pi4
+
+## comandi frequenti
 Per stoppare il sevice si usa:
 sudo systemctl stop live-omxctrl
 
 Vue si usa con:
 /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
 
-== Deployment su arm direttamente
+## Sviluppo di live-omxctrl
+Su winows 10 uso visual code in modalità remota con ssh:pi4.
+Durante lo sviluppo uso la porta 5549, mentre quella del service è la 5548, così posso ascoltare
+la musica durante la programmazione.
+Da notare che quasta modalità funziona egregiamente su un Raspy 4, ma sun Raspi 3 fa molta più fatica.
+Quindi il Raspy 3 lo uso solo come deployment target, questo solo in teoria in quanto non
+ho intenzione di fare il deployment live-omxctrl su pi3, ma uso un altro service live-streamer
+su questo target.
+
+## Deployment su arm direttamente
 In un colpo: ./publish-pi4.sh
 
-Questi sono gli step da eseguire:
+In dettaglio quello che viene eseguito:
 go build -o live-omxctrl.bin
 cd deploy
 ./deploy.bin -target pi4 -outdir ~/app/live-omxctrl/zips/
 cd ~/app/live-omxctrl/
 ./update-service.sh
 
-== Sviluppo su pi4 arm
-Apri vscode nella directory remota (nota come sia la directory go che fa la differenza tra sviluppo e deploy):
+## Sviluppo su pi4 arm
+Apri vscode nella directory remota (nota come la costruzione della directory. /go/ è la differenza tra sviluppo e deploy):
 /home/igor/app/go/live-omxctrl/
 
-== Compilare per linux Raspberry 4
-Nota che il Raspberry ? un sistema Linux ARM, quindi bisogna settare tutti i parametri
+## Cross compiler per linux Raspberry 4 da windows (non più usato)
+Nota che il Raspberry è un sistema Linux ARM, quindi bisogna settare tutti i parametri
 necessari per il cross compile.
 Apri una nuova powershell e poi:
 $env:GOOS = "linux"
@@ -27,20 +47,29 @@ $env:GOARCH="arm"
 $env:GOARM="5"
 
 go build -o live-omxctrl.bin
-Con WLC si pu? controllare che il live-omxctrl.bin funzioni correttamente.
+Con WLC si può controllare che il live-omxctrl.bin funzioni correttamente.
 
-== Deployment di pi4
-Dal laptop si pu? aggiornare il service su pi4 usando lo script power shell
+## Deployment di pi4 da windows (non più usato)
+Dal laptop si può aggiornare il service su pi4 usando lo script power shell
 .\start_publish.ps1
 Lo script attraverso il lancio di altri script locali, in bash e bash remoti 
 riesce ad eseguire l`aggiornamento del service in modo completo senza usare direttamente WLC.
 
-== Deployment dettagli e preparazione
+### Aggiornare il service da windows (obsoleto)
+- Crea una nuova versione (cambio in idl.go)
+- Crea il file live-omxctrl.bin per linux 
+- Usa .\deploy -target pi4
+- In WLC lancia ./copy_app_to_pi4.sh
+- Su pi4: ./update-service.sh
+
+
+### Deployment dettagli e preparazione
 - Sul laptop occorre il file copy_app_to_pi4.sh posizionato nella dir ../deployed
 - Su Pi4 occorre la directory /home/igors/app/live-omxctrl con all` interno il file update-service.sh
 così come la dir /home/igors/app/live-omxctrl/zips
 
-Sul firewall ho aperto la porta 5548 in intranet con:
+## Preparazione target pi4
+Sul firewall di pi4 ho aperto la porta 5548 in intranet con:
 ufw allow from 192.168.2.0/24 to any port 5548
 
 Ora va installata la app. Uso la dir:
@@ -60,7 +89,7 @@ sudo systemctl start live-omxctrl
 Per vedere i logs si usa:
 sudo journalctl -f -u live-omxctrl
 
-== Sviluppo su Pi4 
+## Sviluppo su Pi4 
 È possibile sviluppare il software direttamente su pi4 usando l'extension remote ssh
 Basta installare su pi4 golang arm6. Il vantaggio, oltre al deployment ancora più semplice,
 dovrebbe essere la possibilità di programmare direttamente dbus senza usare la shell.
@@ -70,7 +99,7 @@ windows. L'ho compilato separatamente e messo in /usr/local/bin/vuetojs.bin
 Per usarlo si scrive nella bash:
 /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
 
-== Dbus
+### Dbus
 Per comunicare con il processo omxplayer si usa il dbus con il suo protocollo.
 Esiste già lo script bash che esegue i comandi, file bash/dbuscontrol.sh.
 Esso setta 2 variabili di ambiente:
@@ -91,15 +120,7 @@ Questo dovrebbe essere il pid del service daemon dbus-daemon:
 
 I due files /tmp/omxplayerdbus.igors vengono creati quando si fa partire il player.
 
-== Aggiornare il service da windows (obsoleto)
-- Crea una nuova versione (cambio in idl.go)
-- Crea il file live-omxctrl.bin per linux 
-- Usa .\deploy -target pi4
-- In WLC lancia ./copy_app_to_pi4.sh
-- Su pi4: ./update-service.sh
-
-
-== Service Config
+## Service Config
 Questo il conetnuto del file che compare con:
 sudo nano /lib/systemd/system/live-omxctrl.service
 Poi si fa l'enable:
@@ -125,6 +146,7 @@ Con una porta del processo sarebbe tutto molto più comodo e separato per avere 
 multiple. 
 
 -------------------------------- file content
+```
 [Install]
 WantedBy=multi-user.target
 
@@ -154,48 +176,51 @@ ExecStartPre=/bin/chmod 755 /var/log/live-omxctrl
 StandardOutput=syslog
 StandardError=syslog
 
+```
 ------------------------------------------- end file content
 
-== shutdown e reboot
-Per avere i comandi di reboot e shutdown bisogna usare sudo senza password.
-Si lancia: 
+## Shutdown e Reboot
+Per avere i comandi di reboot e shutdown sull'interfaccia web bisogna usare sudo senza password.
+Nel terminale di pi4 Si lancia: 
 sudo visudo
 e qui si mette la linea:
 %adm  ALL=(ALL) NOPASSWD:ALL
 che vuol dire che se l'utente è del gruppo adm chiama sudo senza password.
 
-== Playlist
+## Player
 Pe fare andare una play list penso che ci voglia un blocking del 
 comando che gira in una goroutine. Quando poi finisce  fa partire
 la prossima. Altrimenti è difficile sapere quando il player finisce.
 Senza questo non si sa quando deve ricominciare. NextTitle con il dbus
 funziona solo se il player è attivo. Questo non è più vero quando la track è finita.
 Penso anche che ci voglia un websocket per lo stato. Quando una track finisce
-il player è off, ma il browser rimane in stato green. [DONE]
+il player è off, ma il browser rimane in stato green.
 
-== urls
+### urls usate durante lo sviluppo
 //u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-//u = "/home/igors/Music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
-//u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
-//u = "`youtubefff-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
+//u = "/home/igors/Music/tubo/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
+//u = "https://www.tubo.com/watch?v=3czUk1MmmvA"
+//u = "`tubofff-dl -f mp4 -g https://www.tubo.com/watch?v=3czUk1MmmvA`"
 
-== Sqlite
-Per vedere come si usa sqlite in full serach mode vedi
+## Sqlite
+Sqlite è il database dove vengono salvati tutti i dati.
+Per vedere come si usa sqlite in full search mode vedi
 https://github.com/aaaasmile/iol-importer/blob/master/Readme_iol-vienna.txt
 Su raspberry il database si può gestire con interfaccia grafica usando sqlitebrowser.
 sudo apt-get install sqlite3
 sudo apt-get install sqlitebrowser
 Per fare andare sqlitebrowser bisogna far partire Xming server in windwos.
-Poin WLC si lancia:
+Poi in WLC si lancia:
 export DISPLAY=localhost:0.0
 ssh -Y pi4
 Il db del service deve avere come owner pi, in quanto uso l'utente pi per il deployment.
-Ho avuto dei problemi che il database per il service era sempre readonly (utente pi).
-Quello che mi ha risolto la faccenda è stato il comando:
+Ho avuto dei problemi con il database in quanto il service era sempre readonly (utente pi).
+Quello che mi ha risolto il problema è stato il comando:
 igors@pi4:~/app/go $ chmod 777 db
-Vale a dire la directory dove si trova il file sqlite va messa accessibile.
+Vale a dire la directory dove si trova il file sqlite deve essere accessibile.
 
-== Soundcloud
+## Soundcloud
+Iniziato in qualche modo, ma non finita.
 Si prende come riferimento l'extension di mopidy: 
 https://github.com/mopidy/mopidy-soundcloud
 Clientid non si ottiene da sound cloud. Vedi il file soundcloud_test.go
@@ -203,8 +228,8 @@ per vedere com si usa la API.
 Si lancia come il video dei tube basta avere una trackid
 Per esempio: https://api.soundcloud.com/tracks/62576046
 
-== Terminare il player
-Una funzionalità che ho fatto molta fatica a capire in quanto non ha mai funzionato a dovere.
+## Terminare il player
+Una funzionalità che ho fatto molta fatica a capire, in quanto non ha mai funzionato a dovere.
 Se uso il dbus, bisogna trovare il file corretto per mandare il segnale 15. 
 Meglio usare il process kill del comando exec. Il problema è che allo start vengono
 creati due processi e vanno entrambi killati. Il Kill sul parent non è sufficiente.
@@ -217,7 +242,8 @@ Il channell done è buffered in quanto se arriva prima un segnale di kill, quand
 finisce il channel done sarebbe settato senza essere consumato e genera un leak.
 
 
-== TODO
+## TODO
+- lista di video
 - Mute e unmute mi cancella le info come title e description. Questo perché lo stato
 viene riscritto completamente, invece di essere incrementale. Setstate va chiamata solo all'interno
 di listenStateAction.
@@ -228,7 +254,7 @@ di listenStateAction.
 - Posizione e durata
 - Play radio e podcast
 - Play del soundcloud
-- files della carta da mettere nel db e in una view da cercare
+- files audio memorizzati su pi4 da mettere nel db e in una view da cercare
 - Favoriti
 - Play della playlist
 - Previous, Random e riciclo
@@ -244,16 +270,16 @@ su un singolo player. [DONE]
 più piccole e semplici. Per eesempio execCommand non può usare i parametri
 della struttura OmxPlayer, che è un singleton, ma va usato lo stack con i parametri sulla funzione.
 Il track di comandi multipli va fatto così come il kill di tutti comandi fatti partire. [DONE]
-- Quando parte con una URI tipo youtube, ci deve essere associata una playlist con
+- Quando parte con una URI tipo tubo, ci deve essere associata una playlist con
 un titolo solo, altrimenti mi parte un altro omx [DONE]
-- La url può essere un mp3 ma anche un video. Quindi non si lancia youtube in 
+- La url può essere un mp3 ma anche un video. Quindi non si lancia tubo in 
 automatico. [DONE]
 - Perde lo stato Title e Description dopo mute/unmute [DONE]
 - restart del service via os view [DONE]
 - Database con la history delle url usate [DONE]
 
 Prova a fare andare qualcosa di simile a:
-/home/igors/Music/youtube/gianna-fenomenale.mp3
+/home/igors/Music/tubo/gianna-fenomenale.mp3
 
 Per stoppare il sevice si usa:
 sudo systemctl stop live-omxctrl
