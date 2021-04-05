@@ -73,6 +73,52 @@ func (ld *LiteDB) FetchVideo(pageIx int, pageSize int) ([]ResUriItem, error) {
 	return res, nil
 }
 
+func (ld *LiteDB) GetNewTransaction() (*sql.Tx, error) {
+	tx, err := ld.connDb.Begin()
+	if err != nil {
+		return nil, err
+	}
+	return tx, nil
+}
+
+func (ld *LiteDB) InsertVideoList(tx *sql.Tx, list []*ResUriItem) error {
+	for _, item := range list {
+		q := `INSERT INTO Video(Timestamp,URI,Title,Description,Duration,PlayPosition,DurationInSec,Type) VALUES(?,?,?,?,?,?,?,?);`
+		if ld.DebugSQL {
+			log.Println("Query is", q)
+		}
+
+		stmt, err := ld.connDb.Prepare(q)
+		if err != nil {
+			return err
+		}
+
+		now := time.Now()
+		sqlres, err := tx.Stmt(stmt).Exec(now.Local().Unix(), item.URI, item.Title, item.Description,
+			item.Duration, 0, item.DurationInSec, item.Type)
+		if err != nil {
+			return err
+		}
+		log.Println("video inserted: ", item.Title, sqlres)
+	}
+	return nil
+}
+
+func (ld *LiteDB) DeleteAllVideo(tx *sql.Tx) error {
+	q := fmt.Sprintf(`DELETE FROM Video;`)
+	if ld.DebugSQL {
+		log.Println("Query is", q)
+	}
+
+	stmt, err := ld.connDb.Prepare(q)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Stmt(stmt).Exec()
+	return err
+}
+
 func (ld *LiteDB) FetchHistory(pageIx int, pageSize int) ([]ResUriItem, error) {
 	q := `SELECT id,Timestamp,URI,Title,Description,Duration,PlayPosition,DurationInSec,Type
 		  FROM History

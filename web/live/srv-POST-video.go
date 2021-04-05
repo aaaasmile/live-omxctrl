@@ -9,8 +9,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/aaaasmile/live-omxctrl/conf"
+	"github.com/aaaasmile/live-omxctrl/db"
 )
 
 func handleVideoRequest(w http.ResponseWriter, req *http.Request) error {
@@ -37,12 +40,43 @@ func handleVideoRequest(w http.ResponseWriter, req *http.Request) error {
 }
 
 func scanVideoReq(rawbody []byte, w http.ResponseWriter, req *http.Request) error {
+	start := time.Now()
 	videoPath := conf.Current.VideoDir
 	list, err := getVideoFiles(videoPath)
 	if err != nil {
 		return err
 	}
-	log.Println("Video file found: ", len(list), list)
+	log.Println("Video file found: ", len(list))
+
+	trxdelete, err := liteDB.GetNewTransaction()
+	if err != nil {
+		return err
+	}
+
+	err = liteDB.DeleteAllVideo(trxdelete)
+	if err != nil {
+		return err
+	}
+	err = trxdelete.Commit()
+	if err != nil {
+		return err
+	}
+
+	trx, err := liteDB.GetNewTransaction()
+	if err != nil {
+		return err
+	}
+
+	err = liteDB.InsertVideoList(trx, list)
+	if err != nil {
+		return err
+	}
+	err = trx.Commit()
+	if err != nil {
+		return err
+	}
+
+	log.Println("Scan and store processing time ", time.Now().Sub(start))
 
 	return fetchVideoReq(rawbody, w, req)
 }
@@ -90,49 +124,50 @@ func fetchVideoReq(rawbody []byte, w http.ResponseWriter, req *http.Request) err
 	return writeResponseNoWsBroadcast(w, res)
 }
 
-func getVideoFiles(rootPath string) ([]string, error) {
+func getVideoFiles(rootPath string) ([]*db.ResUriItem, error) {
 	rootPath, _ = filepath.Abs(rootPath)
-	onlyFiles := []string{}
+	arr := []*db.ResUriItem{}
 	filterVideo := []string{".mp4", ".avi"}
 	log.Printf("Process path %s", rootPath)
 	if info, err := os.Stat(rootPath); err == nil && info.IsDir() {
-		arr := []string{}
-		arr, err = getFilesinDir(rootPath, filterVideo, arr)
+		arr, err = getVideosinDir(rootPath, filterVideo, arr)
 		if err != nil {
 			return nil, err
-		}
-		//fmt.Println("Dir process result: ", arr)
-		for _, ele := range arr {
-			onlyFiles = append(onlyFiles, ele)
 		}
 	} else {
 		return nil, err
 	}
 
-	return onlyFiles, nil
+	return arr, nil
 }
 
-func getFilesinDir(dirAbs string, filterVideo []string, parentFiles []string) ([]string, error) {
-	r := parentFiles
+func getVideosinDir(dirAbs string, filterVideo []string, parentItems []*db.ResUriItem) ([]*db.ResUriItem, error) {
+	r := parentItems
 	log.Println("Scan dir ", dirAbs)
 	files, err := ioutil.ReadDir(dirAbs)
 	if err != nil {
 		return nil, err
 	}
 	for _, f := range files {
-		itemAbs := path.Join(dirAbs, f.Name())
-		if info, err := os.Stat(itemAbs); err == nil && info.IsDir() {
+		pathAbsItem := path.Join(dirAbs, f.Name())
+		if info, err := os.Stat(pathAbsItem); err == nil && info.IsDir() {
 			//fmt.Println("** Sub dir found ", f.Name())
-			r, err = getFilesinDir(itemAbs, filterVideo, r)
+			r, err = getVideosinDir(pathAbsItem, filterVideo, r)
 			if err != nil {
 				return nil, err
 			}
 		} else {
 			//fmt.Println("** file is ", f.Name())
-			ext := filepath.Ext(itemAbs)
+			ext := filepath.Ext(pathAbsItem)
 			for _, v := range filterVideo {
 				if v == ext {
-					r = append(r, itemAbs)
+					item := db.ResUriItem{
+						URI:   pathAbsItem,
+						Title: strings.ReplaceAll(f.Name(), v, ""),
+						Type:  strings.Trim(ext, "."),
+					}
+
+					r = append(r, &item)
 					break
 				}
 			}
