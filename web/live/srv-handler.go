@@ -119,7 +119,7 @@ func listenDbOperations(dbCh chan *idl.DbOperation) {
 		proc := false
 		log.Println("Db operation rec ", item.DbOpType)
 		if item.DbOpType == idl.DbOpHistoryInsert {
-			if vv, ok := item.Payload.(db.HistoryItem); ok {
+			if vv, ok := item.Payload.(db.ResUriItem); ok {
 				proc = true
 				if err := liteDB.InsertHistoryItem(&vv); err != nil {
 					log.Println("Error on insert history: ", err)

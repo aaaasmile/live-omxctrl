@@ -120,6 +120,7 @@ export default {
 		});
 	},
 	FetchVideo(that, req) {
+		req.name = 'FetchVideo'
 		console.log('FetchVideo request is ', req)
 		that.videoloading = true
 		that.$http.post("FetchVideo", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {

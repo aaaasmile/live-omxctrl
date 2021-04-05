@@ -62,7 +62,7 @@ func (rp *RadioPlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 		info := infoFile{
 			// TODO read radio info from db
 		}
-		hi := db.HistoryItem{
+		hi := db.ResUriItem{
 			URI:         rp.URI,
 			Title:       info.Title,
 			Description: info.Description,

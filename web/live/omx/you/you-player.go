@@ -44,7 +44,7 @@ func (yp *YoutubePl) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 			return err
 		}
 
-		hi := db.HistoryItem{
+		hi := db.ResUriItem{
 			URI:           yp.URI,
 			Title:         info.Title,
 			Description:   info.Description,

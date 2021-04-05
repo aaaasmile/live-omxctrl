@@ -79,7 +79,7 @@ func (fp *FilePlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 		}
 		info.DurationInSec, _ = strconv.Atoi(st.TrackDuration)
 		info.TrackDuration = time.Duration(int64(info.DurationInSec) * int64(time.Second)).String()
-		hi := db.HistoryItem{
+		hi := db.ResUriItem{
 			URI:           fp.URI,
 			Title:         info.Title,
 			Description:   info.Description,
