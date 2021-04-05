@@ -243,7 +243,6 @@ finisce il channel done sarebbe settato senza essere consumato e genera un leak.
 
 
 ## TODO
-- lista di video
 - Mute e unmute mi cancella le info come title e description. Questo perché lo stato
 viene riscritto completamente, invece di essere incrementale. Setstate va chiamata solo all'interno
 di listenStateAction.
@@ -259,6 +258,7 @@ di listenStateAction.
 - Play della playlist
 - Previous, Random e riciclo
 
+- lista di video [DONE]
 - dbus è da rivedere. Se c'è gia un player in funzione, la seconda istanza su una porta diversa (dev)
 va a cambiare l'istanza del service. Andrebbe magari anche isolata.[DONE]
 - Le icone di mute non vanno bene. Ne serve una che toggle tra volume_down e volume_off
