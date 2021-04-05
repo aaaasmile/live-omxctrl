@@ -127,7 +127,7 @@ func fetchVideoReq(rawbody []byte, w http.ResponseWriter, req *http.Request) err
 func getVideoFiles(rootPath string) ([]*db.ResUriItem, error) {
 	rootPath, _ = filepath.Abs(rootPath)
 	arr := []*db.ResUriItem{}
-	filterVideo := []string{".mp4", ".avi"}
+	filterVideo := []string{".mp4", ".avi", ".mkv"}
 	log.Printf("Process path %s", rootPath)
 	if info, err := os.Stat(rootPath); err == nil && info.IsDir() {
 		arr, err = getVideosinDir(rootPath, filterVideo, arr)

@@ -31,7 +31,7 @@ type FilePlayer struct {
 
 func (fp *FilePlayer) IsUriForMe(uri string) bool {
 	if strings.Contains(uri, "/home") &&
-		(strings.Contains(uri, ".mp4") || strings.Contains(uri, ".avi") ||
+		(strings.Contains(uri, ".mp4") || strings.Contains(uri, ".avi") || strings.Contains(uri, ".mkv") ||
 			strings.Contains(uri, ".mp3") || strings.Contains(uri, ".ogg") || strings.Contains(uri, ".wav")) {
 		log.Println("this is a music file ", uri)
 		fp.URI = uri

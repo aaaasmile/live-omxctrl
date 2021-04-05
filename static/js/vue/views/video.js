@@ -7,7 +7,7 @@ export default {
             selected_item: {},
             dialogPlaySelected: false,
             dialogScan: false,
-            pagesize: 5,
+            pagesize: 10,
             pageix: 0,
             transition: 'scale-transition',
         }
@@ -97,10 +97,6 @@ export default {
               <v-list-item-content>
                 <v-list-item-title>{{ plitem.title }}</v-list-item-title>
                 <v-list-item-title>{{ plitem.uri }}</v-list-item-title>
-                <v-list-item-title>{{ plitem.playedAt }}</v-list-item-title>
-                <v-list-item-title
-                  >Duration: {{ plitem.duration }}</v-list-item-title
-                >
               </v-list-item-content>
             </v-list-item>
           </v-list>
