@@ -51,7 +51,7 @@ Sound strange? It works.
 The content of files with the .vue extension is copied inside the same
 file named with the .js extension, inside the template section.  
 This could be done automatically in Visual Code 
-using the extension [vuetempltojs](https://github.com/aaaasmile/vuetempltojs). On Pi4 the exetnsion will not works, so the command should be called manually.
+using the extension [vuetempltojs](https://github.com/aaaasmile/vuetempltojs). On Pi4 the exetnsion will not work, so the command should be called manually.
 For example, after changing the file _playerbar.vue_ the playerbar.js is updated with:
 
 ```
