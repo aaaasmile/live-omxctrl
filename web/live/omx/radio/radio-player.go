@@ -37,6 +37,11 @@ func (rp *RadioPlayer) GetStatusSleepTime() int {
 func (rp *RadioPlayer) GetURI() string {
 	return rp.URI
 }
+
+func (rp *RadioPlayer) SetURI(uri string) {
+	rp.URI = uri
+}
+
 func (rp *RadioPlayer) GetTitle() string {
 	if rp.Info != nil {
 		return rp.Info.Title

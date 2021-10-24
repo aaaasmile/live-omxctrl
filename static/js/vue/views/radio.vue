@@ -1,7 +1,7 @@
 <template>
   <v-container pa-1>
     <v-skeleton-loader
-      :loading="videoloading"
+      :loading="radioloading"
       :transition="transition"
       height="94"
       type="list-item-three-line"

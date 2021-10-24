@@ -90,9 +90,12 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 		}
 	}
 	uri := prov.GetURI()
+	if uri == "" {
+		return fmt.Errorf("URI is not recognized in player")
+	}
 	op.Providers[uri] = prov
 
-	log.Println("Start player wit URI ", uri)
+	log.Println("Start player with URI ", uri)
 
 	if len(op.cmdLineArr) == 0 {
 		return fmt.Errorf("Command line is not set")

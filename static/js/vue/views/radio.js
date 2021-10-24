@@ -42,7 +42,7 @@ export default {
             console.log('playSelectedItem is: ', this.selected_item)
             this.dialogPlaySelected = false
 
-            let req = { uri: this.selected_item.uri }
+            let req = { uri: this.selected_item.uri, force_type: 'radio' }
             API.PlayUri(this, req)
 
             this.$router.push('/')
@@ -57,7 +57,7 @@ export default {
     template: `
   <v-container pa-1>
     <v-skeleton-loader
-      :loading="videoloading"
+      :loading="radioloading"
       :transition="transition"
       height="94"
       type="list-item-three-line"

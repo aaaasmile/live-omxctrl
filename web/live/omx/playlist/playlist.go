@@ -153,7 +153,6 @@ func CreatePlaylistFromProvider(URI string, prov idl.StreamProvider) (*LLPlayLis
 	item := PlayItem{
 		URI:            URI,
 		StreamProvider: prov,
-		//ItemType: it,
 	}
 	res.Name = URI
 	res.CurrItem = NewLLPlayItem(nil, nil, &item)

@@ -30,7 +30,7 @@ export default {
             data.radio.forEach(itemsrc => {
                 let item = {
                     id: itemsrc.id,
-                    icon: 'outline-radio',
+                    icon: 'radio-outline',
                     description: itemsrc.description,
                     title: itemsrc.title,
                     uri: itemsrc.uri,

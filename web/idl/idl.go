@@ -2,13 +2,14 @@ package idl
 
 var (
 	Appname = "live-omxctrl"
-	Buildnr = "00.01.24.20210405-00"
+	Buildnr = "00.01.25.20211024-00"
 )
 
 type StreamProvider interface {
 	IsUriForMe(uri string) bool
 	GetStatusSleepTime() int
 	GetURI() string
+	SetURI(string)
 	GetTitle() string
 	GetDescription() string
 	Name() string

@@ -47,6 +47,11 @@ func (fp *FilePlayer) GetStatusSleepTime() int {
 func (fp *FilePlayer) GetURI() string {
 	return fp.URI
 }
+
+func (rp *FilePlayer) SetURI(uri string) {
+	rp.URI = uri
+}
+
 func (fp *FilePlayer) GetTitle() string {
 	if fp.Info != nil {
 		return fp.Info.Title

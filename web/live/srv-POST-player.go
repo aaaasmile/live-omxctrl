@@ -16,14 +16,17 @@ import (
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/you"
 )
 
-func getProviderForURI(uri string, pl *omx.OmxPlayer) (idl.StreamProvider, error) {
+func getProviderForURI(uri, forceType string, pl *omx.OmxPlayer) (idl.StreamProvider, error) {
 	streamers := make([]idl.StreamProvider, 0)
 	streamers = append(streamers, &you.YoutubePl{TmpInfo: conf.Current.TmpInfo})
 	streamers = append(streamers, &fileplayer.FilePlayer{Dbus: pl.GetDbus()})
 	streamers = append(streamers, &radio.RadioPlayer{})
 
 	for _, prov := range streamers {
-		if prov.IsUriForMe(uri) {
+		if (forceType != "") && (forceType == prov.Name()) {
+			prov.SetURI(uri)
+			return prov, nil
+		} else if prov.IsUriForMe(uri) {
 			return prov, nil
 		}
 	}
@@ -37,7 +40,8 @@ func handlePlayUri(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) 
 	}
 
 	reqURI := struct {
-		URI string `json:"uri"`
+		URI       string `json:"uri"`
+		ForceType string `json:"force_type"`
 	}{}
 	if err := json.Unmarshal(rawbody, &reqURI); err != nil {
 		return err
@@ -47,18 +51,19 @@ func handlePlayUri(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer) 
 		log.Println("Ignore empty request")
 		return fmt.Errorf("Ignore empty URI request")
 	}
-	if err := startUri(reqURI.URI, pl); err != nil {
+	if err := startUri(reqURI.URI, reqURI.ForceType, pl); err != nil {
 		return err
 	}
 
 	return returnStatus(w, req, pl)
 }
 
-func startUri(uri string, pl *omx.OmxPlayer) error {
+func startUri(uri, forceType string, pl *omx.OmxPlayer) error {
+	log.Println("start URI: ", uri, forceType)
 	if uri == "" {
 		return fmt.Errorf("Nothing to play")
 	}
-	prov, err := getProviderForURI(uri, pl)
+	prov, err := getProviderForURI(uri, forceType, pl)
 	if err != nil {
 		return err
 	}
@@ -78,7 +83,7 @@ func handleNextTitle(w http.ResponseWriter, req *http.Request, pl *omx.OmxPlayer
 		return err
 	}
 	if uri != "" {
-		if err := startUri(uri, pl); err != nil {
+		if err := startUri(uri, "", pl); err != nil {
 			return err
 		}
 	}
@@ -92,7 +97,7 @@ func handlePreviousTitle(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		return err
 	}
 	if uri != "" {
-		if err := startUri(uri, pl); err != nil {
+		if err := startUri(uri, "", pl); err != nil {
 			return err
 		}
 	}
@@ -125,7 +130,7 @@ func handleSetPowerState(w http.ResponseWriter, req *http.Request, pl *omx.OmxPl
 		}
 		if len(last) == 1 {
 			log.Println("With power on try to play this uri ", last[0].URI)
-			if err := startUri(last[0].URI, pl); err != nil {
+			if err := startUri(last[0].URI, last[0].Type, pl); err != nil {
 				return err
 			}
 		}

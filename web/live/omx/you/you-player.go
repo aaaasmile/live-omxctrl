@@ -25,6 +25,10 @@ func (yp *YoutubePl) GetURI() string {
 	return yp.URI
 }
 
+func (rp *YoutubePl) SetURI(uri string) {
+	rp.URI = uri
+}
+
 func (yp *YoutubePl) GetTitle() string {
 	if yp.YoutubeInfo != nil {
 		return yp.YoutubeInfo.Title
