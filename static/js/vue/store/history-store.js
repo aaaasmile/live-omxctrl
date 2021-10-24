@@ -5,6 +5,9 @@ const getIconOnType = (type) => {
         case "mp3-list":
             return "library_music"
         case "file":
+            return "queue_music"
+        case "radio":
+            return "outline_radio"
         case "mp3":
             return "queue_music"
     }

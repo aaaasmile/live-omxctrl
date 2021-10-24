@@ -6,7 +6,7 @@ export default {
       hisloading: false,
       selected_item: {},
       dialogPlaySelected: false,
-      pagesize: 5,
+      pagesize: 15,
       pageix: 0,
       transition: 'scale-transition',
     }
@@ -77,8 +77,8 @@ export default {
                 <v-list-item-title>{{ plitem.title }}</v-list-item-title>
                 <v-list-item-title>{{ plitem.uri }}</v-list-item-title>
                 <v-list-item-title>{{ plitem.playedAt }}</v-list-item-title>
-                <v-list-item-title
-                  >Duration: {{ plitem.duration }}</v-list-item-title
+                <v-list-item-title  v-if="plitem.duration">
+                  Duration: {{ plitem.duration }}</v-list-item-title
                 >
               </v-list-item-content>
             </v-list-item>
