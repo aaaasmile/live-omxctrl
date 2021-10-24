@@ -146,4 +146,17 @@ export default {
 			handleError(error, that)
 		});
 	},
+	FetchRadio(that, req) {
+		req.name = 'FetchRadio'
+		console.log('FetchRadio request is ', req)
+		that.radioloading = true
+		that.$http.post("HandleRadio", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call result ', result.data)
+			that.radioloading = false
+			that.$store.commit('radiofetch', result.data)
+		}, error => {
+			that.radioloading = false	
+			handleError(error, that)
+		});
+	},
 }

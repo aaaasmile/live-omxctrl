@@ -24,6 +24,7 @@ type ResUriItem struct {
 	PlayPosition                      int
 	DurationInSec                     int
 	Type                              string
+	Genre                             string
 }
 
 func (ld *LiteDB) OpenSqliteDatabase() error {
@@ -68,6 +69,35 @@ func (ld *LiteDB) FetchVideo(pageIx int, pageSize int) ([]ResUriItem, error) {
 			return nil, err
 		}
 		item.Timestamp = time.Unix(tss, 0)
+		res = append(res, item)
+	}
+	return res, nil
+}
+
+func (ld *LiteDB) FetchRadio(pageIx int, pageSize int) ([]ResUriItem, error) {
+	q := `SELECT id,URI,Name,Description,Genre
+		  FROM Radio
+		  ORDER BY Name DESC 
+		  LIMIT %d OFFSET %d;`
+	offsetRows := pageIx * pageSize
+	q = fmt.Sprintf(q, pageSize, offsetRows)
+	if ld.DebugSQL {
+		log.Println("Query is", q)
+	}
+
+	rows, err := ld.connDb.Query(q)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	res := make([]ResUriItem, 0)
+	for rows.Next() {
+		item := ResUriItem{}
+		if err := rows.Scan(&item.ID, &item.URI, &item.Title,
+			&item.Description, &item.Genre); err != nil {
+			return nil, err
+		}
 		res = append(res, item)
 	}
 	return res, nil

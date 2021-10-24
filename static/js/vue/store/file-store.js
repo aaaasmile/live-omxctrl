@@ -2,6 +2,8 @@ export default {
     state: {
         video: [],
         last_video_fetch: false,
+        radio: [],
+        last_radio_fetch: false,
     },
     mutations: {
         videofetch(state, data) {
@@ -20,6 +22,23 @@ export default {
                 state.video.push(item)
             });
             state.last_video_fetch = (data.video.length === 0)
+        },
+        radiofetch(state, data) {
+            if (data.pageix === 0) {
+                state.radio = []
+            }
+            data.radio.forEach(itemsrc => {
+                let item = {
+                    id: itemsrc.id,
+                    icon: 'outline-radio',
+                    description: itemsrc.description,
+                    title: itemsrc.title,
+                    uri: itemsrc.uri,
+                    genre: itemsrc.genre,
+                }
+                state.radio.push(item)
+            });
+            state.last_radio_fetch = (data.radio.length === 0)
         }
     }
 }
