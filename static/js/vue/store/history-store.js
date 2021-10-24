@@ -30,6 +30,7 @@ export default {
                     playedAt: itemsrc.playedAt,
                     title: itemsrc.title,
                     uri: itemsrc.uri,
+                    type: itemsrc.type,
                     duration: itemsrc.durationstr,
                 }
                 state.history.push(item)

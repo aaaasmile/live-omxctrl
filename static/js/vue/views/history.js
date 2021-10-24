@@ -40,7 +40,7 @@ export default {
       console.log('playSelectedItem is: ', this.selected_item)
       this.dialogPlaySelected = false
 
-      let req = { uri: this.selected_item.uri }
+      let req = { uri: this.selected_item.uri, force_type: this.selected_item.type }
       API.PlayUri(this, req)
 
       this.$router.push('/')

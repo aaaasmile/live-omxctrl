@@ -219,6 +219,11 @@ Quello che mi ha risolto il problema è stato il comando:
 igors@pi4:~/app/go $ chmod 777 db
 Vale a dire la directory dove si trova il file sqlite deve essere accessibile.
 
+Ho cambiato la struttura del database usando una copia su windows. L'ho rispedito indietro con:
+rsync -av ./test-data.db  igors@pi4:/home/igors/projects/go/live-omxctrl/db/test/test-data.db
+Per la produzione
+rsync -av ./test-data.db  igors@pi4:/home/igors/app/db/service-liveomx.db
+
 ## Soundcloud
 Iniziato in qualche modo, ma non finita.
 Si prende come riferimento l'extension di mopidy: 
