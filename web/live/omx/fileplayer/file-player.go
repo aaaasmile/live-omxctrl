@@ -84,11 +84,20 @@ func (fp *FilePlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	}
 
 	if fp.Info == nil {
+		titles := strings.Split(fp.URI, "/")
+		title := ""
+		if len(titles) > 0 {
+			title = titles[len(titles)-1]
+		}
 		info := infoFile{
-			// TODO read from db
+			// TODO read from db using URI -> see player radio
+			Title: title,
 		}
 		info.DurationInSec, _ = strconv.Atoi(st.TrackDuration)
-		info.TrackDuration = time.Duration(int64(info.DurationInSec) * int64(time.Second)).String()
+		if info.DurationInSec > 0 {
+			info.TrackDuration = time.Duration(int64(info.DurationInSec) * int64(time.Second)).String()
+		}
+
 		hi := db.ResUriItem{
 			URI:           fp.URI,
 			Title:         info.Title,
