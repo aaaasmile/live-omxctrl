@@ -99,15 +99,15 @@ export default {
                     <div class="subtitle-2 text--secondary">
                       {{ PlayingURI }}
                     </div>
-                    <div class="subtitle-2">Title</div>
+                    <div class="subtitle-2" v-if="PlayingTitle" >Title</div>
                     <div class="subtitle-2 text--secondary">
                       {{ PlayingTitle }}
                     </div>
-                    <div class="subtitle-2">Description</div>
+                    <div class="subtitle-2" v-if="PlayingDesc" >Description</div>
                     <div class="subtitle-2 text--secondary">
                       {{ PlayingDesc }}
                     </div>
-                    <div class="subtitle-2">Genre</div>
+                    <div class="subtitle-2"  v-if="PlayingGenre" >Genre</div>
                     <div class="subtitle-2 text--secondary">
                       {{ PlayingGenre }}
                     </div>
