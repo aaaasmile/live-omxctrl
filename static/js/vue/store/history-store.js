@@ -7,7 +7,7 @@ const getIconOnType = (type) => {
         case "file":
             return "queue_music"
         case "radio":
-            return "outline_radio"
+            return "library_music"
         case "mp3":
             return "queue_music"
     }
