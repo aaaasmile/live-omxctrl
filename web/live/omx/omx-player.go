@@ -140,6 +140,16 @@ func (op *OmxPlayer) GetStateDescription() string {
 	return ""
 }
 
+func (op *OmxPlayer) GetStateGenre() string {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	if prov, ok := op.Providers[op.state.CurrURI]; ok {
+		return prov.GetPropValue("genre")
+	}
+
+	return ""
+}
+
 func (op *OmxPlayer) GetCurrURI() string {
 	log.Println("getCurrURI")
 	op.mutex.Lock()

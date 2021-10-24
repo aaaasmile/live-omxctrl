@@ -72,6 +72,10 @@ func (yp *YoutubePl) GetDescription() string {
 	return ""
 }
 
+func (rp *YoutubePl) GetPropValue(propname string) string {
+	return ""
+}
+
 func (yp *YoutubePl) IsUriForMe(uri string) bool {
 	if strings.Contains(uri, "you") && strings.Contains(uri, "https") {
 		log.Println("this is youtube URL ", uri)

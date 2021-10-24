@@ -13,6 +13,7 @@ export default {
         previous: '',
         title: '',
         description: '',
+        genre: '',
     },
     mutations: {
         playerstate(state, data) {
@@ -40,6 +41,7 @@ export default {
             state.previous = data.previous
             state.next = data.next
             state.title = data.title
+            state.genre = data.genre
             if (data.description) {
                 if (data.description.length < 100) {
                     state.description = data.description

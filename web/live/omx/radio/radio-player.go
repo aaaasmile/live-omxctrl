@@ -12,17 +12,19 @@ import (
 type infoFile struct {
 	Title       string
 	Description string
+	Genre       string
 }
 
 type RadioPlayer struct {
 	URI     string
 	Info    *infoFile
+	LiteDB  *db.LiteDB
 	chClose chan struct{}
 }
 
 func (rp *RadioPlayer) IsUriForMe(uri string) bool {
 	if strings.Contains(uri, "http") &&
-		(strings.Contains(uri, "mp3") || strings.Contains(uri, "aacp")) {
+		(strings.Contains(uri, "mp3") || strings.Contains(uri, "aacp") || strings.Contains(uri, "/live")) {
 		log.Println("This is a streaming resource ", uri)
 		rp.URI = uri
 		return true
@@ -40,6 +42,13 @@ func (rp *RadioPlayer) GetURI() string {
 
 func (rp *RadioPlayer) SetURI(uri string) {
 	rp.URI = uri
+}
+
+func (rp *RadioPlayer) GetPropValue(propname string) string {
+	if propname == "genre" {
+		return rp.Info.Genre
+	}
+	return ""
 }
 
 func (rp *RadioPlayer) GetTitle() string {
@@ -64,13 +73,20 @@ func (rp *RadioPlayer) GetStreamerCmd(cmdLineArr []string) string {
 }
 func (rp *RadioPlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	if rp.Info == nil {
-		info := infoFile{
-			// TODO read radio info from db
+		resItem, err := rp.LiteDB.FetchRadioFromURI(rp.URI)
+		if err != nil {
+			return err
 		}
+		info := infoFile{
+			Title:       resItem.Title,
+			Description: resItem.Description,
+			Genre:       resItem.Genre,
+		}
+		log.Println("Radio info from db: ", resItem)
 		hi := db.ResUriItem{
 			URI:         rp.URI,
 			Title:       info.Title,
-			Description: info.Description,
+			Description: info.Genre,
 			Type:        rp.Name(),
 		}
 		dop := idl.DbOperation{

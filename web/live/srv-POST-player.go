@@ -20,7 +20,7 @@ func getProviderForURI(uri, forceType string, pl *omx.OmxPlayer) (idl.StreamProv
 	streamers := make([]idl.StreamProvider, 0)
 	streamers = append(streamers, &you.YoutubePl{TmpInfo: conf.Current.TmpInfo})
 	streamers = append(streamers, &fileplayer.FilePlayer{Dbus: pl.GetDbus()})
-	streamers = append(streamers, &radio.RadioPlayer{})
+	streamers = append(streamers, &radio.RadioPlayer{LiteDB: liteDB})
 
 	for _, prov := range streamers {
 		if (forceType != "") && (forceType == prov.Name()) {
@@ -265,6 +265,7 @@ func returnStatusAfterCheck(w http.ResponseWriter, req *http.Request, pl *omx.Om
 		Type          string `json:"type"`
 		Title         string `json:"title"`
 		Description   string `json:"description"`
+		Genre         string `json:"genre"`
 	}{
 		Player:        pl.GetStatePlaying(),
 		Mute:          pl.GetStateMute(),
@@ -275,6 +276,7 @@ func returnStatusAfterCheck(w http.ResponseWriter, req *http.Request, pl *omx.Om
 		Type:          "status",
 		Title:         pl.GetStateTitle(),
 		Description:   pl.GetStateDescription(),
+		Genre:         pl.GetStateGenre(),
 	}
 
 	return writeResponse(w, res)

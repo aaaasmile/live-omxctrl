@@ -12,6 +12,7 @@ type StreamProvider interface {
 	SetURI(string)
 	GetTitle() string
 	GetDescription() string
+	GetPropValue(string) string
 	Name() string
 	GetStreamerCmd(cmdLineArr []string) string
 	CheckStatus(chDbOperation chan *DbOperation) error

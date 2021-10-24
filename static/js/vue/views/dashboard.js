@@ -21,6 +21,9 @@ export default {
       PlayingDesc: state => {
         return state.ps.description
       },
+      PlayingGenre: state => {
+        return state.ps.genre
+      },
       PlayingInfo: state => {
         return state.ps.info
       },
@@ -103,6 +106,10 @@ export default {
                     <div class="subtitle-2">Description</div>
                     <div class="subtitle-2 text--secondary">
                       {{ PlayingDesc }}
+                    </div>
+                    <div class="subtitle-2">Genre</div>
+                    <div class="subtitle-2 text--secondary">
+                      {{ PlayingGenre }}
                     </div>
                   </div>
                 </v-card>

@@ -58,6 +58,11 @@ func (fp *FilePlayer) GetTitle() string {
 	}
 	return ""
 }
+
+func (rp *FilePlayer) GetPropValue(propname string) string {
+	return ""
+}
+
 func (fp *FilePlayer) GetDescription() string {
 	if fp.Info != nil {
 		return fp.Info.Description

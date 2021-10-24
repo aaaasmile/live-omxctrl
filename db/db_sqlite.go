@@ -74,6 +74,34 @@ func (ld *LiteDB) FetchVideo(pageIx int, pageSize int) ([]ResUriItem, error) {
 	return res, nil
 }
 
+func (ld *LiteDB) FetchRadioFromURI(uri string) (*ResUriItem, error) {
+	q := `SELECT id,URI,Name,Description,Genre
+		  FROM Radio
+		  WHERE URI = "%s"
+		  LIMIT 1;`
+	q = fmt.Sprintf(q, uri)
+	if ld.DebugSQL {
+		log.Println("Query is", q)
+	}
+	res := ResUriItem{}
+
+	rows, err := ld.connDb.Query(q)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		if err := rows.Scan(&res.ID, &res.URI, &res.Title, &res.Description, &res.Genre); err != nil {
+			return nil, err
+		}
+		break
+	}
+
+	return &res, nil
+}
+
 func (ld *LiteDB) FetchRadio(pageIx int, pageSize int) ([]ResUriItem, error) {
 	q := `SELECT id,URI,Name,Description,Genre
 		  FROM Radio
