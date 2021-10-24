@@ -6,7 +6,7 @@ export default {
       hisloading: false,
       selected_item: {},
       dialogPlaySelected: false,
-      pagesize: 15,
+      pagesize: 30,
       pageix: 0,
       transition: 'scale-transition',
     }
