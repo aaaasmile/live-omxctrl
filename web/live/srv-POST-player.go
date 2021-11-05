@@ -11,6 +11,7 @@ import (
 	"github.com/aaaasmile/live-omxctrl/conf"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx"
+	"github.com/aaaasmile/live-omxctrl/web/live/omx/cvlc"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/fileplayer"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/radio"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/you"
@@ -21,6 +22,7 @@ func getProviderForURI(uri, forceType string, pl *omx.OmxPlayer) (idl.StreamProv
 	streamers = append(streamers, &you.YoutubePl{TmpInfo: conf.Current.TmpInfo})
 	streamers = append(streamers, &fileplayer.FilePlayer{Dbus: pl.GetDbus()})
 	streamers = append(streamers, &radio.RadioPlayer{LiteDB: liteDB})
+	streamers = append(streamers, &cvlc.CvlcPlayer{LiteDB: liteDB})
 
 	for _, prov := range streamers {
 		if (forceType != "") && (forceType == prov.Name()) {

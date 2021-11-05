@@ -1,4 +1,4 @@
-package fileplayer
+package cvlc
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/aaaasmile/live-omxctrl/db"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
-	"github.com/aaaasmile/live-omxctrl/web/live/omx/dbus"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 )
 
@@ -22,66 +21,62 @@ type infoFile struct {
 	TrackStatus   string
 }
 
-type FilePlayer struct {
+type CvlcPlayer struct {
 	URI     string
 	Info    *infoFile
-	Dbus    *dbus.OmxDbus
+	LiteDB  *db.LiteDB
 	chClose chan struct{}
 }
 
-func (fp *FilePlayer) IsUriForMe(uri string) bool {
+func (fp *CvlcPlayer) IsUriForMe(uri string) bool {
 	if strings.Contains(uri, "/home") &&
-		(strings.Contains(uri, ".mp4") || strings.Contains(uri, ".avi") ||
-			strings.Contains(uri, ".mp3") || strings.Contains(uri, ".ogg") || strings.Contains(uri, ".wav")) {
-		log.Println("this is a file for omx ", uri)
+		strings.Contains(uri, ".mkv") {
+		log.Println("this is a mkv file ", uri)
 		fp.URI = uri
 		return true
 	}
 	return false
 }
 
-func (fp *FilePlayer) GetStatusSleepTime() int {
+func (fp *CvlcPlayer) GetStatusSleepTime() int {
 	return 300
 }
 
-func (fp *FilePlayer) GetURI() string {
+func (fp *CvlcPlayer) GetURI() string {
 	return fp.URI
 }
 
-func (rp *FilePlayer) SetURI(uri string) {
+func (rp *CvlcPlayer) SetURI(uri string) {
 	rp.URI = uri
 }
 
-func (fp *FilePlayer) GetTitle() string {
+func (fp *CvlcPlayer) GetTitle() string {
 	if fp.Info != nil {
 		return fp.Info.Title
 	}
 	return ""
 }
 
-func (rp *FilePlayer) GetPropValue(propname string) string {
+func (rp *CvlcPlayer) GetPropValue(propname string) string {
 	return ""
 }
 
-func (fp *FilePlayer) GetDescription() string {
+func (fp *CvlcPlayer) GetDescription() string {
 	if fp.Info != nil {
 		return fp.Info.Description
 	}
 	return ""
 }
-func (fp *FilePlayer) Name() string {
+func (fp *CvlcPlayer) Name() string {
 	return "file"
 }
-func (fp *FilePlayer) GetStreamerCmd(cmdLineArr []string) string {
-	args := strings.Join(cmdLineArr, " ")
-	cmd := fmt.Sprintf("omxplayer %s %s", args, fp.URI)
+func (fp *CvlcPlayer) GetStreamerCmd(cmdLineArr []string) string {
+	//args := strings.Join(cmdLineArr, " ")
+	cmd := fmt.Sprintf("cvlc %s %s", "--aout=alsa --alsa-audio-device=plughw:b1,0", fp.URI)
 	return cmd
 }
-func (fp *FilePlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
+func (fp *CvlcPlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	st := &omxstate.StateOmx{}
-	if err := fp.Dbus.CheckTrackStatus(st); err != nil {
-		return err
-	}
 
 	if fp.Info == nil {
 		titles := strings.Split(fp.URI, "/")
@@ -121,39 +116,39 @@ func (fp *FilePlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	return nil
 }
 
-func (fp *FilePlayer) CreateStopChannel() chan struct{} {
+func (fp *CvlcPlayer) CreateStopChannel() chan struct{} {
 	if fp.chClose == nil {
 		fp.chClose = make(chan struct{})
 	}
 	return fp.chClose
 }
 
-func (fp *FilePlayer) GetCmdStopChannel() chan struct{} {
+func (fp *CvlcPlayer) GetCmdStopChannel() chan struct{} {
 	return fp.chClose
 }
 
-func (fp *FilePlayer) CloseStopChannel() {
+func (fp *CvlcPlayer) CloseStopChannel() {
 	if fp.chClose != nil {
 		close(fp.chClose)
 		fp.chClose = nil
 	}
 }
 
-func (fp *FilePlayer) GetTrackDuration() (string, bool) {
+func (fp *CvlcPlayer) GetTrackDuration() (string, bool) {
 	if fp.Info != nil {
 		return fp.Info.TrackDuration, true
 	}
 	return "", false
 
 }
-func (fp *FilePlayer) GetTrackPosition() (string, bool) {
+func (fp *CvlcPlayer) GetTrackPosition() (string, bool) {
 	if fp.Info != nil {
 		return fp.Info.TrackPosition, true
 	}
 	return "", false
 
 }
-func (fp *FilePlayer) GetTrackStatus() (string, bool) {
+func (fp *CvlcPlayer) GetTrackStatus() (string, bool) {
 	if fp.Info != nil {
 		return fp.Info.TrackStatus, true
 	}
