@@ -112,11 +112,24 @@ func writeErrorResponse(w http.ResponseWriter, errorcode int, resp interface{}) 
 	return nil
 }
 
-func listenHistoryItem(hisCh chan *db.HistoryItem) {
+func listenDbOperations(dbCh chan *idl.DbOperation) {
 	log.Println("Waiting for history item")
 	for {
-		item := <-hisCh
-		liteDB.InsertHistoryItem(item)
+		item := <-dbCh
+		proc := false
+		log.Println("Db operation rec ", item.DbOpType)
+		if item.DbOpType == idl.DbOpHistoryInsert {
+			if vv, ok := item.Payload.(db.ResUriItem); ok {
+				proc = true
+				if err := liteDB.InsertHistoryItem(&vv); err != nil {
+					log.Println("Error on insert history: ", err)
+				}
+			}
+		}
+
+		if !proc {
+			log.Println("Db operation not recognized ", item)
+		}
 	}
 }
 
@@ -172,7 +185,7 @@ func HandlerShutdown() {
 	time.AfterFunc(timeout, func() {
 		chTimeout <- struct{}{}
 	})
-
+	log.Println("Force poweroff player")
 	go func(chst1 chan struct{}) {
 		player.PowerOff()
 		chst1 <- struct{}{}
@@ -190,7 +203,7 @@ func HandlerShutdown() {
 			break
 		}
 	case <-chstop:
-		log.Println("POweroff terminated ok")
+		log.Println("Poweroff terminated ok")
 		count--
 		if count <= 0 {
 			log.Println("Shutdown in player ok")
@@ -204,7 +217,7 @@ func HandlerShutdown() {
 }
 
 func init() {
-	historyItemCh := make(chan *db.HistoryItem)
+	dbOpCh := make(chan *idl.DbOperation)
 	workers := make([]omxstate.WorkerState, 0)
 
 	chStatus1 := make(chan *omxstate.StateOmx)
@@ -213,13 +226,13 @@ func init() {
 	go listenStatus(w1.ChStatus)
 
 	chStatus2 := make(chan *omxstate.StateOmx)
-	player = omx.NewOmxPlayer(historyItemCh)
+	player = omx.NewOmxPlayer(dbOpCh)
 	w2 := omxstate.WorkerState{ChStatus: chStatus2}
 	workers = append(workers, w2)
 	go player.ListenOmxState(chStatus2)
 
 	liteDB = &db.LiteDB{}
 
-	go listenHistoryItem(historyItemCh)
+	go listenDbOperations(dbOpCh)
 	go omxstate.ListenStateAction(player.ChAction, workers)
 }

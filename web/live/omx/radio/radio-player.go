@@ -6,22 +6,25 @@ import (
 	"strings"
 
 	"github.com/aaaasmile/live-omxctrl/db"
+	"github.com/aaaasmile/live-omxctrl/web/idl"
 )
 
 type infoFile struct {
 	Title       string
 	Description string
+	Genre       string
 }
 
 type RadioPlayer struct {
 	URI     string
 	Info    *infoFile
+	LiteDB  *db.LiteDB
 	chClose chan struct{}
 }
 
 func (rp *RadioPlayer) IsUriForMe(uri string) bool {
 	if strings.Contains(uri, "http") &&
-		(strings.Contains(uri, "mp3") || strings.Contains(uri, "aacp")) {
+		(strings.Contains(uri, "mp3") || strings.Contains(uri, "aacp") || strings.Contains(uri, "/live")) {
 		log.Println("This is a streaming resource ", uri)
 		rp.URI = uri
 		return true
@@ -36,6 +39,18 @@ func (rp *RadioPlayer) GetStatusSleepTime() int {
 func (rp *RadioPlayer) GetURI() string {
 	return rp.URI
 }
+
+func (rp *RadioPlayer) SetURI(uri string) {
+	rp.URI = uri
+}
+
+func (rp *RadioPlayer) GetPropValue(propname string) string {
+	if propname == "genre" {
+		return rp.Info.Genre
+	}
+	return ""
+}
+
 func (rp *RadioPlayer) GetTitle() string {
 	if rp.Info != nil {
 		return rp.Info.Title
@@ -56,18 +71,29 @@ func (rp *RadioPlayer) GetStreamerCmd(cmdLineArr []string) string {
 	cmd := fmt.Sprintf("omxplayer %s %s", args, rp.URI)
 	return cmd
 }
-func (rp *RadioPlayer) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
+func (rp *RadioPlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	if rp.Info == nil {
-		info := infoFile{
-			// TODO read from db afetr file scan
+		resItem, err := rp.LiteDB.FetchRadioFromURI(rp.URI)
+		if err != nil {
+			return err
 		}
-		hi := db.HistoryItem{
+		info := infoFile{
+			Title:       resItem.Title,
+			Description: resItem.Description,
+			Genre:       resItem.Genre,
+		}
+		log.Println("Radio info from db: ", resItem)
+		hi := db.ResUriItem{
 			URI:         rp.URI,
 			Title:       info.Title,
-			Description: info.Description,
+			Description: info.Genre,
 			Type:        rp.Name(),
 		}
-		chHistoryItem <- &hi
+		dop := idl.DbOperation{
+			DbOpType: idl.DbOpHistoryInsert,
+			Payload:  hi,
+		}
+		chDbOperation <- &dop
 		rp.Info = &info
 	}
 

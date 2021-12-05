@@ -3,17 +3,16 @@
 # Near line 0 (last key parsed ''): bare keys cannot contain '\ufeff'
 # It is because this config.toml file is saved with BOM. Notepad does it, please use "save as.." with UTF-8 without BOM.
 
-# used to develop on pi4 target
+# used to develop on pi3 target
 
-ServiceURL = "192.168.2.84:5549" # 5549 is a develop test 5548 is the deployed
+ServiceURL = "192.168.2.19:5549" # 5549 is a develop test 5548 is the deployed
 RootURLPattern = "/omx/"
 UseRelativeRoot = true
 DebugVerbose = false
 OmxCmdParams = "-o,hdmi" #comma separated, example -o,local. Could not be empty 
-DBPath= "/home/igors/projects/go/live-omxctrl/db/test/test-data.db"
+DBPath= "/home/igors/projects/go/db/test-livedata.db"
 TmpInfo= "/home/igors/tmp/info"
 VueLibName = "vue.js"
-VideoDir="/home/igors/Video"
 
 [SoundCloud]
 IsAvailable = true

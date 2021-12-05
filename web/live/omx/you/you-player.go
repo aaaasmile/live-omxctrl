@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aaaasmile/live-omxctrl/db"
+	"github.com/aaaasmile/live-omxctrl/web/idl"
 )
 
 type YoutubePl struct {
@@ -24,6 +25,10 @@ func (yp *YoutubePl) GetURI() string {
 	return yp.URI
 }
 
+func (rp *YoutubePl) SetURI(uri string) {
+	rp.URI = uri
+}
+
 func (yp *YoutubePl) GetTitle() string {
 	if yp.YoutubeInfo != nil {
 		return yp.YoutubeInfo.Title
@@ -35,7 +40,7 @@ func (yp *YoutubePl) Name() string {
 	return "youtube"
 }
 
-func (yp *YoutubePl) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
+func (yp *YoutubePl) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	if yp.YoutubeInfo == nil {
 		info, err := readLinkDescription(yp.URI, yp.TmpInfo)
 		yp.YoutubeInfo = info
@@ -43,7 +48,7 @@ func (yp *YoutubePl) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 			return err
 		}
 
-		hi := db.HistoryItem{
+		hi := db.ResUriItem{
 			URI:           yp.URI,
 			Title:         info.Title,
 			Description:   info.Description,
@@ -51,7 +56,11 @@ func (yp *YoutubePl) CheckStatus(chHistoryItem chan *db.HistoryItem) error {
 			Type:          yp.Name(),
 			Duration:      time.Duration(int64(info.Duration) * int64(time.Second)).String(),
 		}
-		chHistoryItem <- &hi
+		dop := idl.DbOperation{
+			DbOpType: idl.DbOpHistoryInsert,
+			Payload:  hi,
+		}
+		chDbOperation <- &dop
 	}
 	return nil
 }
@@ -60,6 +69,10 @@ func (yp *YoutubePl) GetDescription() string {
 	if yp.YoutubeInfo != nil {
 		return yp.YoutubeInfo.Description
 	}
+	return ""
+}
+
+func (rp *YoutubePl) GetPropValue(propname string) string {
 	return ""
 }
 

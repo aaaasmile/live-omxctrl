@@ -42,16 +42,21 @@ func handleHistoryRequest(w http.ResponseWriter, req *http.Request) error {
 		History: make([]HistoryItemRes, 0),
 		PageIx:  paraReq.PageIx,
 	}
+	used_uris := make(map[string]bool)
+
 	for _, item := range list {
-		pp := HistoryItemRes{
-			ID:          item.ID,
-			Type:        item.Type,
-			PlayedAt:    item.Timestamp.Format("January 02, 2006 15:04:05"),
-			Title:       item.Title,
-			URI:         item.URI,
-			DurationStr: item.Duration,
+		if !used_uris[item.URI] {
+			pp := HistoryItemRes{
+				ID:          item.ID,
+				Type:        item.Type,
+				PlayedAt:    item.Timestamp.Format("January 02, 2006 15:04:05"),
+				Title:       item.Title,
+				URI:         item.URI,
+				DurationStr: item.Duration,
+			}
+			used_uris[item.URI] = true
+			res.History = append(res.History, pp)
 		}
-		res.History = append(res.History, pp)
 	}
 
 	return writeResponseNoWsBroadcast(w, res)

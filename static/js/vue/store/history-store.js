@@ -5,6 +5,9 @@ const getIconOnType = (type) => {
         case "mp3-list":
             return "library_music"
         case "file":
+            return "queue_music"
+        case "radio":
+            return "library_music"
         case "mp3":
             return "queue_music"
     }
@@ -27,6 +30,7 @@ export default {
                     playedAt: itemsrc.playedAt,
                     title: itemsrc.title,
                     uri: itemsrc.uri,
+                    type: itemsrc.type,
                     duration: itemsrc.durationstr,
                 }
                 state.history.push(item)

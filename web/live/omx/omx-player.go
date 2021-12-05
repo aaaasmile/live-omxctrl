@@ -5,7 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/aaaasmile/live-omxctrl/db"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/dbus"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
@@ -16,19 +15,19 @@ type OmxPlayer struct {
 	dbus          *dbus.OmxDbus
 	mutex         *sync.Mutex
 	state         omxstate.StateOmx
-	chHistoryItem chan *db.HistoryItem
+	chDbOperation chan *idl.DbOperation
 	cmdLineArr    []string
 	PlayList      *playlist.LLPlayList
 	Providers     map[string]idl.StreamProvider
 	ChAction      chan *omxstate.ActionDef
 }
 
-func NewOmxPlayer(chhisitem chan *db.HistoryItem) *OmxPlayer {
+func NewOmxPlayer(chDbop chan *idl.DbOperation) *OmxPlayer {
 	cha := make(chan *omxstate.ActionDef)
 	res := OmxPlayer{
 		dbus:          &dbus.OmxDbus{},
 		mutex:         &sync.Mutex{},
-		chHistoryItem: chhisitem,
+		chDbOperation: chDbop,
 		cmdLineArr:    make([]string, 0),
 		Providers:     make(map[string]idl.StreamProvider),
 		ChAction:      cha,
@@ -141,6 +140,16 @@ func (op *OmxPlayer) GetStateDescription() string {
 	return ""
 }
 
+func (op *OmxPlayer) GetStateGenre() string {
+	op.mutex.Lock()
+	defer op.mutex.Unlock()
+	if prov, ok := op.Providers[op.state.CurrURI]; ok {
+		return prov.GetPropValue("genre")
+	}
+
+	return ""
+}
+
 func (op *OmxPlayer) GetCurrURI() string {
 	log.Println("getCurrURI")
 	op.mutex.Lock()
@@ -233,7 +242,7 @@ func (op *OmxPlayer) CheckStatus(uri string) error {
 	log.Println("Check status req", op.state)
 
 	if prov, ok := op.Providers[op.state.CurrURI]; ok {
-		if err := prov.CheckStatus(op.chHistoryItem); err != nil {
+		if err := prov.CheckStatus(op.chDbOperation); err != nil {
 			return err
 		}
 	}

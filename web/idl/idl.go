@@ -1,25 +1,36 @@
 package idl
 
-import "github.com/aaaasmile/live-omxctrl/db"
-
 var (
 	Appname = "live-omxctrl"
-	Buildnr = "00.01.21.20201221-00"
+	Buildnr = "00.01.27.20211105-00"
 )
 
 type StreamProvider interface {
 	IsUriForMe(uri string) bool
 	GetStatusSleepTime() int
 	GetURI() string
+	SetURI(string)
 	GetTitle() string
 	GetDescription() string
+	GetPropValue(string) string
 	Name() string
 	GetStreamerCmd(cmdLineArr []string) string
-	CheckStatus(chHistoryItem chan *db.HistoryItem) error
+	CheckStatus(chDbOperation chan *DbOperation) error
 	CreateStopChannel() chan struct{}
 	GetCmdStopChannel() chan struct{}
 	CloseStopChannel()
 	GetTrackDuration() (string, bool)
 	GetTrackPosition() (string, bool)
 	GetTrackStatus() (string, bool)
+}
+
+type DbOpType int
+
+const (
+	DbOpHistoryInsert DbOpType = iota
+)
+
+type DbOperation struct {
+	DbOpType DbOpType
+	Payload  interface{}
 }

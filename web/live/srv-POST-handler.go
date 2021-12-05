@@ -31,6 +31,10 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 		err = handleOSRequest(w, req)
 	case "FetchHistory":
 		err = handleHistoryRequest(w, req)
+	case "HandleVideo":
+		err = handleVideoRequest(w, req)
+	case "HandleRadio":
+		err = handleRadioRequest(w, req)
 	default:
 		return fmt.Errorf("%s method is not supported", lastPath)
 	}
