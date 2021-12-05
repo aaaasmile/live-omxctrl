@@ -6,8 +6,9 @@ export default {
       search: '',
       debug: false,
       loadingData: false,
+      itemsPerPage: 15,
       headers: [
-        { text: 'Type', value: 'fileorfolder' },
+        { text: 'Type', value: 'type' },
         { text: 'Title', value: 'title' },
         { text: 'Duration', value: 'duration' },
         { text: 'Artist', value: 'metaartist' },
@@ -28,16 +29,23 @@ export default {
     ...Vuex.mapState({
       musicdata: state => {
         return state.fs.music
-      }
+      },
+      parent_folder: state => {
+        return state.fs.parent_folder
+      },
     })
   },
   methods: {
-    fetchSubFolder(item) {
+    playOrfetchSubFolder(item) {
       if (item.fileorfolder !== 0) {
+        console.log('play file')
+        let req = { uri: item.uri, force_type: 'file' }
+        API.PlayUri(this, req)
         return
       }
+      this.search = ''
       console.log('View folder ', item)
-      let req = { parent: '/' + item.title }
+      let req = { parent: this.parent_folder + '/' + item.title }
       this.loadingData = true
       API.FetchMusic(this, req)
     },
@@ -50,7 +58,6 @@ export default {
           return 'blue'
       }
     },
-
   },
   template: `
   <v-card>
@@ -62,7 +69,8 @@ export default {
       :headers="headers"
       :items="musicdata"
       :loading="loadingData"
-      item-key="KeyStore"
+      :items-per-page="itemsPerPage"
+      item-key="id"
       show-select
       class="elevation-1"
       :search="search"
@@ -75,13 +83,13 @@ export default {
     }"
     >
       <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="fetchSubFolder(item)">mdi-eye</v-icon>
+        <v-icon small class="mr-2" @click="playOrfetchSubFolder(item)" >{{item.icon_action}}</v-icon>
       </template>
-      <template v-slot:item.fileorfolder="{ item }">
+      <template v-slot:item.type="{ item }">
         <v-chip
           :color="getColorType(item.fileorfolder)"
           dark
-        >{{ item.PresenceType }}</v-chip>
+        >{{ item.type }}</v-chip>
       </template>
     </v-data-table>
   </v-card>`

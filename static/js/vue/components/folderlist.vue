@@ -8,7 +8,8 @@
       :headers="headers"
       :items="musicdata"
       :loading="loadingData"
-      item-key="KeyStore"
+      :items-per-page="itemsPerPage"
+      item-key="id"
       show-select
       class="elevation-1"
       :search="search"
@@ -21,13 +22,13 @@
     }"
     >
       <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="fetchSubFolder(item)">mdi-eye</v-icon>
+        <v-icon small class="mr-2" @click="playOrfetchSubFolder(item)" >{{item.icon_action}}</v-icon>
       </template>
-      <template v-slot:item.fileorfolder="{ item }">
+      <template v-slot:item.type="{ item }">
         <v-chip
           :color="getColorType(item.fileorfolder)"
           dark
-        >{{ item.PresenceType }}</v-chip>
+        >{{ item.type }}</v-chip>
       </template>
     </v-data-table>
   </v-card>

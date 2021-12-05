@@ -57,10 +57,12 @@ export default {
                     metaartist: itemsrc.metaartist,
                 }
                 if (item.fileorfolder === 0){
-                    item.icon = 'folder'
+                    item.icon_action = 'mdi-eye'
                     item.duration = ''
+                    item.type = 'F'
                 }else{
-                    item.icon = 'library_music'
+                    item.icon_action = 'queue_music'
+                    item.type = 'M'
                 }
                 state.music.push(item)
             });  
