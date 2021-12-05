@@ -10,10 +10,12 @@ o un file musicale, attraverso una interfaccia web che funzioni anche, e sopratu
 
 ## comandi frequenti
 Per stoppare il sevice si usa:
-sudo systemctl stop live-omxctrl
 
-Vue si usa con:
-/usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
+    sudo systemctl stop live-omxctrl
+
+Vue si usa nella root del progetto con:
+
+    /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
 
 ## Sviluppo di live-omxctrl
 Su winows 10 uso visual code in modalità remota con ssh:pi4.
@@ -67,7 +69,8 @@ così come la dir /home/igors/app/live-omxctrl/zips
 
 ## Preparazione target pi4
 Sul firewall di pi4 ho aperto la porta 5548 in intranet con:
-ufw allow from 192.168.2.0/24 to any port 5548
+
+    ufw allow from 192.168.2.0/24 to any port 5548
 
 Ora va installata la app. Uso la dir:
 ~/app/go$mkdir live-omxctrl\zips
@@ -76,15 +79,18 @@ copio ./update-service.sh in ~/app/go/live-omxctrl e lo lancio per scompattare l
 Poi si va ./current e si prova il service con: ./live-omxctrl.bin
 
 Poi si mette il programma live-omxctrl.bin come service di sistema.
-sudo nano /lib/systemd/system/live-omxctrl.service
+
+    sudo nano /lib/systemd/system/live-omxctrl.service
 
 Abilitare il service:
 sudo systemctl enable live-omxctrl.service
 Ora si fa partire il service (resistente al reboot):
-sudo systemctl start live-omxctrl
+
+    sudo systemctl start live-omxctrl
 
 Per vedere i logs si usa:
-sudo journalctl -f -u live-omxctrl
+
+    sudo journalctl -f -u live-omxctrl
 
 ## Sviluppo su Pi4 
 È possibile sviluppare il software direttamente su pi4 usando l'extension remote ssh
@@ -94,7 +100,8 @@ Dbus su windows è molto diverso.
 Per l'extension vuetojs non funziona su remoto in quanto ho impacchettato un tool in formato
 windows. L'ho compilato separatamente e messo in /usr/local/bin/vuetojs.bin 
 Per usarlo si scrive nella bash:
-/usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
+
+    /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
 
 ### Dbus
 Per comunicare con il processo omxplayer si usa il dbus con il suo protocollo.
@@ -148,10 +155,10 @@ multiple.
 [Install]
 WantedBy=multi-user.target
 
-    [Unit]
-    Description=live-omxctrl service
-    ConditionPathExists=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
-    After=network.target
+[Unit]
+Description=live-omxctrl service
+ConditionPathExists=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
+After=network.target
 
 [Service]
 Type=idle
@@ -159,12 +166,12 @@ User=pi
 Group=pi
 LimitNOFILE=1024
 
-    Restart=on-failure
-    RestartSec=10
-    startLimitIntervalSec=60
+Restart=on-failure
+RestartSec=10
+startLimitIntervalSec=60
 
-    WorkingDirectory=/home/igors/app/live-omxctrl/current/
-    ExecStart=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
+WorkingDirectory=/home/igors/app/live-omxctrl/current/
+ExecStart=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
 
 # make sure log directory exists and owned by syslog
 PermissionsStartOnly=true
@@ -182,7 +189,9 @@ Per avere i comandi di reboot e shutdown sull'interfaccia web bisogna usare sudo
 Nel terminale di pi4 Si lancia: 
 sudo visudo
 e qui si mette la linea:
-%adm  ALL=(ALL) NOPASSWD:ALL
+
+    %adm  ALL=(ALL) NOPASSWD:ALL
+
 che vuol dire che se l'utente è del gruppo adm chiama sudo senza password.
 
 ## Player
@@ -195,10 +204,10 @@ Penso anche che ci voglia un websocket per lo stato. Quando una track finisce
 il player è off, ma il browser rimane in stato green.
 
 ### urls usate durante lo sviluppo
-//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-//u = "/home/igors/Music/tubo/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
-//u = "https://www.tubo.com/watch?v=3czUk1MmmvA"
-//u = "`tubofff-dl -f mp4 -g https://www.tubo.com/watch?v=3czUk1MmmvA`"
+    //u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
+    //u = "/home/igors/Music/tubo/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
+    //u = "https://www.tubo.com/watch?v=3czUk1MmmvA"
+    //u = "`tubofff-dl -f mp4 -g https://www.tubo.com/watch?v=3czUk1MmmvA`"
 
 ## Sqlite
 Sqlite è il database dove vengono salvati tutti i dati.

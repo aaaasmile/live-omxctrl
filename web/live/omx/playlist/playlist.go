@@ -1,13 +1,7 @@
 package playlist
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 )
@@ -34,18 +28,6 @@ type PlayList struct {
 	Name    string
 	Created string
 	List    []*PlayItem
-}
-
-func (pl *PlayList) SavePlaylist(plname string) error {
-	path := filepath.Join(dirPlaylistData, plname)
-	log.Printf("Saving playlist file to: %s\n", path)
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return fmt.Errorf("Unable to save: %v", err)
-	}
-	defer f.Close()
-
-	return json.NewEncoder(f).Encode(pl)
 }
 
 type LLPlayItem struct {
@@ -139,96 +121,4 @@ func CreatePlaylistFromProvider(URI string, prov idl.StreamProvider) (*LLPlayLis
 	res.FirstItem = res.CurrItem
 
 	return res, nil
-}
-
-func GetCurrentPlaylist() (*LLPlayList, error) {
-	var err error
-	infopath := filepath.Join(dirPlaylistData, lastPlayedInfo)
-	if _, err = os.Stat(infopath); err == nil {
-		raw, err := ioutil.ReadFile(infopath)
-		if err != nil {
-			return nil, err
-		}
-		pllast := PlayinfoLast{}
-		if err := json.Unmarshal(raw, &pllast); err != nil {
-			return nil, err
-		}
-		log.Println("Last played info ", pllast)
-		return nil, fmt.Errorf("TODO provides the last playlist")
-	}
-
-	res, err := FindPlaylistIndir("default")
-	if err != nil {
-		return nil, err
-	}
-	if res.IsEmpty() {
-		return nil, fmt.Errorf("Nothing to play")
-	}
-	log.Println("playlist len", res.Count)
-	return res, nil
-}
-
-func FindPlaylistIndir(nameList string) (*LLPlayList, error) {
-	res := &LLPlayList{}
-	fileitems, err := ioutil.ReadDir(dirPlaylistData)
-	if err != nil {
-		return nil, err
-	}
-	plname := ""
-	for _, item := range fileitems {
-		if item.IsDir() {
-			continue
-		}
-		nn := item.Name()
-		plname = nn
-		if strings.Contains(nn, nameList) {
-			break
-		}
-	}
-	if plname != "" {
-		res, err = buildLListFromfile(filepath.Join(dirPlaylistData, plname))
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, fmt.Errorf("List %s not found", plname)
-	}
-	return res, nil
-}
-
-func buildLListFromfile(fname string) (*LLPlayList, error) {
-	log.Println("Building LL list from file ", fname)
-	res := &LLPlayList{}
-	raw, err := ioutil.ReadFile(fname)
-	if err != nil {
-		return res, err
-	}
-	list := PlayList{}
-	if err := json.Unmarshal(raw, &list); err != nil {
-		return res, err
-	}
-	log.Println("Playlist is ", list)
-	res.Name = list.Name
-	var llitem, pr *LLPlayItem
-	for _, item := range list.List {
-		pr = llitem
-		llitem = NewLLPlayItem(nil, pr, item)
-		if pr != nil {
-			pr.Next = llitem
-		}
-		if res.CurrItem == nil {
-			res.CurrItem = llitem
-			res.FirstItem = llitem
-		}
-		res.LastItem = llitem
-		res.Count++
-	}
-
-	return res, nil
-}
-
-func CheckIfPlaylistExist(plname string) error {
-	path := filepath.Join(dirPlaylistData, plname)
-	_, err := os.Stat(path)
-	return err
 }
