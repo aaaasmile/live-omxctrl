@@ -149,14 +149,27 @@ export default {
 	ScanMusic(that, req) {
 		req.name = 'ScanMusic'
 		console.log('ScanMusic request is ', req)
-		that.musicloading = true
+		that.loadingData = true
 		that.dialogScan = false
 		that.$http.post("HandleMusic", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call result ', result.data)
-			that.musicloading = false
-			that.$store.commit('audiofetch', result.data)
+			that.loadingData = false
+			that.$store.commit('musicfetch', result.data)
 		}, error => {
-			that.musicloading = false	
+			that.loadingData = false	
+			handleError(error, that)
+		});
+	},
+	FetchMusic(that, req) {
+		req.name = 'FetchMusic'
+		console.log('FetchMusic request is ', req)
+		that.loadingData = true
+		that.$http.post("HandleMusic", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call result ', result.data)
+			that.loadingData = false
+			that.$store.commit('musicfetch', result.data)
+		}, error => {
+			that.loadingData = false	
 			handleError(error, that)
 		});
 	},

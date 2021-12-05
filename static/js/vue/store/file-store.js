@@ -4,6 +4,9 @@ export default {
         last_video_fetch: false,
         radio: [],
         last_radio_fetch: false,
+        music: [],
+        parent_folder: '',
+        music_selected: [],
     },
     mutations: {
         videofetch(state, data) {
@@ -40,8 +43,33 @@ export default {
             });
             state.last_radio_fetch = (data.radio.length === 0)
         },
-        radiofetch(state, data) {
-            // TODO        
+        musicfetch(state, data) {
+            state.music = []
+            state.parent_folder = data.parent
+            data.music.forEach(itemsrc => {
+                let item = {
+                    id: itemsrc.id,
+                    fileorfolder: itemsrc.fileorfolder,
+                    title: itemsrc.title,
+                    uri: itemsrc.uri,
+                    duration: itemsrc.durationstr,
+                    metaalbum: itemsrc.metaalbum,
+                    metaartist: itemsrc.metaartist,
+                }
+                if (item.fileorfolder === 0){
+                    item.icon = 'folder'
+                    item.duration = ''
+                }else{
+                    item.icon = 'library_music'
+                }
+                state.music.push(item)
+            });  
+        },
+        setMusicSelected(state, selected) {
+            state.music_selected = selected
+        },
+        selectMusicAll(state, count) {
+            state.music_selected = state.music.slice(0, count)
         }
     }
 }

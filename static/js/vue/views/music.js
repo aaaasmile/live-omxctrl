@@ -1,36 +1,42 @@
 import API from '../apicaller.js'
 
+import FolderList from '../components/folderlist.js'
+
 export default {
-    data() {
-        return {
-            musicloading: false,
-            selected_item: {},
-            dialogScan: false,
-            pagesize: 10,
-            pageix: 0,
-            transition: 'scale-transition',
-        }
-    },
-    created() {
-     
-    },
-    computed: {
-        ...Vuex.mapState({
-     
-        })
-    },
-    methods: {
-        scanForMusic() {
-            console.log('scan for music')
-            this.pageix = 0
-            let req = { pageix: this.pageix, pagesize: this.pagesize }
-            API.ScanMusic(this, req)
-        }
-    },
-    template: `
+  components: { FolderList },
+  data() {
+    return {
+      loadingData: false,
+      selected_item: {},
+      dialogScan: false,
+      transition: 'scale-transition',
+    }
+  },
+  created() {
+    let req = { parent: this.parent_folder }
+    API.FetchMusic(this, req)
+  },
+  computed: {
+    ...Vuex.mapState({
+      music: state => {
+        return state.fs.music
+      },
+      parent_folder: state => {
+        return state.fs.parent_folder
+      },
+    })
+  },
+  methods: {
+    scanForMusic() {
+      console.log('scan for music')
+      let req = { parent: this.parent_folder }
+      API.ScanMusic(this, req)
+    }
+  },
+  template: `
   <v-container pa-1>
     <v-skeleton-loader
-      :loading="musicloading"
+      :loading="loadingData"
       :transition="transition"
       height="94"
       type="list-item-three-line"
@@ -52,6 +58,7 @@ export default {
         </v-toolbar>
         <v-card-title>Music available</v-card-title>
         <v-container>
+          <FolderList></FolderList>
         </v-container>
       </v-card>
     </v-skeleton-loader>

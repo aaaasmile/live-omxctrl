@@ -1,7 +1,7 @@
 <template>
   <v-container pa-1>
     <v-skeleton-loader
-      :loading="musicloading"
+      :loading="loadingData"
       :transition="transition"
       height="94"
       type="list-item-three-line"
@@ -23,6 +23,7 @@
         </v-toolbar>
         <v-card-title>Music available</v-card-title>
         <v-container>
+          <FolderList></FolderList>
         </v-container>
       </v-card>
     </v-skeleton-loader>
