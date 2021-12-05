@@ -33,6 +33,8 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 		err = handleHistoryRequest(w, req)
 	case "HandleVideo":
 		err = handleVideoRequest(w, req)
+	case "HandleMusic":
+		err = handleMusicRequest(w, req)
 	case "HandleRadio":
 		err = handleRadioRequest(w, req)
 	default:

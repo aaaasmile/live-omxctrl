@@ -27,6 +27,19 @@ type ResUriItem struct {
 	Genre                             string
 }
 
+type ResMusicItem struct {
+	Timestamp     time.Time
+	ID            int
+	FileOrFolder  int
+	Title         string
+	URI           string
+	Description   string
+	DurationInSec int
+	ParentFolder  string
+	MetaAlbum     string
+	MetaArtist    string
+}
+
 func (ld *LiteDB) OpenSqliteDatabase() error {
 	var err error
 	dbname := util.GetFullPath(ld.SqliteDBPath)
@@ -66,6 +79,37 @@ func (ld *LiteDB) FetchVideo(pageIx int, pageSize int) ([]ResUriItem, error) {
 		if err := rows.Scan(&item.ID, &tss, &item.URI, &item.Title,
 			&item.Description, &item.Duration, &item.PlayPosition,
 			&item.DurationInSec, &item.Type); err != nil {
+			return nil, err
+		}
+		item.Timestamp = time.Unix(tss, 0)
+		res = append(res, item)
+	}
+	return res, nil
+}
+
+func (ld *LiteDB) FetchMusic(parent string) ([]ResMusicItem, error) {
+	q := `SELECT id,Timestamp,URI,Title,Description,DurationInSec,ParentFolder,FileOrFolder,MetaAlbum,MetaArtist
+		  FROM MusicFile
+		  WHERE ParentFolder=?
+		  ORDER BY Title ASC;`
+	if ld.DebugSQL {
+		log.Println("Query is", q)
+	}
+
+	rows, err := ld.connDb.Query(q, parent)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	res := make([]ResMusicItem, 0)
+	var tss int64
+	for rows.Next() {
+		item := ResMusicItem{}
+		tss = 0
+		if err := rows.Scan(&item.ID, &tss, &item.URI, &item.Title,
+			&item.Description, &item.DurationInSec,
+			&item.ParentFolder, &item.FileOrFolder, &item.MetaAlbum, &item.MetaArtist); err != nil {
 			return nil, err
 		}
 		item.Timestamp = time.Unix(tss, 0)
@@ -162,8 +206,46 @@ func (ld *LiteDB) InsertVideoList(tx *sql.Tx, list []*ResUriItem) error {
 	return nil
 }
 
+func (ld *LiteDB) InsertMusicList(tx *sql.Tx, list []*ResMusicItem) error {
+	for _, item := range list {
+		q := `INSERT INTO MusicFile(Timestamp,URI,Title,Description,DurationInSec,FileOrFolder,ParentFolder,MetaAlbum,MetaArtist) VALUES(?,?,?,?,?,?,?,?,?);`
+		if ld.DebugSQL {
+			log.Println("Query is", q)
+		}
+
+		stmt, err := ld.connDb.Prepare(q)
+		if err != nil {
+			return err
+		}
+
+		now := time.Now()
+		sqlres, err := tx.Stmt(stmt).Exec(now.Local().Unix(), item.URI, item.Title, item.Description,
+			item.DurationInSec, item.FileOrFolder, item.ParentFolder, item.MetaAlbum, item.MetaArtist)
+		if err != nil {
+			return err
+		}
+		log.Println("video inserted: ", item.Title, sqlres)
+	}
+	return nil
+}
+
 func (ld *LiteDB) DeleteAllVideo(tx *sql.Tx) error {
 	q := fmt.Sprintf(`DELETE FROM Video;`)
+	if ld.DebugSQL {
+		log.Println("Query is", q)
+	}
+
+	stmt, err := ld.connDb.Prepare(q)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Stmt(stmt).Exec()
+	return err
+}
+
+func (ld *LiteDB) DeleteAllMusicFiles(tx *sql.Tx) error {
+	q := fmt.Sprintf(`DELETE FROM MusicFile;`)
 	if ld.DebugSQL {
 		log.Println("Query is", q)
 	}

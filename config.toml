@@ -14,6 +14,7 @@ DBPath= "/home/igors/projects/go/live-omxctrl/db/test/test-data.db"
 TmpInfo= "/home/igors/tmp/info"
 VueLibName = "vue.js"
 VideoDir="/home/igors/Video"
+MusicDir="/home/igors/Music/Franco Battiato"
 
 [SoundCloud]
 IsAvailable = true

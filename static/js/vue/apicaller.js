@@ -146,6 +146,20 @@ export default {
 			handleError(error, that)
 		});
 	},
+	ScanMusic(that, req) {
+		req.name = 'ScanMusic'
+		console.log('ScanMusic request is ', req)
+		that.musicloading = true
+		that.dialogScan = false
+		that.$http.post("HandleMusic", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call result ', result.data)
+			that.musicloading = false
+			that.$store.commit('audiofetch', result.data)
+		}, error => {
+			that.musicloading = false	
+			handleError(error, that)
+		});
+	},
 	FetchRadio(that, req) {
 		req.name = 'FetchRadio'
 		console.log('FetchRadio request is ', req)

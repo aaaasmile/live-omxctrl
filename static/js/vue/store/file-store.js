@@ -39,6 +39,9 @@ export default {
                 state.radio.push(item)
             });
             state.last_radio_fetch = (data.radio.length === 0)
+        },
+        radiofetch(state, data) {
+            // TODO        
         }
     }
 }
