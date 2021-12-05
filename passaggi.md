@@ -1,10 +1,11 @@
+## Comandi più usati
 Per stoppare il sevice si usa:
 sudo systemctl stop live-omxctrl
 
 Vue si usa con:
 /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
 
-== Deployment su arm direttamente
+## Deployment su arm direttamente
 In un colpo: ./publish-pi4.sh
 
 Questi sono gli step da eseguire:
@@ -14,31 +15,32 @@ cd deploy
 cd ~/app/live-omxctrl/
 ./update-service.sh
 
-== Sviluppo su pi4 arm
+## Sviluppo su pi4 arm
 Apri vscode nella directory remota (nota come sia la directory go che fa la differenza tra sviluppo e deploy):
 /home/igor/app/go/live-omxctrl/
 
-== Compilare per linux Raspberry 4
-Nota che il Raspberry ? un sistema Linux ARM, quindi bisogna settare tutti i parametri
+## Compilare per linux Raspberry 4
+Nota che il Raspberry è un sistema Linux ARM, quindi bisogna settare tutti i parametri
 necessari per il cross compile.
 Apri una nuova powershell e poi:
-$env:GOOS = "linux"
-$env:GOARCH="arm"
-$env:GOARM="5"
 
-go build -o live-omxctrl.bin
-Con WLC si pu? controllare che il live-omxctrl.bin funzioni correttamente.
+    $env:GOOS = "linux"
+    $env:GOARCH="arm"
+    $env:GOARM="5"
 
-== Deployment di pi4
-Dal laptop si pu? aggiornare il service su pi4 usando lo script power shell
+    go build -o live-omxctrl.bin
+Con WLC si può controllare che il live-omxctrl.bin funzioni correttamente.
+
+## Deployment di pi4
+Dal laptop si può aggiornare il service su pi4 usando lo script power shell
 .\start_publish.ps1
 Lo script attraverso il lancio di altri script locali, in bash e bash remoti 
 riesce ad eseguire l`aggiornamento del service in modo completo senza usare direttamente WLC.
 
-== Deployment dettagli e preparazione
+## Deployment dettagli e preparazione
 - Sul laptop occorre il file copy_app_to_pi4.sh posizionato nella dir ../deployed
 - Su Pi4 occorre la directory /home/igors/app/live-omxctrl con all` interno il file update-service.sh
-cos? come la dir /home/igors/app/live-omxctrl/zips
+così come la dir /home/igors/app/live-omxctrl/zips
 
 Sul firewall ho aperto la porta 5548 in intranet con:
 ufw allow from 192.168.2.0/24 to any port 5548
@@ -59,7 +61,7 @@ sudo systemctl start live-omxctrl
 Per vedere i logs si usa:
 sudo journalctl -f -u live-omxctrl
 
-== Sviluppo su Pi4 
+## Sviluppo su Pi4 
 È possibile sviluppare il software direttamente su pi4 usando l'extension remote ssh
 Basta installare su pi4 golang arm6. Il vantaggio, oltre al deployment ancora più semplice,
 dovrebbe essere la possibilità di programmare direttamente dbus senza usare la shell.
@@ -69,7 +71,7 @@ windows. L'ho compilato separatamente e messo in /usr/local/bin/vuetojs.bin
 Per usarlo si scrive nella bash:
 /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
 
-== Dbus
+## Dbus
 Per comunicare con il processo omxplayer si usa il dbus con il suo protocollo.
 Esiste già lo script bash che esegue i comandi, file bash/dbuscontrol.sh.
 Esso setta 2 variabili di ambiente:
@@ -86,11 +88,12 @@ un path del file di sistema ma non lo è
 
 /tmp/omxplayerdbus.igors.pid  => esempio 1379
 Questo dovrebbe essere il pid del service daemon dbus-daemon:
-1 S  1001  1379     1  0  80   0 -  1604 do_epo ?        00:00:00 dbus-daemon
+
+    1 S  1001  1379     1  0  80   0 -  1604 do_epo ?        00:00:00 dbus-daemon
 
 I due files /tmp/omxplayerdbus.igors vengono creati quando si fa partire il player.
 
-== Aggiornare il service da windows (obsoleto)
+## Aggiornare il service da windows (obsoleto)
 - Crea una nuova versione (cambio in idl.go)
 - Crea il file live-omxctrl.bin per linux 
 - Usa .\deploy -target pi4
@@ -98,7 +101,7 @@ I due files /tmp/omxplayerdbus.igors vengono creati quando si fa partire il play
 - Su pi4: ./update-service.sh
 
 
-== Service Config
+## Service Config
 Questo il conetnuto del file che compare con:
 sudo nano /lib/systemd/system/live-omxctrl.service
 Poi si fa l'enable:
@@ -119,39 +122,39 @@ dbus usa l'istanza legata all'utente. Questo vuol dire che il service
 viene lanciato sotto l'utente pi, mentre lo sviluppo si svolge sotto igors.
 Così non si hanno conflitti. 
 
--------------------------------- file content
-[Install]
-WantedBy=multi-user.target
+    -------------------------------- file content
+    [Install]
+    WantedBy=multi-user.target
 
-[Unit]
-Description=live-omxctrl service
-ConditionPathExists=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
-After=network.target
+    [Unit]
+    Description=live-omxctrl service
+    ConditionPathExists=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
+    After=network.target
 
-[Service]
-Type=idle
-User=igors
-Group=igors
-LimitNOFILE=1024
+    [Service]
+    Type=idle
+    User=igors
+    Group=igors
+    LimitNOFILE=1024
 
-Restart=on-failure
-RestartSec=10
-startLimitIntervalSec=60
+    Restart=on-failure
+    RestartSec=10
+    startLimitIntervalSec=60
 
-WorkingDirectory=/home/igors/app/live-omxctrl/current/
-ExecStart=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
+    WorkingDirectory=/home/igors/app/live-omxctrl/current/
+    ExecStart=/home/igors/app/live-omxctrl/current/live-omxctrl.bin
 
-# make sure log directory exists and owned by syslog
-PermissionsStartOnly=true
-ExecStartPre=/bin/mkdir -p /var/log/live-omxctrl
-ExecStartPre=/bin/chown igors:igors /var/log/live-omxctrl
-ExecStartPre=/bin/chmod 755 /var/log/live-omxctrl
-StandardOutput=syslog
-StandardError=syslog
+    # make sure log directory exists and owned by syslog
+    PermissionsStartOnly=true
+    ExecStartPre=/bin/mkdir -p /var/log/live-omxctrl
+    ExecStartPre=/bin/chown igors:igors /var/log/live-omxctrl
+    ExecStartPre=/bin/chmod 755 /var/log/live-omxctrl
+    StandardOutput=syslog
+    StandardError=syslog
 
-------------------------------------------- end file content
+    ------------------------------------------- end file content
 
-== shutdown e reboot
+## Comandi: shutdown e reboot
 Per avere i comandi di reboot e shutdown bisogna usare sudo senza password.
 Si lancia: 
 sudo visudo
@@ -159,7 +162,7 @@ e qui si mette la linea:
 %adm  ALL=(ALL) NOPASSWD:ALL
 che vuol dire che se l'utente è del gruppo adm chiama sudo senza password.
 
-== Playlist
+## Playlist
 Pe fare andare una play list penso che ci voglia un blocking del 
 comando che gira in una goroutine. Quando poi finisce  fa partire
 la prossima. Altrimenti è difficile sapere quando il player finisce.
@@ -168,24 +171,25 @@ funziona solo se il player è attivo. Questo non è più vero quando la track è
 Penso anche che ci voglia un websocket per lo stato. Quando una track finisce
 il player è off, ma il browser rimane in stato green. [DONE]
 
-== urls
-//u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
-//u = "/home/igors/Music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
-//u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
-//u = "`youtubefff-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
+## urls
+    //u = "http://stream.srg-ssr.ch/m/rsc_de/aacp_96"
+    //u = "/home/igors/Music/youtube/Gianna Nannini - Fenomenale (Official Video)-HKwWcJCtwck.mp3"
+    //u = "https://www.youtube.com/watch?v=3czUk1MmmvA"
+    //u = "`youtubefff-dl -f mp4 -g https://www.youtube.com/watch?v=3czUk1MmmvA`"
 
-== Sqlite
-Per vedere come si usa sqlite in full serach mode vedi
+## Sqlite
+Per vedere come si usa sqlite in full search mode vedi
 https://github.com/aaaasmile/iol-importer/blob/master/Readme_iol-vienna.txt
 Su raspberry il database si può gestire con interfaccia grafica usando sqlitebrowser.
 sudo apt-get install sqlite3
 sudo apt-get install sqlitebrowser
 Per fare andare sqlitebrowser bisogna far partire Xming server in windwos.
 Poin WLC si lancia:
-export DISPLAY=localhost:0.0
-ssh -Y pi4
 
-== Soundcloud
+    export DISPLAY=localhost:0.0
+    ssh -Y pi4
+
+## Soundcloud
 Si prende come riferimento l'extension di mopidy: 
 https://github.com/mopidy/mopidy-soundcloud
 Clientid non si ottiene da sound cloud. Vedi il file soundcloud_test.go
@@ -193,7 +197,7 @@ per vedere com si usa la API.
 Si lancia come il video dei tube basta avere una trackid
 Per esempio: https://api.soundcloud.com/tracks/62576046
 
-== Terminare il player
+## Terminare il player
 Una funzionalità che ho fatto molta fatica a capire in quanto non ha mai funzionato a dovere.
 Se uso il dbus, bisogna trovare il file corretto per mandare il segnale 15. 
 Meglio usare il process kill del comando exec. Il problema è che allo start vengono
@@ -207,7 +211,7 @@ Il channell done è buffered in quanto se arriva prima un segnale di kill, quand
 finisce il channel done sarebbe settato senza essere consumato e genera un leak.
 
 
-== TODO
+## TODO
 - Mute e unmute mi cancella le info come title e description. Questo perché lo stato
 viene riscritto completamente, invece di essere incrementale. Setstate va chiamata solo all'interno
 di listenStateAction.

@@ -25,30 +25,9 @@ type PlayinfoLast struct {
 	URI      string
 }
 
-// type PlayItemType int
-
-// const (
-// 	PITMp3 = iota
-// 	PITYoutube
-// 	PITRadio
-// )
-
-// func (pi *PlayItemType) String() string {
-// 	switch *pi {
-// 	case PITMp3:
-// 		return "Mp3"
-// 	case PITYoutube:
-// 		return "Youtube"
-// 	case PITRadio:
-// 		return "Radio"
-// 	}
-// 	return ""
-// }
-
 type PlayItem struct {
 	URI            string
 	StreamProvider idl.StreamProvider
-	//ItemType PlayItemType
 }
 
 type PlayList struct {
