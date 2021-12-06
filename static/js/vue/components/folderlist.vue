@@ -13,6 +13,8 @@
       show-select
       class="elevation-1"
       :search="search"
+      :page="page"
+      :pageStart="pageStart"
       :footer-props="{
       showFirstLastPage: true,
       firstIcon: 'mdi-arrow-collapse-left',

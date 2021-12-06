@@ -168,6 +168,8 @@ export default {
 			console.log('Call result ', result.data)
 			that.loadingData = false
 			that.$store.commit('musicfetch', result.data)
+			that.page = 1
+			that.search = ''
 		}, error => {
 			that.loadingData = false	
 			handleError(error, that)

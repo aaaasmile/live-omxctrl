@@ -224,7 +224,7 @@ func (ld *LiteDB) InsertMusicList(tx *sql.Tx, list []*ResMusicItem) error {
 		if err != nil {
 			return err
 		}
-		log.Println("video inserted: ", item.Title, sqlres)
+		log.Println("music inserted: ", item.Title, sqlres)
 	}
 	return nil
 }

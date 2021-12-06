@@ -74,7 +74,7 @@ func (fp *FilePlayer) Name() string {
 }
 func (fp *FilePlayer) GetStreamerCmd(cmdLineArr []string) string {
 	args := strings.Join(cmdLineArr, " ")
-	cmd := fmt.Sprintf("omxplayer %s %s", args, fp.URI)
+	cmd := fmt.Sprintf(`omxplayer %s "%s"`, args, fp.URI)
 	return cmd
 }
 func (fp *FilePlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {

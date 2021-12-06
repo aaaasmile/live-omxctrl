@@ -13,8 +13,10 @@ export default {
     }
   },
   created() {
-    let req = { parent: this.parent_folder }
-    API.FetchMusic(this, req)
+    if (this.parent_folder === '') {
+      let req = { parent: this.parent_folder }
+      API.FetchMusic(this, req)
+    }
   },
   computed: {
     ...Vuex.mapState({
@@ -31,6 +33,11 @@ export default {
       console.log('scan for music')
       let req = { parent: this.parent_folder }
       API.ScanMusic(this, req)
+    },
+    fetchRoot() {
+      console.log('fetchRoot music')
+      let req = { parent: '' }
+      API.FetchMusic(this, req)
     }
   },
   template: `
@@ -54,6 +61,14 @@ export default {
               </v-btn>
             </template>
             <span>Scan for music</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn icon @click="fetchRoot()" v-on="on">
+                <v-icon>mdi-home</v-icon>
+              </v-btn>
+            </template>
+            <span>Fetch root</span>
           </v-tooltip>
         </v-toolbar>
         <v-card-title>Music available</v-card-title>

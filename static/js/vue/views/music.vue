@@ -20,6 +20,14 @@
             </template>
             <span>Scan for music</span>
           </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn icon @click="fetchRoot()" v-on="on">
+                <v-icon>mdi-home</v-icon>
+              </v-btn>
+            </template>
+            <span>Fetch root</span>
+          </v-tooltip>
         </v-toolbar>
         <v-card-title>Music available</v-card-title>
         <v-container>

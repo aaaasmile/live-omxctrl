@@ -4,6 +4,8 @@ export default {
   data() {
     return {
       search: '',
+      page: 1,
+      pageStart: 1,
       debug: false,
       loadingData: false,
       itemsPerPage: 15,
@@ -43,10 +45,10 @@ export default {
         API.PlayUri(this, req)
         return
       }
-      this.search = ''
       console.log('View folder ', item)
       let req = { parent: this.parent_folder + '/' + item.title }
       this.loadingData = true
+      this.pageStart = 1
       API.FetchMusic(this, req)
     },
     getColorType(fileorfolder) {
@@ -74,6 +76,8 @@ export default {
       show-select
       class="elevation-1"
       :search="search"
+      :page="page"
+      :pageStart="pageStart"
       :footer-props="{
       showFirstLastPage: true,
       firstIcon: 'mdi-arrow-collapse-left',

@@ -255,21 +255,27 @@ finisce il channel done sarebbe settato senza essere consumato e genera un leak.
 
 
 ## TODO
+- Music: Nella navigazione del musica sui files c'è bisogno di uno stack per tornare indietro o sopra
+- Music: si può far partire un file, bisgnerebbe anche stopparlo nella stessa view
+- Music: info meta del file non vengono lette
+- Music: seleziona dei files o folder da aggiungere alla Playlist current
+- Music: mostra le playlists e lancia la playlist
+
 - Mute e unmute mi cancella le info come title e description. Questo perché lo stato
 viene riscritto completamente, invece di essere incrementale. Setstate va chiamata solo all'interno
 di listenStateAction.
-- Supporto per lo stream della uri
 - Da rividere anche lo sleep del check status.
 - Mettere un icona che indica lo stato di connession col ws socket
 - Il collegamento con ws socket va fatto non solo al reload, ma anche quando il server si disconnete eil client manda un comando.
 - Posizione e durata
-- Play radio e podcast
 - Play del soundcloud
 - files audio memorizzati su pi4 da mettere nel db e in una view da cercare
 - Favoriti
 - Play della playlist
 - Previous, Random e riciclo
 
+- Supporto per lo stream della uri [NR - uso il progetto stream apposito]
+- Play radio e podcast [DONE]
 - lista di video [DONE]
 - dbus è da rivedere. Se c'è gia un player in funzione, la seconda istanza su una porta diversa (dev)
 va a cambiare l'istanza del service. Andrebbe magari anche isolata.[DONE]
