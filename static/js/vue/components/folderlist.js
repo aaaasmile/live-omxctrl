@@ -12,7 +12,6 @@ export default {
       headers: [
         { text: 'Type', value: 'type' },
         { text: 'Title', value: 'title' },
-        { text: 'Duration', value: 'duration' },
         { text: 'Artist', value: 'metaartist' },
         { text: 'Album', value: 'metaalbum' },
         { text: 'Actions', value: 'actions', sortable: false },

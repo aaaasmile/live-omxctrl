@@ -38,7 +38,6 @@
         </v-tooltip>
 
         </v-toolbar>
-        <v-card-title>Music available</v-card-title>
         <v-container>
           <FolderList></FolderList>
         </v-container>

@@ -166,7 +166,7 @@ export default {
 			}
 		});
 	},
-	FetchMusic(that, req) {
+	FetchMusic(that, req, fn) {
 		req.name = 'FetchMusic'
 		console.log('FetchMusic request is ', req)
 		that.loadingData = true
@@ -176,9 +176,15 @@ export default {
 			that.$store.commit('musicfetch', result.data)
 			that.page = 1
 			that.search = ''
+			if(fn){
+				fn()
+			}
 		}, error => {
 			that.loadingData = false	
 			handleError(error, that)
+			if(fn){
+				fn()
+			}
 		});
 	},
 	FetchRadio(that, req) {

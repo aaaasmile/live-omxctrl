@@ -44,7 +44,7 @@ export default {
       console.log('refreshFolder ')
       this.loadingSync = true
       let req = { parent: this.parent_folder }
-      API.ScanMusic(this, req, () => this.loadingSync = false)
+      API.FetchMusic(this, req, () => this.loadingSync = false)
     }
   },
   template: `
@@ -87,7 +87,6 @@ export default {
         </v-tooltip>
 
         </v-toolbar>
-        <v-card-title>Music available</v-card-title>
         <v-container>
           <FolderList></FolderList>
         </v-container>
