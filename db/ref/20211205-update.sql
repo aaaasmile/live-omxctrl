@@ -1,6 +1,5 @@
 -- Update file for changing the db
 -- Delete unsused tables
-BEGIN TRANSACTION;
 DROP TABLE IF EXISTS `Item`;
 DROP TABLE IF EXISTS `Current`;
 

@@ -1,36 +1,9 @@
 BEGIN TRANSACTION;
 DROP TABLE IF EXISTS `playsearch_idx`;
-CREATE TABLE IF NOT EXISTS `playsearch_idx` (
-	`segid`	TEXT,
-	`term`	TEXT,
-	`pgno`	TEXT,
-	PRIMARY KEY(`segid`,`term`)
-) WITHOUT ROWID;
 DROP TABLE IF EXISTS `playsearch_docsize`;
-CREATE TABLE IF NOT EXISTS `playsearch_docsize` (
-	`id`	INTEGER,
-	`sz`	BLOB,
-	PRIMARY KEY(`id`)
-);
 DROP TABLE IF EXISTS `playsearch_data`;
-CREATE TABLE IF NOT EXISTS `playsearch_data` (
-	`id`	INTEGER,
-	`block`	BLOB,
-	PRIMARY KEY(`id`)
-);
 DROP TABLE IF EXISTS `playsearch_content`;
-CREATE TABLE IF NOT EXISTS `playsearch_content` (
-	`id`	INTEGER,
-	`c0`	TEXT,
-	`c1`	TEXT,
-	PRIMARY KEY(`id`)
-);
 DROP TABLE IF EXISTS `playsearch_config`;
-CREATE TABLE IF NOT EXISTS `playsearch_config` (
-	`k`	TEXT,
-	`v`	TEXT,
-	PRIMARY KEY(`k`)
-) WITHOUT ROWID;
 DROP TABLE IF EXISTS `playsearch`;
 CREATE VIRTUAL TABLE playsearch USING fts5(playsrowid, text);
 DROP TABLE IF EXISTS `Video`;
