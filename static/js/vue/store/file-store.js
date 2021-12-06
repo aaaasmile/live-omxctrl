@@ -7,6 +7,8 @@ export default {
         music: [],
         parent_folder: '',
         music_selected: [],
+        music_path_back: [],
+        music_path_fwd: [],
     },
     mutations: {
         videofetch(state, data) {
@@ -45,7 +47,9 @@ export default {
         },
         musicfetch(state, data) {
             state.music = []
+            state.music_path_back.push(state.parent_folder)
             state.parent_folder = data.parent
+    
             data.music.forEach(itemsrc => {
                 let item = {
                     id: itemsrc.id,
@@ -72,6 +76,13 @@ export default {
         },
         selectMusicAll(state, count) {
             state.music_selected = state.music.slice(0, count)
+        },
+        up_parent(state){
+            if (state.music_path_back.length > 0){
+                state.music_path_fwd.push(state.music_path_back.pop())            
+            }
+            let str = state.parent_folder
+            state.parent_folder = str.substring(0, str.lastIndexOf('/'));
         }
     }
 }
