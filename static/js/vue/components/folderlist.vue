@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      <v-col cols="3">
+      <v-col cols="2">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-btn icon @click="backFolder" :loading="loadingUp" v-on="on">
@@ -9,14 +9,6 @@
             </v-btn>
           </template>
           <span>Back</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn icon @click="upFolder" :loading="loadingUp" v-on="on">
-              <v-icon>mdi-arrow-up</v-icon>
-            </v-btn>
-          </template>
-          <span>Up</span>
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">

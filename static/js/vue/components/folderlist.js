@@ -59,13 +59,6 @@ export default {
           return 'blue'
       }
     },
-    upFolder(){
-      console.log('Up folder')
-      this.$store.commit('up_parent')
-      let req = { parent: this.parent_folder }
-      this.loadingUp = true
-      API.FetchMusic(this, req, () => this.loadingUp = false)
-    },
     backFolder(){
       console.log('Back folder')
       this.$store.commit('back_parent')
@@ -84,7 +77,7 @@ export default {
   template: `
   <v-card>
     <v-card-title>
-      <v-col cols="3">
+      <v-col cols="2">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-btn icon @click="backFolder" :loading="loadingUp" v-on="on">
@@ -92,14 +85,6 @@ export default {
             </v-btn>
           </template>
           <span>Back</span>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn icon @click="upFolder" :loading="loadingUp" v-on="on">
-              <v-icon>mdi-arrow-up</v-icon>
-            </v-btn>
-          </template>
-          <span>Up</span>
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
@@ -154,6 +139,5 @@ export default {
         </template>
       </v-data-table>
     </v-container>
-  </v-card>
-`
+  </v-card>`
 }
