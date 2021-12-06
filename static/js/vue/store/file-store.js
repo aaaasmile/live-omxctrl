@@ -9,6 +9,8 @@ export default {
         music_selected: [],
         music_path_back: [],
         music_path_fwd: [],
+        back_disabled: true,
+        fwd_disabled: true,
     },
     mutations: {
         videofetch(state, data) {
@@ -83,6 +85,8 @@ export default {
                 new_parent = state.music_path_back.pop()
                 state.music_path_fwd.push(state.parent_folder)            
             }
+            state.back_disabled = state.music_path_back.length === 0
+            state.fwd_disabled = state.music_path_fwd.length === 0
             state.parent_folder = new_parent
         },
         fwd_parent(state){
@@ -92,10 +96,14 @@ export default {
                 state.music_path_back.push(state.parent_folder)            
             }
             state.parent_folder = new_parent
+            state.back_disabled = state.music_path_back.length === 0
+            state.fwd_disabled = state.music_path_fwd.length === 0
         },
         down_parent(state, sub_parent){
             state.music_path_back.push(state.parent_folder)
             state.parent_folder = state.parent_folder + '/' + sub_parent
+            state.back_disabled = state.music_path_back.length === 0
+            state.fwd_disabled = state.music_path_fwd.length === 0
         }
     }
 }

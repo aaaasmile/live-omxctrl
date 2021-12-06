@@ -4,7 +4,7 @@
       <v-col cols="2">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn icon @click="backFolder" :loading="loadingUp" v-on="on">
+            <v-btn icon @click="backFolder" :loading="loadingUp" v-on="on" :disabled="back_disabled">
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </template>
@@ -12,7 +12,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn icon @click="fwdFolder" :loading="loadingUp" v-on="on">
+            <v-btn icon @click="fwdFolder" :loading="loadingUp" v-on="on" :disabled="fwd_disabled">
               <v-icon>mdi-arrow-right</v-icon>
             </v-btn>
           </template>

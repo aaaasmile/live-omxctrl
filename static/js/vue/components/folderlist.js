@@ -33,6 +33,12 @@ export default {
       parent_folder: state => {
         return state.fs.parent_folder
       },
+      back_disabled: state => {
+        return state.fs.back_disabled
+      },
+      fwd_disabled: state => {
+        return state.fs.fwd_disabled
+      },
     })
   },
   methods: {
@@ -80,7 +86,7 @@ export default {
       <v-col cols="2">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn icon @click="backFolder" :loading="loadingUp" v-on="on">
+            <v-btn icon @click="backFolder" :loading="loadingUp" v-on="on" :disabled="back_disabled">
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </template>
@@ -88,7 +94,7 @@ export default {
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn icon @click="fwdFolder" :loading="loadingUp" v-on="on">
+            <v-btn icon @click="fwdFolder" :loading="loadingUp" v-on="on" :disabled="fwd_disabled">
               <v-icon>mdi-arrow-right</v-icon>
             </v-btn>
           </template>
