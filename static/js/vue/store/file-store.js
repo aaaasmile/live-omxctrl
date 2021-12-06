@@ -47,7 +47,6 @@ export default {
         },
         musicfetch(state, data) {
             state.music = []
-            state.music_path_back.push(state.parent_folder)
             state.parent_folder = data.parent
     
             data.music.forEach(itemsrc => {
@@ -79,10 +78,32 @@ export default {
         },
         up_parent(state){
             if (state.music_path_back.length > 0){
-                state.music_path_fwd.push(state.music_path_back.pop())            
+                state.music_path_back.pop()
+                state.music_path_fwd.push(state.parent_folder)            
             }
             let str = state.parent_folder
             state.parent_folder = str.substring(0, str.lastIndexOf('/'));
+        },
+        back_parent(state){
+            let new_parent = state.parent_folder
+            console.log('Back: ', state.music_path_back)
+            if (state.music_path_back.length > 0){
+                new_parent = state.music_path_back.pop()
+                state.music_path_fwd.push(state.parent_folder)            
+            }
+            state.parent_folder = new_parent
+        },
+        fwd_parent(state){
+            let new_parent = state.parent_folder
+            if (state.music_path_fwd.length > 0){
+                new_parent = state.music_path_fwd.pop()
+                state.music_path_back.push(state.parent_folder)            
+            }
+            state.parent_folder = new_parent
+        },
+        down_parent(state, sub_parent){
+            state.music_path_back.push(state.parent_folder)
+            state.parent_folder = state.parent_folder + '/' + sub_parent
         }
     }
 }

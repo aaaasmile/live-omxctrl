@@ -13,9 +13,7 @@ export default {
       headers: [
         { text: 'Type', value: 'type' },
         { text: 'Title', value: 'title' },
-        { text: 'Artist', value: 'metaartist' },
-        { text: 'Album', value: 'metaalbum' },
-        { text: 'Actions', value: 'actions', sortable: false },
+        { text: 'Action', value: 'actions', sortable: false },
       ],
     } // end return data()
   },//end data
@@ -45,8 +43,9 @@ export default {
         API.PlayUri(this, req)
         return
       }
-      console.log('View folder ', item)
-      let req = { parent: this.parent_folder + '/' + item.title }
+      console.log('View folder ', item.title)
+      this.$store.commit('down_parent', item.title)
+      let req = { parent: this.parent_folder}
       this.loadingData = true
       this.pageStart = 1
       API.FetchMusic(this, req)
@@ -67,6 +66,20 @@ export default {
       this.loadingUp = true
       API.FetchMusic(this, req, () => this.loadingUp = false)
     },
+    backFolder(){
+      console.log('Back folder')
+      this.$store.commit('back_parent')
+      let req = { parent: this.parent_folder }
+      this.loadingUp = true
+      API.FetchMusic(this, req, () => this.loadingUp = false)
+    },
+    fwdFolder(){
+      console.log('Forward folder')
+      this.$store.commit('fwd_parent')
+      let req = { parent: this.parent_folder }
+      this.loadingUp = true
+      API.FetchMusic(this, req, () => this.loadingUp = false)
+    },
   },
   template: `
   <v-card>
@@ -74,7 +87,7 @@ export default {
       <v-col cols="3">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn icon @click="upFolder" :loading="loadingUp" v-on="on">
+            <v-btn icon @click="backFolder" :loading="loadingUp" v-on="on">
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </template>
@@ -90,7 +103,7 @@ export default {
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn icon @click="upFolder" :loading="loadingUp" v-on="on">
+            <v-btn icon @click="fwdFolder" :loading="loadingUp" v-on="on">
               <v-icon>mdi-arrow-right</v-icon>
             </v-btn>
           </template>
@@ -141,5 +154,6 @@ export default {
         </template>
       </v-data-table>
     </v-container>
-  </v-card>`
+  </v-card>
+`
 }
