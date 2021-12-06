@@ -146,7 +146,7 @@ export default {
 			handleError(error, that)
 		});
 	},
-	ScanMusic(that, req) {
+	ScanMusic(that, req, fn) {
 		req.name = 'ScanMusic'
 		console.log('ScanMusic request is ', req)
 		that.loadingData = true
@@ -155,9 +155,15 @@ export default {
 			console.log('Call result ', result.data)
 			that.loadingData = false
 			that.$store.commit('musicfetch', result.data)
+			if(fn){
+				fn()
+			}
 		}, error => {
 			that.loadingData = false	
 			handleError(error, that)
+			if(fn){
+				fn()
+			}
 		});
 	},
 	FetchMusic(that, req) {

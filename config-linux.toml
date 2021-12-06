@@ -10,11 +10,11 @@ RootURLPattern = "/omx/"
 UseRelativeRoot = true
 DebugVerbose = false
 OmxCmdParams = "-o,hdmi" #comma separated, example -o,local. Could not be empty 
-DBPath= "/home/igors/projects/go/live-omxctrl/db/test/test-data.db"
-TmpInfo= "/home/igors/tmp/info"
+DBPath= "../db/test-data.db"
+TmpInfo= "../tmp"
 VueLibName = "vue.js"
-VideoDir="/home/igors/Video"
-MusicDir="/home/igors/Music"
+VideoDir="/mnt/c/local/Video"
+MusicDir="/mnt/c/local/Music"
 
 [SoundCloud]
 IsAvailable = true

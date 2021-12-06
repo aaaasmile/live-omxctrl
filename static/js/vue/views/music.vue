@@ -28,6 +28,15 @@
             </template>
             <span>Fetch root</span>
           </v-tooltip>
+          <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon @click="refreshFolder" :loading="loadingSync" v-on="on">
+              <v-icon>mdi-sync</v-icon>
+            </v-btn>
+          </template>
+          <span>Update view</span>
+        </v-tooltip>
+
         </v-toolbar>
         <v-card-title>Music available</v-card-title>
         <v-container>

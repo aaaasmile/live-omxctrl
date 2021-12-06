@@ -7,6 +7,7 @@ export default {
   data() {
     return {
       loadingData: false,
+      loadingSync: false,
       selected_item: {},
       dialogScan: false,
       transition: 'scale-transition',
@@ -38,6 +39,12 @@ export default {
       console.log('fetchRoot music')
       let req = { parent: '' }
       API.FetchMusic(this, req)
+    },
+    refreshFolder(){
+      console.log('refreshFolder ')
+      this.loadingSync = true
+      let req = { parent: this.parent_folder }
+      API.ScanMusic(this, req, () => this.loadingSync = false)
     }
   },
   template: `
@@ -70,6 +77,15 @@ export default {
             </template>
             <span>Fetch root</span>
           </v-tooltip>
+          <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn icon @click="refreshFolder" :loading="loadingSync" v-on="on">
+              <v-icon>mdi-sync</v-icon>
+            </v-btn>
+          </template>
+          <span>Update view</span>
+        </v-tooltip>
+
         </v-toolbar>
         <v-card-title>Music available</v-card-title>
         <v-container>
@@ -92,5 +108,6 @@ export default {
         </v-card>
       </v-dialog>
     </v-container>
-  </v-container>`
+  </v-container>
+`
 }
