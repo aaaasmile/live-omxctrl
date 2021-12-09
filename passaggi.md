@@ -253,6 +253,12 @@ fino alla fine dell'esecuzione. Per questo è messa in una go sub routine e sett
 Il channell done è buffered in quanto se arriva prima un segnale di kill, quando Wait()
 finisce il channel done sarebbe settato senza essere consumato e genera un leak.
 
+## Windows
+Si potrebbe far funzionare il service anche sotto windows, per esempio installando VLC
+e usare il seguente comando per acoltare una radio:
+"C:\Program Files\VideoLAN\VLC\vlc.exe" -I dummy --dummy-quiet http://stream.srg-ssr.ch/m/rsc_de/mp3_128
+In questo caso VLC funziona in background e bisogna trovare il modo di controllarlo.
+
 
 ## TODO
 - Music: Nella navigazione del musica sui files c'è bisogno di uno stack per tornare indietro o sopra
