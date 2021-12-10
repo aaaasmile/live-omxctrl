@@ -13,13 +13,18 @@ type Config struct {
 	RootURLPattern  string
 	UseRelativeRoot bool
 	DebugVerbose    bool
-	OmxCmdParams    string
 	DBPath          string
 	TmpInfo         string
 	VueLibName      string
 	VideoDir        string
 	MusicDir        string
 	SoundCloud      SoundCloud
+	Player          Player
+}
+
+type Player struct {
+	Path   string
+	Params string
 }
 
 type SoundCloud struct {

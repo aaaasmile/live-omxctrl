@@ -5,9 +5,25 @@
 
 #used to develop under windows
 
-ServiceURL = "127.0.0.1:5548"
+
+ServiceURL = "127.0.0.1:5549" # 5549 is a develop test 5548 is the deployed
 RootURLPattern = "/omx/"
 UseRelativeRoot = true
 DebugVerbose = false
-OmxCmdParams = ""
-DBPath= "C:\\local\\github\\live-omxctrl\\db\\omx-player-repo.db"
+#OmxCmdParams = "-o,hdmi" #comma separated, example -o,local. Could not be empty 
+DBPath= "../db/test-data-windows.db"
+TmpInfo= "../tmp"
+VueLibName = "vue.js"
+VideoDir="c:\\local\\Video"
+MusicDir="c:\\local\\Music"
+
+[Player]
+Path="'C:\\Program Files\\VideoLAN\\VLC\\vlc.exe'"
+Params="-I dummy --dummy-quiet"
+
+[SoundCloud]
+IsAvailable = true
+CfgFile = "plugin/soundcloud.json"
+ClientID=""
+AuthToken=""
+UserAgent=""

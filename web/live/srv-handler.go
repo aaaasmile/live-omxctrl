@@ -166,14 +166,14 @@ func listenStatus(statusCh chan *omxstate.StateOmx) {
 	}
 }
 
-func InitFromConfig(cmdParam string, debug bool, dbPath string) error {
-	player.SetCommandLine(cmdParam)
+func InitFromConfig(cmdPlayer *conf.Player, debug bool, dbPath string) error {
+	player.SetCommandLine(cmdPlayer)
 	liteDB.DebugSQL = debug
 	liteDB.SqliteDBPath = dbPath
 	if err := liteDB.OpenSqliteDatabase(); err != nil {
 		return err
 	}
-	log.Println("Handler initialized", cmdParam, debug, dbPath)
+	log.Println("Handler initialized", cmdPlayer, debug, dbPath)
 	return nil
 }
 

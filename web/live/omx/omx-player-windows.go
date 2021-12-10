@@ -15,8 +15,17 @@ import (
 func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 	log.Println("Prepare to start the player with execCommand")
 	go func(cmdText string, actCh chan *omxstate.ActionDef, uri string, chstop chan struct{}) {
-		log.Println("Submit the command in background ", cmdText)
-		cmd := exec.Command("bash", "-c", cmdText)
+		log.Println("WINDOWS Submit the command in background ", cmdText)
+		var args []string
+		cmdstr := "cmd"
+		args = []string{"/c"} // do not use /start
+
+		args = append(args, "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe")
+		args = append(args, "-I")
+		args = append(args, "dummy")
+		args = append(args, "--dummy-quiet")
+		args = append(args, `c:\local\Music/CafeDelMar/cafedelmar_01.mp3`)
+		cmd := exec.Command(cmdstr, args...) //"'C:\\Program Files\\VideoLAN\\VLC\\vlc.exe'", "-I", "dummy", "--dummy-quiet", "c:/local/Music/CafeDelMar/cafedelmar_01.mp3")
 		actCh <- &omxstate.ActionDef{
 			URI:    uri,
 			Action: omxstate.ActPlaying,

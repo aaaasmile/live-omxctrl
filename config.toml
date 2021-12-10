@@ -9,12 +9,16 @@ ServiceURL = "192.168.2.84:5549" # 5549 is a develop test 5548 is the deployed
 RootURLPattern = "/omx/"
 UseRelativeRoot = true
 DebugVerbose = false
-OmxCmdParams = "-o,hdmi" #comma separated, example -o,local. Could not be empty 
+#OmxCmdParams = "-o,hdmi" #comma separated, example -o,local. Could not be empty 
 DBPath= "/home/igors/projects/go/live-omxctrl/db/test/test-data.db"
 TmpInfo= "/home/igors/tmp/info"
 VueLibName = "vue.js"
 VideoDir="/home/igors/Video"
 MusicDir="/home/igors/Music"
+
+[Player]
+Path="omxplayer"
+Params="-o,hdmi"
 
 [SoundCloud]
 IsAvailable = true

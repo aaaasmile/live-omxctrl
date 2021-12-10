@@ -3,7 +3,7 @@
 # Near line 0 (last key parsed ''): bare keys cannot contain '\ufeff'
 # It is because this config.toml file is saved with BOM. Notepad does it, please use "save as.." with UTF-8 without BOM.
 
-# used to develop on pi4 target
+# used to develop WLS
 
 ServiceURL = "127.0.0.1:5549" # 5549 is a develop test 5548 is the deployed
 RootURLPattern = "/omx/"

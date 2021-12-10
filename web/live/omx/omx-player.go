@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/aaaasmile/live-omxctrl/conf"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/dbus"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
@@ -62,15 +63,15 @@ func (op *OmxPlayer) ListenOmxState(statusCh chan *omxstate.StateOmx) {
 	}
 }
 
-func (op *OmxPlayer) SetCommandLine(commaline string) {
+func (op *OmxPlayer) SetCommandLine(cmdPlayer *conf.Player) {
 	op.cmdLineArr = make([]string, 0)
-	arr := strings.Split(commaline, ",")
+	arr := strings.Split(cmdPlayer.Params, ",")
 	for _, item := range arr {
 		if len(item) > 0 {
 			op.cmdLineArr = append(op.cmdLineArr, item)
 		}
 	}
-	log.Println("Command line set to ", commaline, op.cmdLineArr)
+	log.Println("Command line set to ", cmdPlayer.Params, op.cmdLineArr)
 }
 
 func (op *OmxPlayer) GetTrackDuration() string {

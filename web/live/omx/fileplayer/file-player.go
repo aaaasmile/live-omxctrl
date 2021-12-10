@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aaaasmile/live-omxctrl/conf"
 	"github.com/aaaasmile/live-omxctrl/db"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/dbus"
@@ -74,7 +75,8 @@ func (fp *FilePlayer) Name() string {
 }
 func (fp *FilePlayer) GetStreamerCmd(cmdLineArr []string) string {
 	args := strings.Join(cmdLineArr, " ")
-	cmd := fmt.Sprintf(`omxplayer %s "%s"`, args, fp.URI)
+	//cmd := fmt.Sprintf(`omxplayer %s "%s"`, args, fp.URI)
+	cmd := fmt.Sprintf(`%s %s c:/local/Music/CafeDelMar/cafedelmar_01.mp3" `, conf.Current.Player.Path, args)
 	return cmd
 }
 func (fp *FilePlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
