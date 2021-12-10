@@ -70,10 +70,10 @@ func (fp *CvlcPlayer) GetDescription() string {
 func (fp *CvlcPlayer) Name() string {
 	return "file"
 }
-func (fp *CvlcPlayer) GetStreamerCmd(cmdLineArr []string) (string, string) {
-	//args := strings.Join(cmdLineArr, " ")
+func (fp *CvlcPlayer) GetStreamerCmd(cmdLineArr []string) (string, string, []string) {
+	moreargs := []string{}
 	params := fmt.Sprintf("%s %s", "--aout=alsa --alsa-audio-device=plughw:b1,0", fp.URI)
-	return "cvlc", params
+	return "cvlc", params, moreargs
 }
 func (fp *CvlcPlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	st := &omxstate.StateOmx{}

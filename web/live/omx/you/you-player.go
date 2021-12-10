@@ -86,10 +86,12 @@ func (yp *YoutubePl) IsUriForMe(uri string) bool {
 	return false
 }
 
-func (yp *YoutubePl) GetStreamerCmd(cmdLineArr []string) (string, string) {
+func (yp *YoutubePl) GetStreamerCmd(cmdLineArr []string) (string, string, []string) {
+	moreargs := []string{}
+
 	args := strings.Join(cmdLineArr, " ")
 	params := fmt.Sprintf("%s `%s -f mp4 -g %s`", args, getYoutubePlayer(), yp.URI)
-	return conf.Current.Player.Path, params
+	return conf.Current.Player.Path, params, moreargs
 }
 
 func getYoutubePlayer() string {

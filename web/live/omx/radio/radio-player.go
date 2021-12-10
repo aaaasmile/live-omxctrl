@@ -1,7 +1,6 @@
 package radio
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -67,10 +66,10 @@ func (rp *RadioPlayer) GetDescription() string {
 func (rp *RadioPlayer) Name() string {
 	return "radio"
 }
-func (rp *RadioPlayer) GetStreamerCmd(cmdLineArr []string) (string, string) {
+func (rp *RadioPlayer) GetStreamerCmd(cmdLineArr []string) (string, string, []string) {
+	moreargs := []string{rp.URI}
 	args := strings.Join(cmdLineArr, " ")
-	params := fmt.Sprintf("%s %s", args, rp.URI)
-	return conf.Current.Player.Path, params
+	return conf.Current.Player.Path, args, moreargs
 }
 func (rp *RadioPlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	if rp.Info == nil {

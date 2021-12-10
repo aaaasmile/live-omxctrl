@@ -18,7 +18,7 @@ VideoDir="c:\\local\\Video"
 MusicDir="c:\\local\\Music"
 
 [Player]
-Path="'C:\\Program Files\\VideoLAN\\VLC\\vlc.exe'"
+Path="C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
 Params="-I dummy --dummy-quiet"
 
 [SoundCloud]
