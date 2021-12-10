@@ -8,24 +8,29 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 )
 
-func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
+func (op *OmxPlayer) execCommand(appcmd, cmdParam, uri string, chstop chan struct{}) {
 	log.Println("Prepare to start the player with execCommand")
-	go func(cmdText string, actCh chan *omxstate.ActionDef, uri string, chstop chan struct{}) {
-		log.Println("WINDOWS Submit the command in background ", cmdText)
+	go func(appcmd string, cmdParam string, actCh chan *omxstate.ActionDef, uri string, chstop chan struct{}) {
+
 		var args []string
 		cmdstr := "cmd"
-		args = []string{"/c"} // do not use /start
+		appcmd = strings.ReplaceAll(appcmd, "'", "")
+		args = []string{"/c", appcmd} // do not use /start
 
-		args = append(args, "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe")
-		args = append(args, "-I")
-		args = append(args, "dummy")
-		args = append(args, "--dummy-quiet")
-		args = append(args, `D:\Music\ipod\883\883_casa_albergo.mp3`)
-		cmd := exec.Command(cmdstr, args...) //"'C:\\Program Files\\VideoLAN\\VLC\\vlc.exe'", "-I", "dummy", "--dummy-quiet", "c:/local/Music/CafeDelMar/cafedelmar_01.mp3")
+		ss1 := strings.ReplaceAll(cmdParam, "\"", "")
+		paramsPart := strings.Split(ss1, " ")
+		for _, ss := range paramsPart {
+			args = append(args, ss)
+		}
+
+		log.Println("WINDOWS Submit the command in background ", cmdstr, args)
+		cmd := exec.Command(cmdstr, args...)
+
 		actCh <- &omxstate.ActionDef{
 			URI:    uri,
 			Action: omxstate.ActPlaying,
@@ -65,11 +70,11 @@ func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 			log.Println("ERROR cmd.Start() failed with", err)
 		}
 
-		log.Println("Player has been terminated. Cmd was ", cmdText)
+		log.Println("Player has been terminated. Cmd was ", appcmd, cmdParam)
 		actCh <- &omxstate.ActionDef{
 			URI:    uri,
 			Action: omxstate.ActTerminate,
 		}
 
-	}(cmdText, op.ChAction, uri, chstop)
+	}(appcmd, cmdParam, op.ChAction, uri, chstop)
 }

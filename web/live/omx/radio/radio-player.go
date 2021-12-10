@@ -5,6 +5,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/aaaasmile/live-omxctrl/conf"
 	"github.com/aaaasmile/live-omxctrl/db"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 )
@@ -66,10 +67,10 @@ func (rp *RadioPlayer) GetDescription() string {
 func (rp *RadioPlayer) Name() string {
 	return "radio"
 }
-func (rp *RadioPlayer) GetStreamerCmd(cmdLineArr []string) string {
+func (rp *RadioPlayer) GetStreamerCmd(cmdLineArr []string) (string, string) {
 	args := strings.Join(cmdLineArr, " ")
-	cmd := fmt.Sprintf("omxplayer %s %s", args, rp.URI)
-	return cmd
+	params := fmt.Sprintf("%s %s", args, rp.URI)
+	return conf.Current.Player.Path, params
 }
 func (rp *RadioPlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	if rp.Info == nil {

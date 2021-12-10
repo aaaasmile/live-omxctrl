@@ -73,11 +73,11 @@ func (fp *FilePlayer) GetDescription() string {
 func (fp *FilePlayer) Name() string {
 	return "file"
 }
-func (fp *FilePlayer) GetStreamerCmd(cmdLineArr []string) string {
+func (fp *FilePlayer) GetStreamerCmd(cmdLineArr []string) (string, string) {
 	args := strings.Join(cmdLineArr, " ")
 	//cmd := fmt.Sprintf(`omxplayer %s "%s"`, args, fp.URI)
-	cmd := fmt.Sprintf(`%s %s c:/local/Music/CafeDelMar/cafedelmar_01.mp3" `, conf.Current.Player.Path, args)
-	return cmd
+	params := fmt.Sprintf(`%s "%s"`, args, fp.URI)
+	return conf.Current.Player.Path, params
 }
 func (fp *FilePlayer) CheckStatus(chDbOperation chan *idl.DbOperation) error {
 	st := &omxstate.StateOmx{}

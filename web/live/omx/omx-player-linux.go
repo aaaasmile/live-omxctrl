@@ -13,9 +13,10 @@ import (
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 )
 
-func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
+func (op *OmxPlayer) execCommand(appcmd, cmdParam, uri string, chstop chan struct{}) {
 	log.Println("Prepare to start the player with execCommand")
 	go func(cmdText string, actCh chan *omxstate.ActionDef, uri string, chstop chan struct{}) {
+		cmdText := fmt.Sprintf("%s %s", appcmd, cmdParam)
 		log.Println("Submit the command in background ", cmdText)
 		cmd := exec.Command("bash", "-c", cmdText)
 		actCh <- &omxstate.ActionDef{

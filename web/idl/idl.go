@@ -14,7 +14,7 @@ type StreamProvider interface {
 	GetDescription() string
 	GetPropValue(string) string
 	Name() string
-	GetStreamerCmd(cmdLineArr []string) string
+	GetStreamerCmd(cmdLineArr []string) (string, string)
 	CheckStatus(chDbOperation chan *DbOperation) error
 	CreateStopChannel() chan struct{}
 	GetCmdStopChannel() chan struct{}

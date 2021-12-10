@@ -18,7 +18,7 @@ VideoDir="D:\\Video_archivio"
 MusicDir="D:\\Music\\ipod"
 
 [Player]
-Path="'C:\\Program Files\\VideoLAN\\VLC\\vlc.exe'"
+Path="C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
 Params="-I dummy --dummy-quiet"
 
 [SoundCloud]

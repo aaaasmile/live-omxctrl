@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aaaasmile/live-omxctrl/conf"
 	"github.com/aaaasmile/live-omxctrl/db"
 	"github.com/aaaasmile/live-omxctrl/web/idl"
 )
@@ -85,10 +86,10 @@ func (yp *YoutubePl) IsUriForMe(uri string) bool {
 	return false
 }
 
-func (yp *YoutubePl) GetStreamerCmd(cmdLineArr []string) string {
+func (yp *YoutubePl) GetStreamerCmd(cmdLineArr []string) (string, string) {
 	args := strings.Join(cmdLineArr, " ")
-	cmd := fmt.Sprintf("omxplayer %s `%s -f mp4 -g %s`", args, getYoutubePlayer(), yp.URI)
-	return cmd
+	params := fmt.Sprintf("%s `%s -f mp4 -g %s`", args, getYoutubePlayer(), yp.URI)
+	return conf.Current.Player.Path, params
 }
 
 func getYoutubePlayer() string {

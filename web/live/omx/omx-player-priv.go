@@ -42,9 +42,9 @@ func (op *OmxPlayer) startPlayListCurrent(prov idl.StreamProvider) error {
 	if len(op.cmdLineArr) == 0 {
 		return fmt.Errorf("Command line is not set")
 	}
-	cmd := prov.GetStreamerCmd(op.cmdLineArr)
+	cmd, params := prov.GetStreamerCmd(op.cmdLineArr)
 	log.Println("Start the command: ", cmd)
-	op.execCommand(uri, cmd, prov.CreateStopChannel())
+	op.execCommand(cmd, params, uri, prov.CreateStopChannel())
 
 	return nil
 }
