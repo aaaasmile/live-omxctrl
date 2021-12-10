@@ -24,7 +24,7 @@ func (op *OmxPlayer) execCommand(uri, cmdText string, chstop chan struct{}) {
 		args = append(args, "-I")
 		args = append(args, "dummy")
 		args = append(args, "--dummy-quiet")
-		args = append(args, `c:\local\Music/CafeDelMar/cafedelmar_01.mp3`)
+		args = append(args, `D:\Music\ipod\883\883_casa_albergo.mp3`)
 		cmd := exec.Command(cmdstr, args...) //"'C:\\Program Files\\VideoLAN\\VLC\\vlc.exe'", "-I", "dummy", "--dummy-quiet", "c:/local/Music/CafeDelMar/cafedelmar_01.mp3")
 		actCh <- &omxstate.ActionDef{
 			URI:    uri,
