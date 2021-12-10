@@ -9,6 +9,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/mattn/go-sqlite3 v1.14.0
+	github.com/shirou/gopsutil/v3 v3.21.11 // indirect
 	golang.org/x/mod v0.4.0 // indirect
 	golang.org/x/tools v0.0.0-20201211185031-d93e913c1a58 // indirect
 )

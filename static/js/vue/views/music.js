@@ -1,9 +1,10 @@
 import API from '../apicaller.js'
 
 import FolderList from '../components/folderlist.js'
+import Playerbar from '../components/playerbar.js'
 
 export default {
-  components: { FolderList },
+  components: { FolderList, Playerbar },
   data() {
     return {
       loadingData: false,
@@ -89,6 +90,7 @@ export default {
         </v-toolbar>
         <v-container>
           <FolderList></FolderList>
+           <Playerbar />
         </v-container>
       </v-card>
     </v-skeleton-loader>

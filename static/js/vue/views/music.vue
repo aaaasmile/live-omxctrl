@@ -40,6 +40,7 @@
         </v-toolbar>
         <v-container>
           <FolderList></FolderList>
+           <Playerbar />
         </v-container>
       </v-card>
     </v-skeleton-loader>
