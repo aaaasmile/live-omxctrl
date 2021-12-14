@@ -8,20 +8,17 @@
     >
       <v-card color="grey lighten-4" flat tile>
         <v-toolbar flat dense>
-          <v-toolbar-title class="subheading grey--text"
-            >Radio commands</v-toolbar-title
-          >
+          <v-toolbar-title class="subheading grey--text">Radio</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon @click="dialogEditSelected = true" v-on="on">
-                <v-icon>mdi-edit</v-icon>
+              <v-btn icon @click="dialogInsert = true" v-on="on">
+                <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
-            <span>Edit Radio</span>
+            <span>New Radio</span>
           </v-tooltip>
         </v-toolbar>
-        <v-card-title>Radio available</v-card-title>
         <v-container>
           <v-list dense nav>
             <v-list-item
@@ -29,7 +26,6 @@
               :key="plitem.id"
               @click="askForPlayItem(plitem)"
             >
-              
               <v-list-item-content>
                 <v-list-item-title>{{ plitem.title }}</v-list-item-title>
                 <v-list-item-title>{{ plitem.description }}</v-list-item-title>
@@ -70,10 +66,34 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="dialogInsert" persistent max-width="290">
+        <v-card>
+          <v-container>
+            <v-col cols="12">
+              <v-row justify="space-around">
+                <v-card-title class="headline">Insert New</v-card-title>
+                <v-text-field label="Name" v-model="radio_name" :rules="rules.radio_name" required></v-text-field>
+                <v-text-field label="URI" v-model="radio_URI" :rules="rules.radio_URI" required></v-text-field>
+                <v-text-field
+                  label="Description"
+                  v-model="radio_descr"
+                ></v-text-field>
+              </v-row>
+            </v-col>
+          </v-container>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="insertNewtem">OK</v-btn>
+            <v-btn color="green darken-1" text @click="dialogInsert = false"
+              >Cancel</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-dialog v-model="dialogEditSelected" persistent max-width="290">
         <v-card>
           <v-card-title class="headline">Edit</v-card-title>
-         
+
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="green darken-1" text @click="dialogEditSelected"

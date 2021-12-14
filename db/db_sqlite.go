@@ -229,8 +229,30 @@ func (ld *LiteDB) InsertMusicList(tx *sql.Tx, list []*ResMusicItem) error {
 	return nil
 }
 
+func (ld *LiteDB) InsertRadioList(tx *sql.Tx, list []*ResUriItem) error {
+	for _, item := range list {
+		q := `INSERT INTO Radio(URI,Name,Description,Genre) VALUES(?,?,?,?);`
+		if ld.DebugSQL {
+			log.Println("Query is", q)
+		}
+
+		stmt, err := ld.connDb.Prepare(q)
+		if err != nil {
+			return err
+		}
+
+		sqlres, err := tx.Stmt(stmt).Exec(item.URI, item.Title, item.Description,
+			item.Genre)
+		if err != nil {
+			return err
+		}
+		log.Println("radio inserted: ", item.Title, sqlres)
+	}
+	return nil
+}
+
 func (ld *LiteDB) DeleteAllVideo(tx *sql.Tx) error {
-	q := fmt.Sprintf(`DELETE FROM Video;`)
+	q := `DELETE FROM Video;`
 	if ld.DebugSQL {
 		log.Println("Query is", q)
 	}
@@ -245,7 +267,7 @@ func (ld *LiteDB) DeleteAllVideo(tx *sql.Tx) error {
 }
 
 func (ld *LiteDB) DeleteAllMusicFiles(tx *sql.Tx) error {
-	q := fmt.Sprintf(`DELETE FROM MusicFile;`)
+	q := `DELETE FROM MusicFile;`
 	if ld.DebugSQL {
 		log.Println("Query is", q)
 	}

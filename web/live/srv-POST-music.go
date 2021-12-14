@@ -76,7 +76,7 @@ func scanMusicReq(rawbody []byte, w http.ResponseWriter, req *http.Request) erro
 		return err
 	}
 
-	log.Println("Scan and store processing time ", time.Now().Sub(start))
+	log.Println("Scan and store processing time ", time.Since(start))
 
 	return fetchMusicReq(rawbody, w, req)
 }

@@ -37,6 +37,8 @@ func handlePost(w http.ResponseWriter, req *http.Request) error {
 		err = handleMusicRequest(w, req)
 	case "HandleRadio":
 		err = handleRadioRequest(w, req)
+	case "HandleCUD":
+		err = handleCUD(w, req)
 	default:
 		return fmt.Errorf("%s method is not supported", lastPath)
 	}

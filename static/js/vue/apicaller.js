@@ -200,4 +200,21 @@ export default {
 			handleError(error, that)
 		});
 	},
+	HandleCUD(that, req, fnComp) {
+		console.log('HandleCUD request is ', req)
+		that.loadingData = true
+		that.$http.post("HandleCUD", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+			console.log('Call result ', result.data)
+			that.loadingData = false
+			if(fnComp){
+				fnComp()
+			}
+		}, error => {
+			that.loadingData = false	
+			handleError(error, that)
+			if(fnComp){
+				fnComp()
+			}
+		});
+	},
 }

@@ -1,60 +1,74 @@
 import API from '../apicaller.js'
 
 export default {
-    data() {
-        return {
-            radioloading: false,
-            selected_item: {},
-            dialogPlaySelected: false,
-            dialogEditSelected: false,
-            dialogScan: false,
-            pagesize: 20,
-            pageix: 0,
-            transition: 'scale-transition',
-        }
+  data() {
+    return {
+      radioloading: false,
+      selected_item: {},
+      dialogPlaySelected: false,
+      dialogEditSelected: false,
+      dialogInsert: false,
+      pagesize: 20,
+      pageix: 0,
+      transition: 'scale-transition',
+      radio_name: '',
+      radio_URI: '',
+      radio_descr: '',
+      rules: {
+        radio_name: [val => (val || '').length > 0 || 'This field is required'],
+        radio_URI: [val => (val || '').length > 0 || 'This field is required'],
+      },
+    }
+  },
+  created() {
+    this.pageix = 0
+    let req = { pageix: this.pageix, pagesize: this.pagesize }
+    API.FetchRadio(this, req)
+  },
+  computed: {
+    ...Vuex.mapState({
+      radio: state => {
+        return state.fs.radio
+      },
+      last_radio_fetch: state => {
+        return state.fs.last_radio_fetch
+      }
+    })
+  },
+  methods: {
+    askForPlayItem(item) {
+      console.log('ask to play radio item: ', item)
+      this.selected_item = item
+      this.selected_item.itemquestion = item.title
+      if (item.title === '') {
+        this.selected_item.itemquestion = item.uri
+      }
+      this.dialogPlaySelected = true
     },
-    created() {
-        this.pageix = 0
-        let req = { pageix: this.pageix, pagesize: this.pagesize }
-        API.FetchRadio(this, req)
-    },
-    computed: {
-        ...Vuex.mapState({
-            radio: state => {
-                return state.fs.radio
-            },
-            last_radio_fetch: state => {
-                return state.fs.last_radio_fetch
-            }
-        })
-    },
-    methods: {
-        askForPlayItem(item) {
-            console.log('ask to play radio item: ', item)
-            this.selected_item = item
-            this.selected_item.itemquestion = item.title
-            if (item.title === '') {
-                this.selected_item.itemquestion = item.uri
-            }
-            this.dialogPlaySelected = true
-        },
-        playSelectedItem() {
-            console.log('playSelectedItem is: ', this.selected_item)
-            this.dialogPlaySelected = false
+    playSelectedItem() {
+      console.log('playSelectedItem is: ', this.selected_item)
+      this.dialogPlaySelected = false
 
-            let req = { uri: this.selected_item.uri, force_type: 'radio' }
-            API.PlayUri(this, req)
+      let req = { uri: this.selected_item.uri, force_type: 'radio' }
+      API.PlayUri(this, req)
 
-            this.$router.push('/')
-        },
-        loadMore() {
-            console.log('Load more')
-            this.pageix += 1
-            let req = { pageix: this.pageix, pagesize: this.pagesize }
-            API.FetchRadio(this, req)
-        }
+      this.$router.push('/')
     },
-    template: `
+    loadMore() {
+      console.log('Load more')
+      this.pageix += 1
+      let req = { pageix: this.pageix, pagesize: this.pagesize }
+      API.FetchRadio(this, req)
+    },
+    insertNewtem() {
+      console.log('Insert new radio')
+      let req = { table: 'Radio', method: 'insert', name: this.radio_name, uri: this.radio_URI, descr: this.radio_descr }
+      API.HandleCUD(this, req, () => {
+        this.dialogInsert = false
+      })
+    }
+  },
+  template: `
   <v-container pa-1>
     <v-skeleton-loader
       :loading="radioloading"
@@ -64,20 +78,17 @@ export default {
     >
       <v-card color="grey lighten-4" flat tile>
         <v-toolbar flat dense>
-          <v-toolbar-title class="subheading grey--text"
-            >Radio commands</v-toolbar-title
-          >
+          <v-toolbar-title class="subheading grey--text">Radio</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon @click="dialogEditSelected = true" v-on="on">
-                <v-icon>mdi-edit</v-icon>
+              <v-btn icon @click="dialogInsert = true" v-on="on">
+                <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
-            <span>Edit Radio</span>
+            <span>New Radio</span>
           </v-tooltip>
         </v-toolbar>
-        <v-card-title>Radio available</v-card-title>
         <v-container>
           <v-list dense nav>
             <v-list-item
@@ -85,7 +96,6 @@ export default {
               :key="plitem.id"
               @click="askForPlayItem(plitem)"
             >
-              
               <v-list-item-content>
                 <v-list-item-title>{{ plitem.title }}</v-list-item-title>
                 <v-list-item-title>{{ plitem.description }}</v-list-item-title>
@@ -126,10 +136,34 @@ export default {
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="dialogInsert" persistent max-width="290">
+        <v-card>
+          <v-container>
+            <v-col cols="12">
+              <v-row justify="space-around">
+                <v-card-title class="headline">Insert New</v-card-title>
+                <v-text-field label="Name" v-model="radio_name" :rules="rules.radio_name" required></v-text-field>
+                <v-text-field label="URI" v-model="radio_URI" :rules="rules.radio_URI" required></v-text-field>
+                <v-text-field
+                  label="Description"
+                  v-model="radio_descr"
+                ></v-text-field>
+              </v-row>
+            </v-col>
+          </v-container>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="insertNewtem">OK</v-btn>
+            <v-btn color="green darken-1" text @click="dialogInsert = false"
+              >Cancel</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-dialog v-model="dialogEditSelected" persistent max-width="290">
         <v-card>
           <v-card-title class="headline">Edit</v-card-title>
-         
+
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="green darken-1" text @click="dialogEditSelected"
@@ -145,5 +179,6 @@ export default {
         </v-card>
       </v-dialog>
     </v-container>
-  </v-container>`
+  </v-container>
+`
 }
