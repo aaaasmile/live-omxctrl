@@ -26,16 +26,20 @@ func handleRadioRequest(w http.ResponseWriter, req *http.Request) error {
 	switch reqReq.Name {
 	case "FetchRadio":
 		return fetchRadioReq(rawbody, w, req)
+	case "InsertRadio":
+		return insertRadioReq(rawbody, w, req)
 	default:
 		return fmt.Errorf("radio request %s not supported", reqReq.Name)
 	}
 }
 
-func insertRadioDbReq(rawbody []byte, w http.ResponseWriter, req *http.Request) error {
+func insertRadioReq(rawbody []byte, w http.ResponseWriter, req *http.Request) error {
 	paraReq := struct {
-		Name  string `json:"name"`
-		URI   string `json:"uri"`
-		Descr string `json:"descr"`
+		Name     string `json:"name"`
+		URI      string `json:"uri"`
+		Descr    string `json:"descr"`
+		PageIx   int    `json:"pageix"`
+		PageSize int    `json:"pagesize"`
 	}{}
 	if err := json.Unmarshal(rawbody, &paraReq); err != nil {
 		return err
@@ -65,7 +69,7 @@ func insertRadioDbReq(rawbody []byte, w http.ResponseWriter, req *http.Request) 
 		return err
 	}
 
-	return fetchRadioReqInDB(0, 5, w)
+	return fetchRadioReqInDB(paraReq.PageIx, paraReq.PageSize, w)
 }
 
 func fetchRadioReq(rawbody []byte, w http.ResponseWriter, req *http.Request) error {

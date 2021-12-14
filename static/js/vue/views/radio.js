@@ -62,9 +62,13 @@ export default {
     },
     insertNewtem() {
       console.log('Insert new radio')
-      let req = { table: 'Radio', method: 'insert', name: this.radio_name, uri: this.radio_URI, descr: this.radio_descr }
-      API.HandleCUD(this, req, () => {
+      let req = {  name: this.radio_name, uri: this.radio_URI, descr: this.radio_descr, pageix: this.pageix, pagesize: this.pagesize  }
+      req.name = 'InsertRadio'
+      API.HandleRadio(this, req, (ok,result) => {
         this.dialogInsert = false
+        if (ok){
+          this.$store.commit('radiofetch', result.data)
+        }
       })
     }
   },

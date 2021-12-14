@@ -200,21 +200,21 @@ export default {
 			handleError(error, that)
 		});
 	},
-	HandleCUD(that, req, fnComp) {
-		console.log('HandleCUD request is ', req)
-		that.loadingData = true
-		that.$http.post("HandleCUD", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
+	HandleRadio(that, req, fnCompl) {
+		console.log('HandleRadio request is ', req)
+		that.radioloading = true
+		that.$http.post("HandleRadio", JSON.stringify(req), { headers: { "content-type": "application/json" } }).then(result => {
 			console.log('Call result ', result.data)
-			that.loadingData = false
-			if(fnComp){
-				fnComp()
+			that.radioloading = false
+			if(fnCompl){
+				fnCompl(true,result)
 			}
 		}, error => {
-			that.loadingData = false	
+			that.radioloading = false	
 			handleError(error, that)
-			if(fnComp){
-				fnComp()
+			if(fnCompl){
+				fnCompl(false)
 			}
 		});
-	},
+	}
 }
