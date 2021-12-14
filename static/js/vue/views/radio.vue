@@ -21,18 +21,28 @@
         </v-toolbar>
         <v-container>
           <v-list dense nav>
-            <v-list-item
-              v-for="plitem in radio"
-              :key="plitem.id"
-              @click="askForPlayItem(plitem)"
-            >
+            <template v-for="plitem in radio" >
+              <v-list-item :key="plitem.id">
               <v-list-item-content>
                 <v-list-item-title>{{ plitem.title }}</v-list-item-title>
                 <v-list-item-title>{{ plitem.description }}</v-list-item-title>
                 <v-list-item-title>{{ plitem.genre }}</v-list-item-title>
                 <v-list-item-title>{{ plitem.uri }}</v-list-item-title>
+                <v-row >
+                  <v-btn icon text :key="plitem.id"
+                    @click="askForPlayItem(plitem)"
+                  ><v-icon>library_music</v-icon> </v-btn>
+                  <v-spacer></v-spacer>
+                  <v-btn icon text
+                    ><v-icon>mdi-circle-edit-outline</v-icon>
+                  </v-btn>
+                  <v-btn icon text
+                    ><v-icon>mdi-delete-forever-outline</v-icon>
+                  </v-btn>
+                </v-row>
               </v-list-item-content>
             </v-list-item>
+            </template>
           </v-list>
           <v-divider></v-divider>
           <v-row justify="center">
@@ -72,8 +82,18 @@
             <v-col cols="12">
               <v-row justify="space-around">
                 <v-card-title class="headline">Insert New</v-card-title>
-                <v-text-field label="Name" v-model="radio_name" :rules="rules.radio_name" required></v-text-field>
-                <v-text-field label="URI" v-model="radio_URI" :rules="rules.radio_URI" required></v-text-field>
+                <v-text-field
+                  label="Name"
+                  v-model="radio_name"
+                  :rules="rules.radio_name"
+                  required
+                ></v-text-field>
+                <v-text-field
+                  label="URI"
+                  v-model="radio_URI"
+                  :rules="rules.radio_URI"
+                  required
+                ></v-text-field>
                 <v-text-field
                   label="Description"
                   v-model="radio_descr"
