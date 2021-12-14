@@ -35,7 +35,7 @@ func handleRadioRequest(w http.ResponseWriter, req *http.Request) error {
 
 func insertRadioReq(rawbody []byte, w http.ResponseWriter, req *http.Request) error {
 	paraReq := struct {
-		Name     string `json:"name"`
+		Name     string `json:"radio_name"`
 		URI      string `json:"uri"`
 		Descr    string `json:"descr"`
 		PageIx   int    `json:"pageix"`

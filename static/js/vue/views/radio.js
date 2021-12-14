@@ -62,7 +62,7 @@ export default {
     },
     insertNewtem() {
       console.log('Insert new radio')
-      let req = {  name: this.radio_name, uri: this.radio_URI, descr: this.radio_descr, pageix: this.pageix, pagesize: this.pagesize  }
+      let req = {  radio_name: this.radio_name, uri: this.radio_URI, descr: this.radio_descr, pageix: this.pageix, pagesize: this.pagesize  }
       req.name = 'InsertRadio'
       API.HandleRadio(this, req, (ok,result) => {
         this.dialogInsert = false
