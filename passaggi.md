@@ -258,6 +258,10 @@ Si potrebbe far funzionare il service anche sotto windows, per esempio installan
 e usare il seguente comando per acoltare una radio:
 "C:\Program Files\VideoLAN\VLC\vlc.exe" -I dummy --dummy-quiet http://stream.srg-ssr.ch/m/rsc_de/mp3_128
 In questo caso VLC funziona in background e bisogna trovare il modo di controllarlo.
+Per il controllo da remoto si può usare il socket.
+Interfaccia "-I rc --rc-host=localhost:9876".
+C'è un gist in c# che può essere usato come riferimento:
+https://gist.github.com/SamSaffron/101357
 
 
 ## TODO
