@@ -251,6 +251,40 @@ func (ld *LiteDB) InsertRadioList(tx *sql.Tx, list []*ResUriItem) error {
 	return nil
 }
 
+func (ld *LiteDB) EditRadioItem(tx *sql.Tx, item ResUriItem) error {
+	q := fmt.Sprintf(`UPDATE Radio SET URI=?,Name=?,Description=?,Genre=? WHERE id=%d;`, item.ID)
+	if ld.DebugSQL {
+		log.Println("Query is", q)
+	}
+
+	stmt, err := ld.connDb.Prepare(q)
+	if err != nil {
+		return err
+	}
+
+	sqlres, err := tx.Stmt(stmt).Exec(item.URI, item.Title, item.Description, item.Genre)
+	if err != nil {
+		return err
+	}
+	log.Println("radio edited: ", item.Title, sqlres)
+	return nil
+}
+
+func (ld *LiteDB) DeleteRadioItem(tx *sql.Tx, item ResUriItem) error {
+	q := fmt.Sprintf(`DELETE FROM Radio WHERE id=%d;`, item.ID)
+	if ld.DebugSQL {
+		log.Println("Query is", q)
+	}
+
+	stmt, err := ld.connDb.Prepare(q)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Stmt(stmt).Exec()
+	return err
+}
+
 func (ld *LiteDB) DeleteAllVideo(tx *sql.Tx) error {
 	q := `DELETE FROM Video;`
 	if ld.DebugSQL {

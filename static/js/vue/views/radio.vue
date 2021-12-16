@@ -90,19 +90,19 @@
                 <v-card-title class="headline">{{dialog_title}}</v-card-title>
                 <v-text-field
                   label="Name"
-                  v-model="selected_item.name"
+                  v-model="selected_item.title"
                   :rules="rules.name"
                   required
                 ></v-text-field>
                 <v-text-field
                   label="URI"
-                  v-model="selected_item.URI"
+                  v-model="selected_item.uri"
                   :rules="rules.URI"
                   required
                 ></v-text-field>
                 <v-text-field
                   label="Description"
-                  v-model="selected_item.descr"
+                  v-model="selected_item.description"
                 ></v-text-field>
               </v-row>
             </v-col>

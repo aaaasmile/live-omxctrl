@@ -38,7 +38,7 @@ export default {
       this.selected_item = item
       this.selected_item.itemquestion = item.title
       this.selected_item.action_name = 'Play'
-      this.selected_item.continue_action = this.playSelectedItem
+      this.selected_item.action_fn = this.playSelectedItem
       if (item.title === '') {
         this.selected_item.itemquestion = item.uri
       }
@@ -49,7 +49,7 @@ export default {
       this.selected_item = item
       this.selected_item.itemquestion = item.title
       this.selected_item.action_name = 'Delete'
-      this.selected_item.continue_action = this.deleteSelectedItem
+      this.selected_item.action_fn = this.deleteSelectedItem
       if (item.title === '') {
         this.selected_item.itemquestion = item.uri
       }
@@ -57,7 +57,7 @@ export default {
     },
     continueSelectedItem() {
       console.log('continueSelectedItem : ', this.selected_item)
-      this.selected_item.action_name()
+      this.selected_item.action_fn()
     },
     playSelectedItem() {
       console.log('playSelectedItem is: ', this.selected_item)
@@ -70,49 +70,44 @@ export default {
     },
     prepareInsert() {
       this.dialog_title = 'Insert New'
-      this.selected_item = {
-        id: '',
-        name: '',
-        URI: '',
-        descr: '',
-      }
+      this.selected_item = {}
       this.dialogInsertEdit = true
-      this.selected_item.action_name = this.insertNewtem
+      this.selected_item.action_name = 'Insert'
+      this.selected_item.action_fn = this.insertNewtem
     },
     prepareEdit(item) {
       console.log('prepare Edit radio')
       this.dialog_title = 'Edit Radio'
-      this.selected_item = {}
-      this.selected_item.id = item.id
-      this.selected_item.name = item.title
-      this.selected_item.URI = item.uri
-      this.selected_item.descr = item.description
+      this.selected_item = item
+
       this.dialogInsertEdit = true
-      this.selected_item.action_name = this.editItem
+      this.selected_item.action_name = 'Edit'
+      this.selected_item.action_fn = this.editItem
     },
-    editItem(){
+    editItem() {
       console.log('Edit radio')
-      this.handleRadioReq('Edit')  
+      this.handleRadioReq('Edit')
     },
     insertNewtem() {
       console.log('Insert new radio')
-      this.handleRadioReq('Insert')  
+      this.handleRadioReq('Insert')
     },
     deleteSelectedItem() {
       console.log('deleteSelectedItem : ', this.selected_item)
-      this.handleRadioReq('Delete')  
+      this.handleRadioReq('Delete')
     },
-    handleRadioReq(req_name){
+    handleRadioReq(req_name) {
       let req = {
-        radio_name: this.selected_item.name,
         id: this.selected_item.id,
-        uri: this.selected_item.URI,
-        descr: this.selected_item.descr,
+        title: this.selected_item.title,
+        uri: this.selected_item.uri,
+        description: this.selected_item.description,
         pageix: this.pageix, pagesize: this.pagesize
       }
       req.name = req_name
       API.HandleRadio(this, req, (ok, result) => {
         this.dialogInsertEdit = false
+        this.dialogItemSelected = false
         if (ok) {
           this.$store.commit('radiofetch', result.data)
         }
@@ -217,19 +212,19 @@ export default {
                 <v-card-title class="headline">{{dialog_title}}</v-card-title>
                 <v-text-field
                   label="Name"
-                  v-model="selected_item.name"
+                  v-model="selected_item.title"
                   :rules="rules.name"
                   required
                 ></v-text-field>
                 <v-text-field
                   label="URI"
-                  v-model="selected_item.URI"
+                  v-model="selected_item.uri"
                   :rules="rules.URI"
                   required
                 ></v-text-field>
                 <v-text-field
                   label="Description"
-                  v-model="selected_item.descr"
+                  v-model="selected_item.description"
                 ></v-text-field>
               </v-row>
             </v-col>
