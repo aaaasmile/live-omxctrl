@@ -12,7 +12,7 @@
           <v-spacer></v-spacer>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon @click="dialogInsert = true" v-on="on">
+              <v-btn icon @click="prepareInsert" v-on="on">
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
@@ -21,27 +21,33 @@
         </v-toolbar>
         <v-container>
           <v-list dense nav>
-            <template v-for="plitem in radio" >
+            <template v-for="plitem in radio">
               <v-list-item :key="plitem.id">
-              <v-list-item-content>
-                <v-list-item-title>{{ plitem.title }}</v-list-item-title>
-                <v-list-item-title>{{ plitem.description }}</v-list-item-title>
-                <v-list-item-title>{{ plitem.genre }}</v-list-item-title>
-                <v-list-item-title>{{ plitem.uri }}</v-list-item-title>
-                <v-row >
-                  <v-btn icon text :key="plitem.id"
-                    @click="askForPlayItem(plitem)"
-                  ><v-icon>library_music</v-icon> </v-btn>
-                  <v-spacer></v-spacer>
-                  <v-btn icon text
-                    ><v-icon>mdi-circle-edit-outline</v-icon>
-                  </v-btn>
-                  <v-btn icon text
-                    ><v-icon>mdi-delete-forever-outline</v-icon>
-                  </v-btn>
-                </v-row>
-              </v-list-item-content>
-            </v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title>{{ plitem.title }}</v-list-item-title>
+                  <v-list-item-title>{{
+                    plitem.description
+                  }}</v-list-item-title>
+                  <v-list-item-title>{{ plitem.genre }}</v-list-item-title>
+                  <v-list-item-title>{{ plitem.uri }}</v-list-item-title>
+                  <v-row>
+                    <v-btn
+                      icon
+                      text
+                      :key="plitem.id"
+                      @click="askForPlayItem(plitem)"
+                      ><v-icon>library_music</v-icon>
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn icon text @click="prepareEdit(plitem)"
+                      ><v-icon>mdi-circle-edit-outline</v-icon>
+                    </v-btn>
+                    <v-btn icon text @click="askForDeleteItem(plitem)"
+                      ><v-icon>mdi-delete-forever-outline</v-icon>
+                    </v-btn>
+                  </v-row>
+                </v-list-item-content>
+              </v-list-item>
             </template>
           </v-list>
           <v-divider></v-divider>
@@ -54,75 +60,59 @@
       </v-card>
     </v-skeleton-loader>
     <v-container>
-      <v-dialog v-model="dialogPlaySelected" persistent max-width="290">
+      <v-dialog v-model="dialogItemSelected" persistent max-width="290">
         <v-card>
           <v-card-title class="headline">Question</v-card-title>
           <v-card-text
-            >Do you want to play the radio "{{
+            >Do you want to {{ selected_item.action_name }} the radio "{{
               selected_item.itemquestion
             }}"?</v-card-text
           >
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="playSelectedItem"
+            <v-btn color="green darken-1" text @click="continueSelectedItem"
               >OK</v-btn
             >
             <v-btn
               color="green darken-1"
               text
-              @click="dialogPlaySelected = false"
+              @click="dialogItemSelected = false"
               >Cancel</v-btn
             >
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="dialogInsert" persistent max-width="290">
+      <v-dialog v-model="dialogInsertEdit" persistent max-width="290">
         <v-card>
           <v-container>
             <v-col cols="12">
               <v-row justify="space-around">
-                <v-card-title class="headline">Insert New</v-card-title>
+                <v-card-title class="headline">{{dialog_title}}</v-card-title>
                 <v-text-field
                   label="Name"
-                  v-model="radio_name"
-                  :rules="rules.radio_name"
+                  v-model="selected_item.name"
+                  :rules="rules.name"
                   required
                 ></v-text-field>
                 <v-text-field
                   label="URI"
-                  v-model="radio_URI"
-                  :rules="rules.radio_URI"
+                  v-model="selected_item.URI"
+                  :rules="rules.URI"
                   required
                 ></v-text-field>
                 <v-text-field
                   label="Description"
-                  v-model="radio_descr"
+                  v-model="selected_item.descr"
                 ></v-text-field>
               </v-row>
             </v-col>
           </v-container>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="insertNewtem">OK</v-btn>
-            <v-btn color="green darken-1" text @click="dialogInsert = false"
-              >Cancel</v-btn
-            >
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-dialog v-model="dialogEditSelected" persistent max-width="290">
-        <v-card>
-          <v-card-title class="headline">Edit</v-card-title>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="dialogEditSelected"
+            <v-btn color="green darken-1" text @click="continueSelectedItem"
               >OK</v-btn
             >
-            <v-btn
-              color="green darken-1"
-              text
-              @click="dialogEditSelected = false"
+            <v-btn color="green darken-1" text @click="dialogInsertEdit = false"
               >Cancel</v-btn
             >
           </v-card-actions>

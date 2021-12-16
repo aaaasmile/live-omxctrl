@@ -5,18 +5,15 @@ export default {
     return {
       radioloading: false,
       selected_item: {},
-      dialogPlaySelected: false,
-      dialogEditSelected: false,
-      dialogInsert: false,
+      dialogItemSelected: false,
+      dialogInsertEdit: false,
+      dialog_title: '',
       pagesize: 20,
       pageix: 0,
       transition: 'scale-transition',
-      radio_name: '',
-      radio_URI: '',
-      radio_descr: '',
       rules: {
-        radio_name: [val => (val || '').length > 0 || 'This field is required'],
-        radio_URI: [val => (val || '').length > 0 || 'This field is required'],
+        name: [val => (val || '').length > 0 || 'This field is required'],
+        URI: [val => (val || '').length > 0 || 'This field is required'],
       },
     }
   },
@@ -40,19 +37,86 @@ export default {
       console.log('ask to play radio item: ', item)
       this.selected_item = item
       this.selected_item.itemquestion = item.title
+      this.selected_item.action_name = 'Play'
+      this.selected_item.continue_action = this.playSelectedItem
       if (item.title === '') {
         this.selected_item.itemquestion = item.uri
       }
-      this.dialogPlaySelected = true
+      this.dialogItemSelected = true
+    },
+    askForDeleteItem(item) {
+      console.log('ask to delete radio item: ', item)
+      this.selected_item = item
+      this.selected_item.itemquestion = item.title
+      this.selected_item.action_name = 'Delete'
+      this.selected_item.continue_action = this.deleteSelectedItem
+      if (item.title === '') {
+        this.selected_item.itemquestion = item.uri
+      }
+      this.dialogItemSelected = true
+    },
+    continueSelectedItem() {
+      console.log('continueSelectedItem : ', this.selected_item)
+      this.selected_item.action_name()
     },
     playSelectedItem() {
       console.log('playSelectedItem is: ', this.selected_item)
-      this.dialogPlaySelected = false
+      this.dialogItemSelected = false
 
       let req = { uri: this.selected_item.uri, force_type: 'radio' }
       API.PlayUri(this, req)
 
       this.$router.push('/')
+    },
+    prepareInsert() {
+      this.dialog_title = 'Insert New'
+      this.selected_item = {
+        id: '',
+        name: '',
+        URI: '',
+        descr: '',
+      }
+      this.dialogInsertEdit = true
+      this.selected_item.action_name = this.insertNewtem
+    },
+    prepareEdit(item) {
+      console.log('prepare Edit radio')
+      this.dialog_title = 'Edit Radio'
+      this.selected_item = {}
+      this.selected_item.id = item.id
+      this.selected_item.name = item.title
+      this.selected_item.URI = item.uri
+      this.selected_item.descr = item.description
+      this.dialogInsertEdit = true
+      this.selected_item.action_name = this.editItem
+    },
+    editItem(){
+      console.log('Edit radio')
+      this.handleRadioReq('Edit')  
+    },
+    insertNewtem() {
+      console.log('Insert new radio')
+      this.handleRadioReq('Insert')  
+    },
+    deleteSelectedItem() {
+      console.log('deleteSelectedItem : ', this.selected_item)
+      this.handleRadioReq('Delete')  
+    },
+    handleRadioReq(req_name){
+      let req = {
+        radio_name: this.selected_item.name,
+        id: this.selected_item.id,
+        uri: this.selected_item.URI,
+        descr: this.selected_item.descr,
+        pageix: this.pageix, pagesize: this.pagesize
+      }
+      req.name = req_name
+      API.HandleRadio(this, req, (ok, result) => {
+        this.dialogInsertEdit = false
+        if (ok) {
+          this.$store.commit('radiofetch', result.data)
+        }
+      })
     },
     loadMore() {
       console.log('Load more')
@@ -60,17 +124,6 @@ export default {
       let req = { pageix: this.pageix, pagesize: this.pagesize }
       API.FetchRadio(this, req)
     },
-    insertNewtem() {
-      console.log('Insert new radio')
-      let req = {  radio_name: this.radio_name, uri: this.radio_URI, descr: this.radio_descr, pageix: this.pageix, pagesize: this.pagesize  }
-      req.name = 'InsertRadio'
-      API.HandleRadio(this, req, (ok,result) => {
-        this.dialogInsert = false
-        if (ok){
-          this.$store.commit('radiofetch', result.data)
-        }
-      })
-    }
   },
   template: `
   <v-container pa-1>
@@ -86,7 +139,7 @@ export default {
           <v-spacer></v-spacer>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn icon @click="dialogInsert = true" v-on="on">
+              <v-btn icon @click="prepareInsert" v-on="on">
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
@@ -95,27 +148,33 @@ export default {
         </v-toolbar>
         <v-container>
           <v-list dense nav>
-            <template v-for="plitem in radio" >
+            <template v-for="plitem in radio">
               <v-list-item :key="plitem.id">
-              <v-list-item-content>
-                <v-list-item-title>{{ plitem.title }}</v-list-item-title>
-                <v-list-item-title>{{ plitem.description }}</v-list-item-title>
-                <v-list-item-title>{{ plitem.genre }}</v-list-item-title>
-                <v-list-item-title>{{ plitem.uri }}</v-list-item-title>
-                <v-row >
-                  <v-btn icon text :key="plitem.id"
-                    @click="askForPlayItem(plitem)"
-                  ><v-icon>library_music</v-icon> </v-btn>
-                  <v-spacer></v-spacer>
-                  <v-btn icon text
-                    ><v-icon>mdi-circle-edit-outline</v-icon>
-                  </v-btn>
-                  <v-btn icon text
-                    ><v-icon>mdi-delete-forever-outline</v-icon>
-                  </v-btn>
-                </v-row>
-              </v-list-item-content>
-            </v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title>{{ plitem.title }}</v-list-item-title>
+                  <v-list-item-title>{{
+                    plitem.description
+                  }}</v-list-item-title>
+                  <v-list-item-title>{{ plitem.genre }}</v-list-item-title>
+                  <v-list-item-title>{{ plitem.uri }}</v-list-item-title>
+                  <v-row>
+                    <v-btn
+                      icon
+                      text
+                      :key="plitem.id"
+                      @click="askForPlayItem(plitem)"
+                      ><v-icon>library_music</v-icon>
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn icon text @click="prepareEdit(plitem)"
+                      ><v-icon>mdi-circle-edit-outline</v-icon>
+                    </v-btn>
+                    <v-btn icon text @click="askForDeleteItem(plitem)"
+                      ><v-icon>mdi-delete-forever-outline</v-icon>
+                    </v-btn>
+                  </v-row>
+                </v-list-item-content>
+              </v-list-item>
             </template>
           </v-list>
           <v-divider></v-divider>
@@ -128,80 +187,65 @@ export default {
       </v-card>
     </v-skeleton-loader>
     <v-container>
-      <v-dialog v-model="dialogPlaySelected" persistent max-width="290">
+      <v-dialog v-model="dialogItemSelected" persistent max-width="290">
         <v-card>
           <v-card-title class="headline">Question</v-card-title>
           <v-card-text
-            >Do you want to play the radio "{{
+            >Do you want to {{ selected_item.action_name }} the radio "{{
               selected_item.itemquestion
             }}"?</v-card-text
           >
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="playSelectedItem"
+            <v-btn color="green darken-1" text @click="continueSelectedItem"
               >OK</v-btn
             >
             <v-btn
               color="green darken-1"
               text
-              @click="dialogPlaySelected = false"
+              @click="dialogItemSelected = false"
               >Cancel</v-btn
             >
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="dialogInsert" persistent max-width="290">
+      <v-dialog v-model="dialogInsertEdit" persistent max-width="290">
         <v-card>
           <v-container>
             <v-col cols="12">
               <v-row justify="space-around">
-                <v-card-title class="headline">Insert New</v-card-title>
+                <v-card-title class="headline">{{dialog_title}}</v-card-title>
                 <v-text-field
                   label="Name"
-                  v-model="radio_name"
-                  :rules="rules.radio_name"
+                  v-model="selected_item.name"
+                  :rules="rules.name"
                   required
                 ></v-text-field>
                 <v-text-field
                   label="URI"
-                  v-model="radio_URI"
-                  :rules="rules.radio_URI"
+                  v-model="selected_item.URI"
+                  :rules="rules.URI"
                   required
                 ></v-text-field>
                 <v-text-field
                   label="Description"
-                  v-model="radio_descr"
+                  v-model="selected_item.descr"
                 ></v-text-field>
               </v-row>
             </v-col>
           </v-container>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="insertNewtem">OK</v-btn>
-            <v-btn color="green darken-1" text @click="dialogInsert = false"
-              >Cancel</v-btn
-            >
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-dialog v-model="dialogEditSelected" persistent max-width="290">
-        <v-card>
-          <v-card-title class="headline">Edit</v-card-title>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="dialogEditSelected"
+            <v-btn color="green darken-1" text @click="continueSelectedItem"
               >OK</v-btn
             >
-            <v-btn
-              color="green darken-1"
-              text
-              @click="dialogEditSelected = false"
+            <v-btn color="green darken-1" text @click="dialogInsertEdit = false"
               >Cancel</v-btn
             >
           </v-card-actions>
         </v-card>
       </v-dialog>
     </v-container>
-  </v-container>`
+  </v-container>
+`
 }
