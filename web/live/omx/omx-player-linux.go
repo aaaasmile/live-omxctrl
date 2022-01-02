@@ -4,20 +4,23 @@ package omx
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 
 	"github.com/aaaasmile/live-omxctrl/web/live/omx/omxstate"
 )
 
-func (op *OmxPlayer) execCommand(appcmd, cmdParam, uri string, chstop chan struct{}) {
+func (op *OmxPlayer) execCommand(appcmd, cmdParam, uri string, moreargs []string, chstop chan struct{}) {
 	log.Println("Prepare to start the player with execCommand")
-	go func(cmdText string, actCh chan *omxstate.ActionDef, uri string, chstop chan struct{}) {
-		cmdText := fmt.Sprintf("%s %s", appcmd, cmdParam)
-		log.Println("Submit the command in background ", cmdText)
+	go func(appcmd, cmdParam string, actCh chan *omxstate.ActionDef, uri string, moreargs []string, chstop chan struct{}) {
+		strmore := strings.Join(moreargs, " ")
+		cmdText := fmt.Sprintf("%s %s %s", appcmd, cmdParam, strmore)
+		log.Println("[SUBMIT] the command in background: ", cmdText)
 		cmd := exec.Command("bash", "-c", cmdText)
 		actCh <- &omxstate.ActionDef{
 			URI:    uri,
@@ -45,7 +48,7 @@ func (op *OmxPlayer) execCommand(appcmd, cmdParam, uri string, chstop chan struc
 					log.Println("Error on killing the process ", err)
 				}
 			case err := <-done:
-				log.Println("Process finished")
+				log.Println("Process finished, error ans stdout buffers:")
 				if err != nil {
 					log.Println("Error on process termination =>", err)
 				}
@@ -58,11 +61,11 @@ func (op *OmxPlayer) execCommand(appcmd, cmdParam, uri string, chstop chan struc
 			log.Println("ERROR cmd.Start() failed with", err)
 		}
 
-		log.Println("Player has been terminated. Cmd was ", cmdText)
+		log.Println("Player has been TERMINATED. Cmd was ", cmdText)
 		actCh <- &omxstate.ActionDef{
 			URI:    uri,
 			Action: omxstate.ActTerminate,
 		}
 
-	}(cmdText, op.ChAction, uri, chstop)
+	}(appcmd, cmdParam, op.ChAction, uri, moreargs, chstop)
 }

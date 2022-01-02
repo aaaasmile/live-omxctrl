@@ -40,27 +40,6 @@ cd ~/app/live-omxctrl/
 Apri vscode nella directory remota (nota come la costruzione della directory. /go/ è la differenza tra sviluppo e deploy):
 /home/igor/app/go/live-omxctrl/
 
-## Cross compiler per linux Raspberry 4 da windows (non più usato)
-Nota che il Raspberry è un sistema Linux ARM, quindi bisogna settare tutti i parametri
-necessari per il cross compile.
-Apri una nuova powershell e poi:
-
-go build -o live-omxctrl.bin
-Con WLC si può controllare che il live-omxctrl.bin funzioni correttamente.
-
-## Deployment di pi4 da windows (non più usato)
-Dal laptop si può aggiornare il service su pi4 usando lo script power shell
-.\start_publish.ps1
-Lo script attraverso il lancio di altri script locali, in bash e bash remoti 
-riesce ad eseguire l`aggiornamento del service in modo completo senza usare direttamente WLC.
-
-### Aggiornare il service da windows (obsoleto)
-- Crea una nuova versione (cambio in idl.go)
-- Crea il file live-omxctrl.bin per linux 
-- Usa .\deploy -target pi4
-- In WLC lancia ./copy_app_to_pi4.sh
-- Su pi4: ./update-service.sh
-
 
 ### Deployment dettagli e preparazione
 - Sul laptop occorre il file copy_app_to_pi4.sh posizionato nella dir ../deployed
@@ -104,7 +83,7 @@ Per usarlo si scrive nella bash:
     /usr/local/bin/vuetojs.bin -vue ./static/js/vue/views/dashboard.vue
 
 ### Dbus
-Per comunicare con il processo omxplayer si usa il dbus con il suo protocollo.
+Per comunicare con il processo omxplayer si usa il dbus con il suo protocollo (solo linux, pi4).
 Esiste già lo script bash che esegue i comandi, file bash/dbuscontrol.sh.
 Esso setta 2 variabili di ambiente:
 DBUS_SESSION_BUS_ADDRESS
