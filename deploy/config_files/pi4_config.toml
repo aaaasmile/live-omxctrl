@@ -9,3 +9,14 @@ TmpInfo= "/tmp"
 VueLibName = "vue_prod.js"
 VideoDir="/home/igors/Video"
 MusicDir="/home/igors/Music"
+
+[Player]
+Path="omxplayer"
+Params="-o,hdmi"
+
+[SoundCloud]
+IsAvailable = true
+CfgFile = "plugin/soundcloud.json"
+ClientID=""
+AuthToken=""
+UserAgent=""
