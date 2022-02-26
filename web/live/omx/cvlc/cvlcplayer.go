@@ -30,7 +30,8 @@ type CvlcPlayer struct {
 
 func (fp *CvlcPlayer) IsUriForMe(uri string) bool {
 	if strings.Contains(uri, "/home") &&
-		strings.Contains(uri, ".mkv") {
+		(strings.Contains(uri, ".mkv") ||
+			strings.Contains(uri, ".avi")) {
 		log.Println("this is a mkv file ", uri)
 		fp.URI = uri
 		return true

@@ -67,6 +67,7 @@ func APiHandler(w http.ResponseWriter, req *http.Request) {
 func handleGet(w http.ResponseWriter, req *http.Request) error {
 	u, _ := url.Parse(req.RequestURI)
 	log.Println("GET requested ", u)
+	w.Header().Set("Cache-Control", "stale-while-revalidate=3600")
 
 	pagectx := PageCtx{
 		RootUrl:    conf.Current.RootURLPattern,
